@@ -21,6 +21,7 @@
  * 3. This notice may not be removed or altered from any source
  * distribution.
  ***************************************************************************/
+ 
 #ifndef DEVICE_HANDLER_HPP_
 #define DEVICE_HANDLER_HPP_
 

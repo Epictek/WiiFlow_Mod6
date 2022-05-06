@@ -21,6 +21,7 @@
  * 3. This notice may not be removed or altered from any source
  * distribution.
  ***************************************************************************/
+ 
 #ifndef PARTITION_HANDLE_H
 #define PARTITION_HANDLE_H
 

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #ifndef _USBTHREAD_H_
 #define _USBTHREAD_H_
 
@@ -21,6 +22,8 @@
 extern "C"
 {
 #endif
+
+// #define USBKEEPALIVE // uncomment to enable "USB keep alive" functions
 
 void CreateUSBKeepAliveThread();
 void KillUSBKeepAliveThread();

@@ -121,7 +121,7 @@ bool SDHC_ReadSectors(u32 sector, u32 count, void *buffer)
 
 		u32 cnt;
 		u32 max_sec = SDHC_MEM2_SIZE / sector_size;
-		//dbg_printf("sdhc_read(%u,%u) unaligned(%p)\n", sector, count, buffer);
+		// dbg_printf("sdhc_read(%u,%u) unaligned(%p)\n", sector, count, buffer);
 		while (count)
 		{
 			if (count > max_sec)

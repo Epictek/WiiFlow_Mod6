@@ -1,4 +1,4 @@
-/*-------------------------------------------------------------
+/**-------------------------------------------------------------
 
  usbstorage_starlet.c -- USB mass storage support, inside starlet
  Copyright (C) 2011 Dimok
@@ -26,7 +26,8 @@
  3.  This notice may not be removed or altered from any source
  distribution.
 
- -------------------------------------------------------------*/
+ -------------------------------------------------------------**/
+ 
 #include <gccore.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -63,7 +64,7 @@ static char fs3[] ATTRIBUTE_ALIGN(32) = "/dev/usb/ehc";
 
 u8 *mem2_ptr = NULL;
 s32 hid = -1, fd = -1;
-s8 usb2_port = -1;  //current USB port
+s8 usb2_port = -1;  // current USB port
 bool hddInUse[2] = { false, false };
 u32 hdd_sector_size[2] = { 512, 512 };
 bool first = false;
@@ -83,7 +84,9 @@ s32 USBStorage2_Init(u32 port)
 
 	if(usb_libogc_mode)
 	{
+#ifdef USBKEEPALIVE
 		USBKeepAliveThreadReset();
+#endif
 		__io_usbstorage_ogc.startup();
 		return (USBStorage2_GetCapacity(port, &hdd_sector_size[port]) == 0) ? IPC_ENOENT : 0;
 	}
@@ -123,7 +126,9 @@ void USBStorage2_Deinit()
 	/* Close USB device */
 	if(usb_libogc_mode)
 	{
+#ifdef USBKEEPALIVE
 		USBKeepAliveThreadReset();
+#endif
 		__io_usbstorage_ogc.shutdown();
 	}
 	else if(fd >= 0)
@@ -155,7 +160,7 @@ s32 USBStorage2_SetPort(s8 port)
 	first = true;
 
 	gprintf("Changing USB port to port %i....\n", port);
-	//must be called before USBStorage2_Init (default port 0)
+	// must be called before USBStorage2_Init (default port 0)
 	if(fd >= 0)
 		ret = IOS_IoctlvFormat(hid, fd, USB_IOCTL_SET_PORT, "i:", usb2_port);
 
@@ -177,7 +182,9 @@ s32 USBStorage2_GetCapacity(u32 port, u32 *_sector_size)
 	USBStorage2_SetPort(port);
 	if(usb_libogc_mode)
 	{
+#ifdef USBKEEPALIVE
 		USBKeepAliveThreadReset();
+#endif
 		USB_OGC_GetCapacity(&numSectors, &sectorSize);
 	}
 	else
@@ -208,7 +215,9 @@ s32 USBStorage2_ReadSectors(u32 port, u32 sector, u32 numSectors, void *buffer)
 
 	if(usb_libogc_mode)
 	{
+#ifdef USBKEEPALIVE
 		USBKeepAliveThreadReset();
+#endif
 		reading = true;
 		ret = __io_usbstorage_ogc.readSectors(sector, numSectors, buffer);
 		reading = false;
@@ -262,7 +271,9 @@ s32 USBStorage2_WriteSectors(u32 port, u32 sector, u32 numSectors, const void *b
 {
 	if(usb_libogc_mode)
 	{
+#ifdef USBKEEPALIVE
 		USBKeepAliveThreadReset();
+#endif
 		return __io_usbstorage_ogc.writeSectors(sector, numSectors, buffer);
 	}
 
