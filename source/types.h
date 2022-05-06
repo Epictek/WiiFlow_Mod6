@@ -7,11 +7,6 @@ extern "C" {
 #endif
 
 enum {
-	DEVOLUTION = 0,
-	NINTENDONT
-};
-
-enum {
 	EMU_NAND = 0,
 	SAVES_NAND,
 	REAL_NAND
@@ -26,8 +21,8 @@ enum {
 enum {
 	COVERFLOW_NONE 		= 0x00,
 	COVERFLOW_WII 		= 0x01,
-	COVERFLOW_GAMECUBE	= 0x02,
-	COVERFLOW_CHANNEL	= 0x04,
+	COVERFLOW_CHANNEL	= 0x02, // changed order
+	COVERFLOW_GAMECUBE	= 0x04, //
 	COVERFLOW_PLUGIN	= 0x08,
 	COVERFLOW_HOMEBREW	= 0x10,
 	COVERFLOW_MAX		= 0xFF
@@ -59,13 +54,16 @@ enum
 	IOS_TYPE_WANIN,
 	IOS_TYPE_HERMES,
 	IOS_TYPE_KWIIRK,
+	IOS_TYPE_NEEK2O,
 	IOS_TYPE_NORMAL_IOS,
 	IOS_TYPE_STUB,
 };
 #define CustomIOS(x)		(x != IOS_TYPE_NORMAL_IOS && x != IOS_TYPE_STUB)
 
+/* #define ValidColor(x)		(x == 0xFFFFFF || x == 0xFF0000 || x == 0x000000 || \
+							 x == 0xFCFF00 || x == 0x01A300 || x == 0x00E360) */
 #define ValidColor(x)		(x == 0xFFFFFF || x == 0xFF0000 || x == 0x000000 || \
-							x == 0xFCFF00 || x == 0x01A300 || x == 0x00E360)
+							x == 0xFCFF00 || x == 0x01A300 || x == 0x111111)
 
 #ifdef __cplusplus
 }

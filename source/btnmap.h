@@ -1,19 +1,41 @@
 
-/* button presses for wiimote && classic controller && nunchuck Z button, also wiiu pro as expansion classic controller */
+
 #define WBTN_UP_PRESSED (wBtn_Pressed(WPAD_BUTTON_UP, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_UP, WPAD_EXP_CLASSIC))
 #define WBTN_DOWN_PRESSED (wBtn_Pressed(WPAD_BUTTON_DOWN, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_DOWN, WPAD_EXP_CLASSIC))
+
 #define WBTN_LEFT_PRESSED (wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_LEFT, WPAD_EXP_CLASSIC))
 #define WBTN_RIGHT_PRESSED (wBtn_Pressed(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_RIGHT, WPAD_EXP_CLASSIC))
 #define WBTN_HOME_PRESSED (wBtn_Pressed(WPAD_BUTTON_HOME, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_HOME, WPAD_EXP_CLASSIC))
+
+/** PLUS / MINUS are the same buttons on all controllers **/
+/**
 #define WBTN_MINUS_PRESSED (wBtn_Pressed(WPAD_BUTTON_MINUS, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_MINUS, WPAD_EXP_CLASSIC))
 #define WBTN_PLUS_PRESSED (wBtn_Pressed(WPAD_BUTTON_PLUS, WPAD_EXP_NONE) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_PLUS, WPAD_EXP_CLASSIC))
+**/
+/** PLUS / MINUS are also L / R triggers on classic controllers **/
+/**
+#define WBTN_MINUS_PRESSED (wBtn_Pressed(WPAD_BUTTON_MINUS, WPAD_EXP_NONE) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_MINUS, WPAD_EXP_CLASSIC) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_FULL_L, WPAD_EXP_CLASSIC)) // added 
+#define WBTN_PLUS_PRESSED (wBtn_Pressed(WPAD_BUTTON_PLUS, WPAD_EXP_NONE) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_PLUS, WPAD_EXP_CLASSIC) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_FULL_R, WPAD_EXP_CLASSIC)) // added
+**/
+/** PLUS / MINUS are + / - on wiimote and L / R triggers on classic controllers **/
+/**/
+#define WBTN_MINUS_PRESSED (wBtn_Pressed(WPAD_BUTTON_MINUS, WPAD_EXP_NONE) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_FULL_L, WPAD_EXP_CLASSIC))
+#define WBTN_PLUS_PRESSED (wBtn_Pressed(WPAD_BUTTON_PLUS, WPAD_EXP_NONE) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_FULL_R, WPAD_EXP_CLASSIC))
+/**/
+		
 #define WBTN_Z_PRESSED (wBtn_Pressed(WPAD_NUNCHUK_BUTTON_Z, WPAD_EXP_NUNCHUK) \
 		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_ZR, WPAD_EXP_CLASSIC))
 #define WBTN_A_PRESSED (wBtn_Pressed(WPAD_BUTTON_A, WPAD_EXP_NONE) \
@@ -29,6 +51,7 @@
 		|| wBtn_Held(WPAD_CLASSIC_BUTTON_UP, WPAD_EXP_CLASSIC))
 #define WBTN_DOWN_HELD (wBtn_Held(WPAD_BUTTON_DOWN, WPAD_EXP_NONE) \
 		|| wBtn_Held(WPAD_CLASSIC_BUTTON_DOWN, WPAD_EXP_CLASSIC))
+
 #define WBTN_LEFT_HELD (wBtn_Held(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) \
 		|| wBtn_Held(WPAD_CLASSIC_BUTTON_LEFT, WPAD_EXP_CLASSIC))
 #define WBTN_RIGHT_HELD (wBtn_Held(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) \
@@ -48,7 +71,7 @@
 #define WBTN_2_HELD (wBtn_Held(WPAD_BUTTON_2, WPAD_EXP_NONE) \
 		|| wBtn_Held(WPAD_CLASSIC_BUTTON_X, WPAD_EXP_CLASSIC))
 
-/* button presses for gamecube controller && DS3 && WiiDRC */
+/* gamecube controller */
 #define GBTN_UP (PAD_BUTTON_UP)
 #define GBTN_DOWN (PAD_BUTTON_DOWN)
 #define GBTN_LEFT (PAD_BUTTON_LEFT)
@@ -87,7 +110,7 @@
 #define GBTN_1_HELD (gc_btnsHeld & GBTN_1)
 #define GBTN_2_HELD (gc_btnsHeld & GBTN_2)
 
-/* All controllers (wii & gc combined ) */
+/* All controllers */
 #define BTN_UP_PRESSED (WBTN_UP_PRESSED || GBTN_UP_PRESSED)
 #define BTN_DOWN_PRESSED (WBTN_DOWN_PRESSED || GBTN_DOWN_PRESSED)
 #define BTN_LEFT_PRESSED (WBTN_LEFT_PRESSED || GBTN_LEFT_PRESSED)
@@ -118,6 +141,8 @@ enum
 	WBTN_DOWN,
 	WBTN_LEFT,
 	WBTN_RIGHT,
+	WBTN_LEFT_REV, // added
+	WBTN_RIGHT_REV, // added
 	WBTN_A,
 };
 
@@ -125,11 +150,9 @@ enum
 #define BTN_DOWN_REPEAT (wii_btnRepeat(WBTN_DOWN) || gc_btnRepeat(GBTN_DOWN))
 #define BTN_LEFT_REPEAT (wii_btnRepeat(WBTN_LEFT) || gc_btnRepeat(GBTN_LEFT))
 #define BTN_RIGHT_REPEAT (wii_btnRepeat(WBTN_RIGHT) || gc_btnRepeat(GBTN_RIGHT))
+
 #define BTN_A_REPEAT (wii_btnRepeat(WBTN_A) || gc_btnRepeat(GBTN_A))
 
-/* joysticks */
-/* left stick = cc left stick && GH3, right stick = cc right stick && nunchuck stick */
-/* ds3, wiidrc, and wiiu pro use their own stick values */ 
 #define LEFT_STICK_UP lStick_Up()
 #define LEFT_STICK_DOWN lStick_Down()
 #define LEFT_STICK_LEFT lStick_Left()
@@ -156,3 +179,36 @@ enum
 #define RIGHT_STICK_ANG_DOWN ((right_stick_angle[chan] >= 120 && right_stick_angle[chan] <= 180) \
 		|| (right_stick_angle[chan] >= -180 && right_stick_angle[chan] <= -120))
 #define RIGHT_STICK_ANG_LEFT (right_stick_angle[chan] >= -150 && right_stick_angle[chan] <= -30)
+
+/********************************************************************************************************/
+/************************ LEFT and RIGHT reversed on Wiimote only (not CC or GC) ************************/
+/********************************************************************************************************/
+
+#define WBTN_LEFT_REV_PRESSED (wBtn_Pressed(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_LEFT, WPAD_EXP_CLASSIC))
+#define WBTN_RIGHT_REV_PRESSED (wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) \
+		|| wBtn_Pressed(WPAD_CLASSIC_BUTTON_RIGHT, WPAD_EXP_CLASSIC))
+
+#define WBTN_LEFT_REV_HELD (wBtn_Held(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) \
+		|| wBtn_Held(WPAD_CLASSIC_BUTTON_LEFT, WPAD_EXP_CLASSIC))
+#define WBTN_RIGHT_REV_HELD (wBtn_Held(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) \
+		|| wBtn_Held(WPAD_CLASSIC_BUTTON_RIGHT, WPAD_EXP_CLASSIC))
+
+#define BTN_LEFT_REV_PRESSED (WBTN_LEFT_REV_PRESSED || GBTN_LEFT_PRESSED)
+#define BTN_RIGHT_REV_PRESSED (WBTN_RIGHT_REV_PRESSED || GBTN_RIGHT_PRESSED)
+
+#define BTN_LEFT_REV_HELD (WBTN_LEFT_REV_HELD || GBTN_LEFT_HELD)
+#define BTN_RIGHT_REV_HELD (WBTN_RIGHT_REV_HELD || GBTN_RIGHT_HELD)
+
+#define BTN_LEFT_REV_REPEAT (wii_btnRepeat(WBTN_LEFT_REV) || gc_btnRepeat(GBTN_LEFT))
+#define BTN_RIGHT_REV_REPEAT (wii_btnRepeat(WBTN_RIGHT_REV) || gc_btnRepeat(GBTN_RIGHT))
+
+/********************************************************************************************************/
+/******************************** A/B and 2/1 combined on all controllers *******************************/
+/********************************************************************************************************/
+
+#define BTN_A_OR_2_PRESSED (WBTN_A_PRESSED || GBTN_A_PRESSED || BTN_2_PRESSED)
+#define BTN_B_OR_1_PRESSED (WBTN_B_PRESSED || GBTN_B_PRESSED || BTN_1_PRESSED)
+
+#define BTN_A_OR_2_HELD (WBTN_A_HELD || GBTN_A_HELD || BTN_2_HELD)
+#define BTN_B_OR_1_HELD (WBTN_B_HELD || GBTN_B_HELD || BTN_1_HELD)
