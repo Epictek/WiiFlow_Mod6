@@ -9,7 +9,7 @@
 #include "gecko/gecko.hpp"
 #include "loader/utils.h"
 
-static const u32 MEM2_PRIORITY_SIZE = 0x1000;// 4k or 4096
+static const u32 MEM2_PRIORITY_SIZE = 0x1000; // 4kb
 
 // Forbid the use of MEM2 through malloc by setting MALLOC_MEM2 = 0; if not 0 then malloc can use mem2
 // calls to malloc, memalign, calloc, free are handled below by the wrappers which decide whether to use mem1 or mem2.

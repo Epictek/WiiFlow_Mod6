@@ -20,7 +20,7 @@
 #include "gecko/gecko.hpp"
 #include "loader/utils.h"
 
-static const u32 MEM_BLOCK_SIZE = 0x80;// 128
+static const u32 MEM_BLOCK_SIZE = 0x80; // 128
 
 MemManager::MemManager()
 {
@@ -39,7 +39,7 @@ MemManager::~MemManager()
 void MemManager::Init(u8 *start, u8 *list, u32 size)
 {
 	LWP_MutexLock(memMutex);
-	//gprintf("Init %x %i\n", memList, memSize);
+	// gprintf("Init %x %i\n", memList, memSize);
 
 	startAddr = start;
 	memList = list;
@@ -54,7 +54,7 @@ void MemManager::Init(u8 *start, u8 *list, u32 size)
 void MemManager::ClearMem()
 {
 	LWP_MutexLock(memMutex);
-	//gprintf("ClearMem %x %i\n", startAddr, memSize * MEM_BLOCK_SIZE);
+	// gprintf("ClearMem %x %i\n", startAddr, memSize * MEM_BLOCK_SIZE);
 
 	u32 MemFull = memSize * MEM_BLOCK_SIZE;
 	memset(startAddr, 0, MemFull);
@@ -82,10 +82,10 @@ void *MemManager::Alloc(u32 size)
 			if(blocksFree == size)
 			{
 				u8 *addr = (u8*)block;
-				memset(addr, ALLOC_USED, blocksFree - 1); //start blocks
-				memset(addr + blocksFree - 1, ALLOC_END, 1); //end block
+				memset(addr, ALLOC_USED, blocksFree - 1); // start blocks
+				memset(addr + blocksFree - 1, ALLOC_END, 1); // end block
 				void *ptr = (void*)(startAddr + ((addr - memList)*MEM_BLOCK_SIZE));
-				//gprintf("Alloc %x mem, %i blocks\n", ptr, blocksFree);
+				// gprintf("Alloc %x mem, %i blocks\n", ptr, blocksFree);
 				LWP_MutexUnlock(memMutex);
 				return ptr;
 			}
@@ -104,7 +104,7 @@ void MemManager::Free(void *mem)
 
 	LWP_MutexLock(memMutex);
 
-	//gprintf("Free %x mem, %x block\n", mem, blockUsed);
+	// gprintf("Free %x mem, %x block\n", mem, blockUsed);
 
 	u32 size = 0;
 	vu8 *tmp_block = blockUsed;
@@ -161,7 +161,7 @@ void *MemManager::ReAlloc(void *mem, u32 size)
 	if(mem == NULL)
 		return Alloc(size);
 
-	//gprintf("Realloc %x, %i\n", mem, size);
+	// gprintf("Realloc %x, %i\n", mem, size);
 	void *new_m = Alloc(size);
 	if(new_m == NULL)
 	{
