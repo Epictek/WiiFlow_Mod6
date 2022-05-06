@@ -7,7 +7,6 @@
 #include <vector>
 #include "loader/disc.h"
 
-//#include "gecko.hpp"
 using std::string;
 using std::vector;
 

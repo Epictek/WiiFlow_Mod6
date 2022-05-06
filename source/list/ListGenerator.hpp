@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #ifndef _LISTGENERATOR_HPP_
 #define _LISTGENERATOR_HPP_
 
@@ -29,19 +30,15 @@
 #include "gui/GameTDB.hpp"
 #include "plugin/plugin.hpp"
 
-#define CONFIG_FILENAME_SKIP_DOMAIN	"PLUGINS"
-#define CONFIG_FILENAME_SKIP_KEY	"filename_skip_regex"
-#define CONFIG_FILENAME_SKIP_DEFAULT	"((dis[ck]|tape|side|track)[ _-]?[b-z2-9])"
-
 class ListGenerator : public std::vector<dir_discHdr>
 {
 public:
 	void createSFList(u8 maxBtns, Config &m_sourceMenuCfg, const string& sourceDir);
-	void Init(const char *settingsDir, const char *Language, const char *plgnsDataDir, const std::string& fileNameSkipPattern);
+	void Init(const char *settingsDir, const char *Language, const char *plgnsDataDir);
 	void Clear();
 	void ParseScummvmINI(Config &ini, const char *Device, const char *datadir, const char *platform, const string& DBName, bool UpdateCache);
 	void CreateRomList(Config &platform_cfg, const string& romsDir, const vector<string>& FileTypes, const string& DBName, bool UpdateCache);
-	void CreateList(u32 Flow, const string& Path, const vector<string>& FileTypes, const string& DBName, bool UpdateCache);
+	void CreateList(u32 Flow, u32 Device, const string& Path, const vector<string>& FileTypes, const string& DBName, bool UpdateCache);
 	u32 Color;
 	u32 Magic;
 	bool usePluginDBTitles;
@@ -54,8 +51,7 @@ private:
 };
 
 typedef void (*FileAdder)(char *Path);
-void GetFiles(const char *Path, const std::vector<string>& FileTypes, 
-			FileAdder AddFile, bool CompareFolders, u32 max_depth = 2, u32 depth = 1);
+void GetFiles(const char *Path, const std::vector<string>& FileTypes, FileAdder AddFile, bool CompareFolders, u32 max_depth = 2, u32 depth = 1);
 extern ListGenerator m_cacheList;
 
 #endif /*_LISTGENERATOR_HPP_*/
