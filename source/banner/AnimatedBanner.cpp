@@ -1,26 +1,27 @@
-/*
-Copyright (c) 2010 - Wii Banner Player Project
-Copyright (c) 2012 - Dimok
+/****************************************************************************
+ * Copyright (c) 2010 - Wii Banner Player Project
+ * Copyright (c) 2012 - Dimok
+ * 
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * 
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 
+ * 3. This notice may not be removed or altered from any source
+ * distribution.
+ ****************************************************************************/
 
-This software is provided 'as-is', without any express or implied
-warranty. In no event will the authors be held liable for any damages
-arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
-
-1. The origin of this software must not be misrepresented; you must not
-claim that you wrote the original software. If you use this software
-in a product, an acknowledgment in the product documentation would be
-appreciated but is not required.
-
-2. Altered source versions must be plainly marked as such, and must not be
-misrepresented as being the original software.
-
-3. This notice may not be removed or altered from any source
-distribution.
-*/
 #include "LanguageCode.h"
 #include "AnimatedBanner.h"
 #include "gui/text.hpp"
@@ -168,9 +169,9 @@ u8 *DecompressCopy(const u8 *stuff, u32 len, u32 *size)
 	// determine if it needs to be decompressed
 	if(IsAshCompressed(stuff, len))
 	{
-		//u32 len2 = len;
+		// u32 len2 = len;
 		// ASH0
-		ret = DecompressAsh(stuff, len);// mem2_lo_alloc
+		ret = DecompressAsh(stuff, len);
 		if(!ret)
 		{
 			gprintf("out of memory\n");
@@ -180,7 +181,7 @@ u8 *DecompressCopy(const u8 *stuff, u32 len, u32 *size)
 	else if(isLZ77compressed(stuff))
 	{
 		// LZ77 with no magic word
-		if(decompressLZ77content(stuff, len, &ret, &len))// mem2_alloc
+		if(decompressLZ77content(stuff, len, &ret, &len))
 			return NULL;
 	}
 	else if(*(u32*)(stuff) == 0x4C5A3737) // LZ77
@@ -189,7 +190,7 @@ u8 *DecompressCopy(const u8 *stuff, u32 len, u32 *size)
 		if(decompressLZ77content(stuff + 4, len - 4, &ret, &len))
 			return NULL;
 	}
-	else //I hate to do that
+	else // I hate to do that
 		ret = (u8*)stuff;
 
 	if(size)

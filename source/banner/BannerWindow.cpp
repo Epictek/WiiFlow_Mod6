@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #include <unistd.h>
 #include "BannerWindow.hpp"
 #include "gx_addons.h"
@@ -43,7 +44,7 @@ void BannerWindow::Init(u8 *font1, u8 *font2)
 	AnimPosX = 0.5f * (ScreenProps.x - fIconWidth);
 	AnimPosY = 0.5f * (ScreenProps.y - fIconHeight);
 	AnimationRunning = false;
-	//Brightness = 0;
+	// Brightness = 0;
 
 	// this just looks better for banner/icon ratio
 	xDiff = 0.5f * (m_vid.wide() ? (m_vid.vid_50hz() ? 616 : 620.0f) : 608.0f);
@@ -208,21 +209,21 @@ void BannerWindow::Draw(void)
 		gameBanner.getBanner()->AdvanceFrame();
 	}
 
-	// Setup GX
+	// setup GX
 	ReSetup_GX();
 	GX_SetScissor(0, 0, m_vid.width(), m_vid.height());
 
-	// Clear and back to previous projection
+	// clear and back to previous projection
 	m_vid.setup2DProjection();
 
-	// If wanted
+	// if wanted
 	if(Brightness == 200)
 		DrawRectangle(0.0f, 0.0f, m_vid.width(), m_vid.height(), (GXColor) {0, 0, 0, Brightness});
 }
 
 void BannerWindow::ToggleGameSettings()
 {
-	//ToggleZoom();
+	// ToggleZoom();
 	Brightness = (Brightness == 200 ? 0 : 200);
 }
 
