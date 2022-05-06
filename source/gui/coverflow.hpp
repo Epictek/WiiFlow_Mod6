@@ -16,7 +16,6 @@
 #include "loader/utils.h"
 #include "music/gui_sound.h"
 
-//using namespace std;
 using std::min;
 using std::max;
 
@@ -49,7 +48,7 @@ public:
 	bool empty(void) const { return m_items.empty(); }
 	u32 size(void) const { return m_items.size(); }
 	// 
-	bool start(const std::string &m_imgsDir);
+	bool start(void);
 	void stopCoverLoader(bool empty = false);
 	void startCoverLoader(void);
 	u32 _currentPos(void) const;
@@ -62,6 +61,7 @@ public:
 	void setSelected(int i);
 	void pageUp(void);
 	void pageDown(void);
+	bool findTitle(char *c, bool jump = true); //
 	void nextLetter(wchar_t *c);
 	void prevLetter(wchar_t *c);
 	void nextPlayers(bool wifi, wchar_t *c);
@@ -118,14 +118,15 @@ public:
 	void setRowAngles(bool selected, const Vector3D &top, const Vector3D &bottom);
 	void setCoverFlipping(const Vector3D &pos, const Vector3D &angle, const Vector3D &scale);
 	void setCoverFlipPos(const Vector3D &pos);
-	void setBlur(u32 blurResolution, u32 blurRadius, float blurFactor);
+	// void setBlur(u32 blurResolution, u32 blurRadius, float blurFactor);
+	void setBlur(unsigned int blurResolution, unsigned int blurRadius, float blurFactor);
 	void setSorting(Sorting sorting);
 	// 
 	void setSounds(GuiSound *flipSound, GuiSound *hoverSound, GuiSound *selectSound, GuiSound *cancelSound);
 	void setSoundVolume(u8 vol);
 	void stopSound(void);
 	// 
-	void applySettings(void);
+	void applySettings(bool noAnim);
 	void setCachePath(const char *path);
 	bool fullCoverCached(const char *wfcPath);
 	bool cacheCoverBuffer(const char *wfcPath, const u8 *png, bool full);
@@ -139,9 +140,11 @@ public:
 	wstringEx getTitle(void) const;
 	u64 getChanTitle(void) const;
 	const char *getFilenameId(const dir_discHdr *curHdr);
+	/**/
 	bool getRenderTex(void);
 	void setRenderTex(bool);
 	void RenderTex(void);
+	/**/
 	//
 	static u32 InternalCoverColor(const char *ID, u32 DefCaseColor);
 	static bool checkCoverColor(const char *ID, const char *checkID[], u32 len);
@@ -208,9 +211,9 @@ private:
 		volatile bool boxTexture;
 		volatile enum TexState state;
 	} ATTRIBUTE_PACKED;
-	struct CCover// should be SCover because it's a struct
+	struct CCover // should be SCover because it's a struct
 	{
-		u32 index;// index is the number of the item in CItem list
+		u32 index; // index is the number of the item in CItem list
 		Vector3D scale;
 		Vector3D targetScale;
 		Vector3D angle;
@@ -223,8 +226,8 @@ private:
 		float txtTargetAngle;
 		Vector3D txtPos;
 		Vector3D txtTargetPos;
-		u8 txtColor;// actually is title alpha (color.a)
-		u8 txtTargetColor;// title alpha (255 = full show, 0 = no show)
+		u8 txtColor; // actually is title alpha (color.a)
+		u8 txtTargetColor; // title alpha (255 = full show, 0 = no show)
 		CText title;
 		CColor shadowColor;
 		CColor targetShadowColor;
@@ -233,7 +236,8 @@ private:
 	};
 	enum CLRet { CL_OK, CL_ERROR, CL_NOMEM };
 private:
-	Mtx44 m_projMtx;
+	Mtx m_projMtx;
+	// Mtx44 m_projMtx;
 	Mtx m_viewMtx;
 	Vector3D m_cameraPos;
 	Vector3D m_cameraAim;
@@ -263,14 +267,15 @@ private:
 	TexData m_dvdSkin_Black;
 	TexData m_dvdSkin_Yellow;
 	TexData m_dvdSkin_GreenOne;
-	TexData m_dvdSkin_GreenTwo;
+	// TexData m_dvdSkin_GreenTwo;
 	TexData m_dvdSkin_Clear;
 	// Settings
 	std::string m_pngLoadCover;
 	std::string m_pngLoadCoverFlat;
 	std::string m_pngNoCover;
 	std::string m_pngNoCoverFlat;
-	u32 m_numBufCovers;
+	// u32 m_numBufCovers;
+	unsigned int m_numBufCovers;
 	SFont m_font;
 	CColor m_fontColor;
 	bool m_box;
@@ -279,8 +284,10 @@ private:
 	bool m_dvdskin_loaded;
 	bool m_defcovers_loaded;
 	u32 m_range;
-	u32 m_rows;
-	u32 m_columns;
+	// u32 m_rows;
+	// u32 m_columns;
+	unsigned int m_rows;
+	unsigned int m_columns;
 	SLayout m_loNormal;
 	SLayout m_loSelected;
 	int m_mouse[WPAD_MAX_WIIMOTES];
@@ -289,6 +296,7 @@ private:
 	bool m_compressCache;
 	std::string m_cachePath;
 	bool m_deletePicsAfterCaching;
+	bool m_pluginCacheFolders;
 	bool m_mirrorBlur;
 	float m_mirrorAlpha;
 	float m_txtMirrorAlpha;
@@ -311,7 +319,7 @@ private:
 	u8 m_aniso;
 	bool m_edgeLOD;
 	Sorting m_sorting;
-	//thread stack
+	// thread stack
 	static u8 coverThreadStack[32768];
 	static const u32 coverThreadStackSize;
 private:
@@ -342,6 +350,7 @@ private:
 	void _loadAllCovers(int i);
 	static bool _calcTexLQLOD(TexData &tex);
 	void _dropHQLOD(int i);
+
 	CLRet _loadCoverTex(u32 i, bool box, bool hq, bool blankBoxCover);
 	bool _invisibleCover(u32 x, u32 y);
 	void _instantTarget(int i);

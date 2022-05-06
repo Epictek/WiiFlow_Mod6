@@ -4,8 +4,6 @@
 #include "memory/mem2.hpp"
 #include <algorithm>
 
-//using namespace std;
-
 extern const u8 player1_point_png[];
 extern const u8 player2_point_png[];
 extern const u8 player3_point_png[];
@@ -40,7 +38,7 @@ bool CCursor::init(const char *png, bool wideFix, CColor shadowColor, float shad
 		else if(chan == 3)
 			ok = (TexHandle.fromPNG(m_texture, player4_point_png) == TE_OK);
 	}
-	if (ok && shadow)
+	if(ok && shadow)
 	{
 		m_shadowColor = shadowColor;
 		m_shadowX = shadowX;
@@ -55,16 +53,19 @@ bool CCursor::init(const char *png, bool wideFix, CColor shadowColor, float shad
 			const u8 *src = m_texture.data;
 			u8 *dst = m_shadow.data;
 			u32 w = m_shadow.width;
-			for (u32 yy = 0; yy < m_shadow.height; ++yy)
-				for (u32 xx = 0; xx < m_shadow.width; ++xx)
+			for(u32 yy = 0; yy < m_shadow.height; ++yy)
+			{
+				for(u32 xx = 0; xx < m_shadow.width; ++xx)
 					dst[coordsI8(xx, yy, w)] = src[coordsRGBA8(xx, yy, w)];
-			if (blur) _blur();
+			}
+			if(blur) 
+				_blur();
 		}
 	}
 	return ok;
 }
 
-void CCursor::cleanup(void)
+void CCursor::cleanup(void) // 
 {
 	TexHandle.Cleanup(m_texture);
 	if(m_shadow.data != NULL)
@@ -170,25 +171,25 @@ void CCursor::_blur(void)
 	u8 *r = (u8*)MEM2_alloc(m_shadow.width * m_shadow.height);
 	if(!xmin || !xmax || !ymin || !ymax || !r)
 		return;
-	for (int i = 0; i < w; ++i)
+	for(int i = 0; i < w; ++i)
 	{
 		xmax[i] = std::min(i + radius + 1, w - 1);
 		xmin[i] = std::max(i - radius, 0);
 	}
-	for (int i = 0; i < h; ++i)
+	for(int i = 0; i < h; ++i)
 	{
 		ymax[i] = std::min(i + radius + 1, h - 1) * w;
 		ymin[i] = std::max(i - radius, 0) * w;
 	}
-	for (int k = 0; k < pass; ++k)	// 2 passes for much better quality
+	for(int k = 0; k < pass; ++k) // 2 passes for much better quality
 	{
 		yi = 0;
-		for (int y = 0; y < h; ++y)
+		for(int y = 0; y < h; ++y)
 		{
 			sum = 0;
-			for (int i = -radius; i <= radius; ++i)
+			for(int i = -radius; i <= radius; ++i)
 				sum += pic[coordsI8(std::min(std::max(0, i), w - 1), y, w)];
-			for (int x = 0; x < w; ++x)
+			for(int x = 0; x < w; ++x)
 			{
 				r[yi] = sum / div;
 				sum += pic[coordsI8(xmax[x], y, w)];
@@ -196,18 +197,18 @@ void CCursor::_blur(void)
 				++yi;
 			}
 		}
-		for (int x = 0; x < w; ++x)
+		for(int x = 0; x < w; ++x)
 		{
 			sum = 0;
 			yp = -radius * w;
-			for (int i = -radius; i <= radius; ++i)
+			for(int i = -radius; i <= radius; ++i)
 			{
 				yi = std::max(0, yp) + x;
 				sum += r[yi];
 				yp += w;
 			}
 			yi = x;
-			for (int y = 0; y < h; ++y)
+			for(int y = 0; y < h; ++y)
 			{
 				pic[coordsI8(x, y, w)] = sum / div;
 				sum += r[x + ymax[y]] - r[x + ymin[y]];

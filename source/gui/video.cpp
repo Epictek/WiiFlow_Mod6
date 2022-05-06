@@ -98,6 +98,7 @@ GXRModeObj TVPal574IntDfScale =
 };
 
 vector<TexData> m_defaultWaitMessages;
+vector<TexData> m_loadListWaitMessages;
 
 CVideo m_vid;
 
@@ -126,7 +127,7 @@ void CVideo::init(void)
 	}
 	m_rmode->viWidth = m_wide ? 700 : 672;
 
-	//CONF_VIDEO_NTSC and CONF_VIDEO_MPAL and m_rmode TVEurgb60Hz480IntDf are the same max height and width.
+	// CONF_VIDEO_NTSC and CONF_VIDEO_MPAL and m_rmode TVEurgb60Hz480IntDf are the same max height and width.
 	if(type == CONF_VIDEO_PAL && m_rmode != &TVEurgb60Hz480IntDf)
 	{
 		m_rmode->viHeight = VI_MAX_HEIGHT_PAL;
@@ -140,7 +141,7 @@ void CVideo::init(void)
 		m_rmode->viYOrigin = (VI_MAX_HEIGHT_NTSC - m_rmode->viHeight) / 2;
 	}
 
-	s8 hoffset = 0;  //Use horizontal offset set in wii menu.
+	s8 hoffset = 0;  // Use horizontal offset set in wii menu.
 	if(CONF_GetDisplayOffsetH(&hoffset) == 0)
 		m_rmode->viXOrigin += hoffset;
 
@@ -173,7 +174,7 @@ void CVideo::init(void)
 	GX_SetFieldMode(m_rmode->field_rendering, ((m_rmode->viHeight == 2 * m_rmode->xfbHeight) ? GX_ENABLE : GX_DISABLE));
 	
 	GX_SetCullMode(GX_CULL_NONE);
-	GX_CopyDisp(m_frameBuf[m_curFB], GX_TRUE);
+	GX_CopyDisp(m_frameBuf[m_curFB], GX_TRUE); // uncommented when added small covers transparency
 	GX_SetDispCopyGamma(GX_GM_1_0);
 	GX_ClearVtxDesc();
 	GX_SetVtxDesc(GX_VA_POS, GX_DIRECT);
@@ -208,7 +209,7 @@ void CVideo::init(void)
 
 void CVideo::cleanup(void)
 {
-	//gprintf("Cleaning up video...\n");
+	// gprintf("Cleaning up video...\n");
 
 	hideWaitMessage();
 	_clearScreen();
@@ -232,6 +233,12 @@ void CVideo::cleanup(void)
 			free(m_defaultWaitMessages[i].data);
 		m_defaultWaitMessages[i].data = NULL;
 	}
+	for(u8 i = 0; i < m_loadListWaitMessages.size(); i++)
+	{
+		if(m_loadListWaitMessages[i].data != NULL)
+			free(m_loadListWaitMessages[i].data);
+		m_loadListWaitMessages[i].data = NULL;
+	}
 	MEM1_free(MEM_K1_TO_K0(m_frameBuf[0]));
 	m_frameBuf[0] = NULL;
 	MEM1_free(MEM_K1_TO_K0(m_frameBuf[1]));
@@ -253,9 +260,9 @@ void CVideo::_clearScreen()
 void CVideo::prepare(void)
 {
 	if(m_rmode->aa) 
-		GX_SetPixelFmt(GX_PF_RGB565_Z16, GX_ZC_LINEAR);// 16 bit color (565)
+		GX_SetPixelFmt(GX_PF_RGB565_Z16, GX_ZC_LINEAR); // 16 bit color (565)
 	else
-		GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);// 24 bit color (888)
+		GX_SetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR); // 24 bit color (888)
 	_setViewPort(0.f, 0.f, (float)m_rmode->fbWidth, (float)m_rmode->efbHeight);
 	GX_SetScissor(0, 0, m_rmode->fbWidth, m_rmode->efbHeight);
 	GX_InvVtxCache();
@@ -290,10 +297,14 @@ void CVideo::shiftViewPort(float x, float y)
 	GX_SetViewport(m_vpX + x, m_vpY + y, m_vpW, m_vpH, 0.f, 1.f);
 }
 
-void CVideo::set2DViewport(u32 w, u32 h, int x, int y)
+// void CVideo::set2DViewport(u32 w, u32 h, int x, int y)
+void CVideo::set2DViewport(unsigned int w, unsigned int h, int x, int y)
 {
+	// m_width2D = std::min(std::max(512ul, w), 800ul);
+	// m_height2D = std::min(std::max(384ul, h), 600ul);
 	m_width2D = std::min(std::max(512u, w), 800u);
 	m_height2D = std::min(std::max(384u, h), 600u);
+
 	m_x2D = std::min(std::max(-50, x), 50);
 	m_y2D = std::min(std::max(-50, y), 50);
 }
@@ -354,7 +365,7 @@ void CVideo::prepareAAPass(int aaStep)
 			y += CVideo::_jitter8[aaStep][1];
 			break;
 	}
-	GX_SetPixelFmt(m_aaAlpha ? GX_PF_RGBA6_Z24 : GX_PF_RGB8_Z24, GX_ZC_LINEAR);//rgba6 is 6 bit color with 6 bit alpha = 24bit (6666)
+	GX_SetPixelFmt(m_aaAlpha ? GX_PF_RGBA6_Z24 : GX_PF_RGB8_Z24, GX_ZC_LINEAR); // rgba6 is 6 bit color with 6 bit alpha = 24bit (6666)
 	_setViewPort(x, y, (float)w, (float)h);
 	GX_SetScissor(0, 0, w, h);
 	GX_InvVtxCache();
@@ -474,17 +485,21 @@ void CVideo::render(void)
 }
 
 /* wait animation control */
-
 extern const u8 wfsplash_png[];
-
-extern const u8 wait_01_png[];
-extern const u8 wait_02_png[];
-extern const u8 wait_03_png[];
-extern const u8 wait_04_png[];
-extern const u8 wait_05_png[];
-extern const u8 wait_06_png[];
-extern const u8 wait_07_png[];
-extern const u8 wait_08_png[];
+extern const u8 wait_usb_off_png[];
+extern const u8 wait_usb_on_png[];
+extern const u8 wait_loadlist_1_png[];
+extern const u8 wait_loadlist_2_png[];
+extern const u8 wait_loadlist_3_png[];
+extern const u8 wait_loadlist_4_png[];
+extern const u8 wait_default_1_png[];
+extern const u8 wait_default_2_png[];
+extern const u8 wait_default_3_png[];
+extern const u8 wait_default_4_png[];
+extern const u8 wait_default_5_png[];
+extern const u8 wait_default_6_png[];
+extern const u8 wait_default_7_png[];
+extern const u8 wait_default_8_png[];
 
 static lwp_t waitThread = LWP_THREAD_NULL;
 u8 CVideo::waitMessageStack[2048] ATTRIBUTE_ALIGN(32);
@@ -514,7 +529,7 @@ void CVideo::setCustomWaitImgs(const char *path, bool wait_loop)
 	}
 }
 
-void CVideo::waitMessage(float delay)// set wait images from custom or internal
+void CVideo::waitMessage(float delay) // set wait images from custom or internal
 {
 	if(m_defaultWaitMessages.size() == 0)
 	{
@@ -532,23 +547,22 @@ void CVideo::waitMessage(float delay)// set wait images from custom or internal
 		else
 		{
 			TexData m_wTextures[8];
-			TexHandle.fromPNG(m_wTextures[0], wait_01_png);
-			TexHandle.fromPNG(m_wTextures[1], wait_02_png);
-			TexHandle.fromPNG(m_wTextures[2], wait_03_png);
-			TexHandle.fromPNG(m_wTextures[3], wait_04_png);
-			TexHandle.fromPNG(m_wTextures[4], wait_05_png);
-			TexHandle.fromPNG(m_wTextures[5], wait_06_png);
-			TexHandle.fromPNG(m_wTextures[6], wait_07_png);
-			TexHandle.fromPNG(m_wTextures[7], wait_08_png);
-			for(int i = 0; i < 8; i++)
+			TexHandle.fromPNG(m_wTextures[0], wait_default_1_png);
+			TexHandle.fromPNG(m_wTextures[1], wait_default_2_png);
+			TexHandle.fromPNG(m_wTextures[2], wait_default_3_png);
+			TexHandle.fromPNG(m_wTextures[3], wait_default_4_png);
+			TexHandle.fromPNG(m_wTextures[4], wait_default_5_png);
+			TexHandle.fromPNG(m_wTextures[5], wait_default_6_png);
+			TexHandle.fromPNG(m_wTextures[6], wait_default_7_png);
+			TexHandle.fromPNG(m_wTextures[7], wait_default_8_png);
+			for(u8 i = 0; i < 8; i++)
 				m_defaultWaitMessages.push_back(m_wTextures[i]);
 		}
-		
 	}
 	waitMessage(m_defaultWaitMessages, delay);
 }
 
-void CVideo::waitMessage(const vector<TexData> &tex, float delay)// start wait images and wii slot light threads
+void CVideo::waitMessage(const vector<TexData> &tex, float delay) // start wait images and wii slot light threads
 {
 	hideWaitMessage();
 
@@ -565,42 +579,44 @@ void CVideo::waitMessage(const vector<TexData> &tex, float delay)// start wait i
 
 	if(m_waitMessages.size() == 1)
 	{
-		waitMessage(m_waitMessages[0]);// draws frame image using function below (for one frame image only) but no render?
+		waitMessage(m_waitMessages[0]); // draws frame image using function below (for one frame image only) but no render?
 		render();
 	}
-	else if(m_waitMessages.size() > 1)// if more than one frame
+	else if(m_waitMessages.size() > 1) // if more than one frame
 	{
 		m_WaitThreadRunning = true;
 		/* changing light */
-		//wiiLightSetLevel(0);
-		//wiiLightStartThread();// start thread in gekko.c that pulses the wii disc slot light on and off
+		wiiLightSetLevel(0); // LED
+		wiiLightStartThread(); // start thread in gekko.c that pulses the wii disc slot light on and off - LED
 		/* onscreen animation */
-		m_showWaitMessage = true;// start wait images thread to animate them
+		m_showWaitMessage = true; // start wait images thread to animate them
 		LWP_CreateThread(&waitThread, _showWaitMessages, this, waitMessageStack, waitMessageStackSize, LWP_PRIO_HIGHEST);
 	}
 }
 
-void * CVideo::_showWaitMessages(void *obj)// wait images thread
+void * CVideo::_showWaitMessages(void *obj) // wait images thread
 {
 	CVideo *m = static_cast<CVideo *>(obj);
 	m->m_showingWaitMessages = true;
-	u32 frames = m->m_waitMessageDelay * 50;// set delay start
-	u32 waitFrames = frames;// set delay counter to delay start
+	u32 frames = m->m_waitMessageDelay * 50; // set delay start
+	// u32 waitFrames = frames; // set delay counter to delay start
+	u32 waitFrames = 0; // no start delay
 
-	//s8 fadeDirection = 1;
-	s8 PNGfadeDirection = 1;// set frames movement direction
-	//s16 currentLightLevel = 0;
+	s8 fadeDirection = 1; // LED
+	s8 PNGfadeDirection = 1; // set frames movement direction
+	s16 currentLightLevel = 0; // LED
 
-	vector<TexData>::iterator waitItr = m->m_waitMessages.begin();// set start frame image
+	vector<TexData>::iterator waitItr = m->m_waitMessages.begin(); // set start frame image
 	m->_clearScreen();
 
 	m->prepare();
 	m->setup2DProjection();
 
-	//gprintf("Wait Message Thread: Start\nDelay: %d, Images: %d\n", waitFrames, m->m_waitMessages.size());
+	// gprintf("Wait Message Thread: Start\nDelay: %d, Images: %d\n", waitFrames, m->m_waitMessages.size());
 	while(m->m_showWaitMessage)
 	{
-		/*currentLightLevel += fadeDirection * 5;
+		/* LED */	
+		currentLightLevel += fadeDirection * 5;
 		if(currentLightLevel >= 255) 
 		{
 			currentLightLevel = 255;
@@ -610,30 +626,39 @@ void * CVideo::_showWaitMessages(void *obj)// wait images thread
 		{
 			currentLightLevel = 0;
 			fadeDirection = 1;
-		}*/
-		//wiiLightSetLevel(currentLightLevel);
-
-		if(waitFrames == 0)// if delay count reaches 0
+		}
+		wiiLightSetLevel(currentLightLevel);
+		
+		if(waitFrames == 0) // if delay count reaches 0
 		{
-			m->waitMessage(*waitItr);// draw frame image
-			waitItr += PNGfadeDirection;// move to next image
+			m->waitMessage(*waitItr); // draw frame image
+			waitItr += PNGfadeDirection; // move to next image
+			/** this will change direction at the end of animation **/
+			/**
 			if(waitLoop && waitItr == m->m_waitMessages.end())
 				waitItr = m->m_waitMessages.begin();
 			else if(!waitLoop && (waitItr + 1 == m->m_waitMessages.end() || waitItr == m->m_waitMessages.begin()))
-				PNGfadeDirection *= (-1);// change direction if at beginning or end
-			waitFrames = frames;// reset delay count
+				PNGfadeDirection *= (-1); // change direction if at beginning or end
+			**/
+			/** this will not change direction at the end of animation **/
+			/**/
+			if(waitItr == m->m_waitMessages.end())
+				waitItr = m->m_waitMessages.begin();
+			/**/
+			waitFrames = frames; // reset delay count
 			m->render();
 		}
 		else
 			VIDEO_WaitVSync();
-		waitFrames--;// decrement delay count
+		waitFrames--; // decrement delay count
 	}
-	//gprintf("Wait Message Thread: End\n");
+	// gprintf("Wait Message Thread: End\n");
 	m->m_showingWaitMessages = false;
 	return NULL;
 }
 
-void CVideo::hideWaitMessage()// stop wait images thread and wii disc slot light thread
+/* stop wait images thread and wii disc slot light thread */
+void CVideo::hideWaitMessage()
 {
 	m_showWaitMessage = false;
 	if(waitThread != LWP_THREAD_NULL)
@@ -645,7 +670,7 @@ void CVideo::hideWaitMessage()// stop wait images thread and wii disc slot light
 			usleep(50);
 		LWP_JoinThread(waitThread, NULL);
 		/* end light thread */
-		//wiiLightEndThread();
+		wiiLightEndThread(); // LED
 		m_WaitThreadRunning = false;
 	}
 	waitThread = LWP_THREAD_NULL;
@@ -696,10 +721,35 @@ void CVideo::startImage(void)
 {
 	TexData splashTex;
 	TexHandle.fromPNG(splashTex, wfsplash_png);
-
 	waitMessage(splashTex);
 	render();
 	TexHandle.Cleanup(splashTex);
+}
+
+/* draw and render usb splash screen */
+void CVideo::usbImage(bool usb_mounted)
+{
+	TexData usbTex;
+	TexHandle.fromPNG(usbTex, usb_mounted ? wait_usb_on_png : wait_usb_off_png);
+	waitMessage(usbTex);
+	render();
+	TexHandle.Cleanup(usbTex);
+}
+
+/* draw and render load list splash screen */
+void CVideo::loadListImage(void)
+{
+	if(m_loadListWaitMessages.size() == 0)
+	{
+		TexData loadListTex[4];
+		TexHandle.fromPNG(loadListTex[0], wait_loadlist_1_png);
+		TexHandle.fromPNG(loadListTex[1], wait_loadlist_2_png);
+		TexHandle.fromPNG(loadListTex[2], wait_loadlist_3_png);
+		TexHandle.fromPNG(loadListTex[3], wait_loadlist_4_png);
+		for(u8 i = 0; i < 4; i++)
+			m_loadListWaitMessages.push_back(loadListTex[i]);
+	}
+	waitMessage(m_loadListWaitMessages, 0.15f);
 }
 
 /* save screenshot */
@@ -757,14 +807,15 @@ void DrawTexture(TexData * &tex)
 }
 
 /* draws movie frame texture when playing movie in menu_game.cpp */
-struct movieP normalMoviePos = { 410, 31, 610, 181 };
-struct movieP zoomedMoviePos = { 0, 0, 640, 480 };
-struct movieP currentMoviePos = zoomedMoviePos;
+struct movieP normalMoviePos = { 385, 25, 640, 170 }; // top right banner frame
+struct movieP zoomedMoviePos = { 0, 0, 640, 480 }; // full screen
+struct movieP currentMoviePos = { 310, 120, 630, 360 }; // middle right
 
 /* draws a texture/image at a position and width and height specified by struct movieP currentMoviePos */
 /* set currentMoviePos before calling this. example - {x, y, x+w, y+h} */
-void DrawTexturePos(const TexData *tex)
+void DrawTexturePos(const TexData *tex, bool fullScreen)
 {
+	currentMoviePos = fullScreen ? zoomedMoviePos : normalMoviePos;
 	Mtx modelViewMtx;
 	GXTexObj texObj;
 
@@ -833,12 +884,12 @@ void DrawRectangle(f32 x, f32 y, f32 width, f32 height, GXColor color)
 
 void CVideo::screensaver(u32 no_input, u32 max_no_input)
 {
-	if(no_input == 0)// no idle time so reset alpha to 0 for next time and don't draw the rectangle on this pass
+	if(no_input == 0) // no idle time so reset alpha to 0 for next time and don't draw the rectangle on this pass
 	{
 		m_screensaver_alpha = 0;
 		return;
-	}
-	if(no_input > max_no_input)// if idle time > max idle draw rectangle full screen increasing alpha each time
+	}	
+	if(no_input > max_no_input) // if idle time > max idle draw rectangle full screen increasing alpha each time
 	{
 		DrawRectangle(0, 0, 640, 480, (GXColor){0,0,0,m_screensaver_alpha});
 		if(m_screensaver_alpha < 150)

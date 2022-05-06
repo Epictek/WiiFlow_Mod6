@@ -13,14 +13,16 @@
 using std::string;
 using std::vector;
 
-class SFont// should be either struct SFont or class CFont
+class SFont // should be either struct SFont or class CFont
 {
 public:
 	SFont(void) : font(NULL), fSize(0), lineSpacing(0), weight(0), index(0), data(NULL), dataSize(0) { memset(name, 0, 128); };
 	~SFont(void) { };
 	void ClearData(void);
-	bool fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lspacing, u32 w = 0, u32 idx = 0, const char *fontname = "");
-	bool fromFile(const char *path, u32 size, u32 lspacing, u32 w = 0, u32 idx = 0, const char *fontname = "");
+	// bool fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lspacing, u32 w = 0, u32 idx = 0, const char *fontname = "");
+	// bool fromFile(const char *path, u32 size, u32 lspacing, u32 w = 0, u32 idx = 0, const char *fontname = "");
+	bool fromBuffer(const u8 *buffer, const unsigned int bufferSize, unsigned int size, unsigned int lspacing, unsigned int w = 0, unsigned int idx = 0, const char *fontname = "");
+	bool fromFile(const char *path, unsigned int size, unsigned int lspacing, unsigned int w = 0, unsigned int idx = 0, const char *fontname = "");
 	FreeTypeGX *font;
 	u32 fSize;
 	u32 lineSpacing;
@@ -63,14 +65,16 @@ private:
 string sfmt(const char *format, ...);
 wstringEx wfmt(const wstringEx &format, ...);
 bool checkFmt(const wstringEx &ref, const wstringEx &format);
-string vectorToString(const vector<string> &vect, string sep);
+string vectorToString(const vector<std::string> &vect, std::string sep);
 wstringEx vectorToString(const vector<wstringEx> &vect, char sep);
 vector<wstringEx> stringToVector(const wstringEx &text, char sep);
 vector<std::string> stringToVector(const string &text, char sep);
 string upperCase(string text);
+string capitalize(string text);
 string lowerCase(string text);
 string ltrim(string s);
 string rtrim(string s);
+string removeSpaceDash(string s);
 bool wchar_cmp(const wchar_t *first, const wchar_t *second, u32 first_len, u32 second_len);
 bool char_cmp(const char *first, const char *second, u32 first_len, u32 second_len);
 

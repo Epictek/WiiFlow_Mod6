@@ -3,7 +3,7 @@
 #include "memory/mem2.hpp"
 #include "types.h"
 
-//using namespace std;
+#include "gecko/gecko.hpp"
 
 static  guVector  _GRRaxisx = (guVector){1, 0, 0}; // DO NOT MODIFY!!!
 static  guVector  _GRRaxisy = (guVector){0, 1, 0}; // Even at runtime
@@ -30,13 +30,11 @@ void CFanart::unload()
 }
 
 char fanartDir[164];
-bool CFanart::load(Config &m_wiiflowConfig, const char *path, const dir_discHdr *hdr)
+
+bool CFanart::load(const char *path, const dir_discHdr *hdr, bool bgOnly)
 {
-	if(!m_wiiflowConfig.getBool("FANART", "enable_fanart", true))
-		return false;
-
 	unload();
-
+	
 	char id[64];
 	memset(id, 0, sizeof(id));
 	if(NoGameID(hdr->type))
@@ -44,7 +42,7 @@ bool CFanart::load(Config &m_wiiflowConfig, const char *path, const dir_discHdr 
 		if(strrchr(hdr->path, '/') != NULL)
 			wcstombs(id, hdr->title, sizeof(id) - 1);
 		else
-			strcpy(id, hdr->path);// scummvm
+			strcpy(id, hdr->path); // scummvm
 	}
 	else
 		strcpy(id, hdr->id);
@@ -64,6 +62,9 @@ bool CFanart::load(Config &m_wiiflowConfig, const char *path, const dir_discHdr 
 		return false;
 	}
 
+	if(bgOnly)
+		return true;
+
 	char faConfig_Path[164];
 	faConfig_Path[163] = '\0';
 	strncpy(faConfig_Path, fmt("%s/%s.ini", fanartDir, id), 163);
@@ -80,21 +81,22 @@ bool CFanart::load(Config &m_wiiflowConfig, const char *path, const dir_discHdr 
 	}
 	
 	TexHandle.fromImageFile(m_bglq, fmt("%s/background_lq.png", fanartDir));
+
 	for(int i = 1; i <= 6; i++)
 	{
 		CFanartElement elm(m_faConfig, fanartDir, i);
 		if(elm.IsValid()) m_elms.push_back(elm);
 	}
 	m_loaded = true;
-	m_defaultDelay = m_wiiflowConfig.getInt("FANART", "delay_after_animation", 200);
-	m_delayAfterAnimation = m_faConfig.getInt("GENERAL", "delay_after_animation", m_defaultDelay);
-	m_globalShowCoverAfterAnimation = m_wiiflowConfig.getOptBool("FANART", "show_cover_after_animation", 2);
+
+	m_delayAfterAnimation = 200;
+	
 	return true;
 }
 
-void CFanart::getBackground(const TexData * &hq, const TexData * &lq)
+void CFanart::getBackground(const TexData * &hq, const TexData * &lq, bool bgOnly)
 {
-	if(m_loaded)
+	if(m_loaded || bgOnly)
 	{
 		hq = &m_bg;
 		lq = &m_bglq;
@@ -105,6 +107,7 @@ void CFanart::getBackground(const TexData * &hq, const TexData * &lq)
 
 void CFanart::reset()
 {
+	m_delayAfterAnimation = 200; // time reset for loop
 	for(std::vector<CFanartElement>::iterator Elm = m_elms.begin(); Elm != m_elms.end(); Elm++)
 		Elm->Cleanup();
 	m_elms.clear();
@@ -117,8 +120,6 @@ void CFanart::reset()
 
 bool CFanart::noLoop()
 {
-	if(m_globalShowCoverAfterAnimation != 2)
-		return m_globalShowCoverAfterAnimation == 1;
 	return m_faConfig.getBool("GENERAL", "show_cover_after_animation", false);
 }
 

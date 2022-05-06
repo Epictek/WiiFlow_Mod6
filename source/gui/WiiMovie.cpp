@@ -25,6 +25,7 @@
  *
  * for WiiXplorer 2010
  ***************************************************************************/
+ 
 #include <unistd.h>
 #include "memory/mem2.hpp"
 #include "WiiMovie.hpp"
@@ -42,18 +43,18 @@ void WiiMovie::Init(const char *filepath)
 	ExitRequested = false;
 	Playing = false;
 	ThreadStack = NULL;
-	//gprintf("Opening video '%s'\n", filepath);
+	// gprintf("Opening video '%s'\n", filepath);
 	ReadThread = LWP_THREAD_NULL;
 	vFile = fopen(filepath, "rb");
 	if(!vFile)
 	{
-		//gprintf("Open video failed\n");
+		// gprintf("Open video failed\n");
 		ExitRequested = true;
 		return;
 	}
 	if(Video.Init(vFile) == false)
 	{
-		//gprintf("Memory Allocation failed\n");
+		// gprintf("Memory Allocation failed\n");
 		ExitRequested = true;
 		return;
 	}
@@ -66,7 +67,7 @@ void WiiMovie::DeInit()
 	if(inited == false)
 		return;
 	inited = false;
-	//gprintf("Destructing WiiMovie object\n");
+	// gprintf("Destructing WiiMovie object\n");
 	Playing = false;
 	ExitRequested = true;
 
@@ -105,20 +106,20 @@ bool WiiMovie::Play(bool loop)
 	if(!ThreadStack)
 		return false;
 
-	//gprintf("Start playing video\n");
+	// gprintf("Start playing video\n");
 	Video.loop = loop;
 	PlayTime.reset();
 	Playing = true;
 	Buffer[0].thread = false;
 	Buffer[1].thread = false;
 	LWP_CreateThread(&ReadThread, UpdateThread, this, ThreadStack, 32768, 63);
-	//gprintf("Reading frames thread started\n");
+	// gprintf("Reading frames thread started\n");
 	return true;
 }
 
 void WiiMovie::Stop()
 {
-	//gprintf("Stopping WiiMovie video\n");
+	// gprintf("Stopping WiiMovie video\n");
 	ExitRequested = true;
 }
 

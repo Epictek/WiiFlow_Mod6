@@ -164,14 +164,18 @@ void SFont::ClearData(void)
 	dataSize = 0;
 }
 
-bool SFont::fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lspacing, u32 w, u32 idx, const char *fontname)
+// bool SFont::fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lspacing, u32 w, u32 idx, const char *fontname)
+bool SFont::fromBuffer(const u8 *buffer, const unsigned int bufferSize, unsigned int size, unsigned int lspacing, unsigned int w, unsigned int idx, const char *fontname)
 {
 	if(buffer == NULL)
 		return false;
+	// fSize = std::min(std::max(6ul, size), 1000ul);
+	// lineSpacing = std::min(std::max(6ul, lspacing), 1000ul);
+	// weight = std::min(w, 32ul);
 	fSize = std::min(std::max(6u, size), 1000u);
 	lineSpacing = std::min(std::max(6u, lspacing), 1000u);
 	weight = std::min(w, 32u);
-	index = idx;// currently not used
+	index = idx; // currently not used
 
 	if(data != NULL)
 		free(data);
@@ -182,19 +186,22 @@ bool SFont::fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lsp
 	memcpy(data, buffer, bufferSize);
 	DCFlushRange(data, dataSize);
 
-	strncpy(name, fontname, 127);
+	memcpy(name, fontname, 127);
 	font = new FreeTypeGX();
 	font->loadFont(data, dataSize, weight, true);
 	return true;
 }
 
-bool SFont::fromFile(const char *path, u32 size, u32 lspacing, u32 w, u32 idx, const char *fontname)
+// bool SFont::fromFile(const char *path, u32 size, u32 lspacing, u32 w, u32 idx, const char *fontname)
+bool SFont::fromFile(const char *path, unsigned int size, unsigned int lspacing, unsigned int w, unsigned int idx, const char *fontname)
 {
+	// fSize = std::min(std::max(6ul, size), 1000ul);
+	// weight = std::min(w, 32ul);
+	// lineSpacing = std::min(std::max(6ul, lspacing), 1000ul);
 	fSize = std::min(std::max(6u, size), 1000u);
 	weight = std::min(w, 32u);
-	index = idx;// currently not used
-
 	lineSpacing = std::min(std::max(6u, lspacing), 1000u);
+	index = idx; // currently not used
 
 	if(data != NULL)
 		free(data);
@@ -204,13 +211,14 @@ bool SFont::fromFile(const char *path, u32 size, u32 lspacing, u32 w, u32 idx, c
 
 	DCFlushRange(data, dataSize);
 
-	strncpy(name, fontname, 127);
+	memcpy(name, fontname, 127);
 	font = new FreeTypeGX();
 	font->loadFont(data, dataSize, weight, false);
 	return true;
 }
 
-static const wchar_t *g_whitespaces = L" \f\n\r\t\v";// notice the first character is a space
+static const wchar_t *g_whitespaces = L" \f\n\r\t\v"; // notice the first character is a space
+
 void CText::setText(const SFont &font, const wstringEx &t)
 {
 	SWord w;
@@ -232,18 +240,18 @@ void CText::setText(const SFont &font, const wstringEx &t)
 		wstringEx::size_type j;
 		while (i != wstringEx::npos)
 		{
-			j = l.find_first_of(g_whitespaces, i);// find a space or end of line character
+			j = l.find_first_of(g_whitespaces, i); // find a space or end of line character
 			if (j != wstringEx::npos && j > i)
 			{
 				w.text.assign(l, i, j - i);
 				m_lines.back().push_back(w);
 				i = l.find_first_not_of(g_whitespaces, j);
 			}
-			else if (j == wstringEx::npos)// if end of line
+			else if (j == wstringEx::npos) // if end of line
 			{
 				w.text.assign(l, i, l.size() - i);
 				m_lines.back().push_back(w);
-				i = wstringEx::npos;// or could just break;
+				i = wstringEx::npos; // or could just break;
 			}
 		}
 	}
@@ -304,7 +312,7 @@ void CText::setFrame(float width, u16 style, bool ignoreNewlines, bool instant)
 	u32 lineBeg = 0;
 
 	if(firstLine > m_lines.size()) firstLine = 0;
-
+	
 	for (u32 k = firstLine; k < m_lines.size(); ++k)
 	{
 		CLine &words = m_lines[k];
@@ -373,8 +381,8 @@ void CText::setColor(const CColor &c)
 /* moves each word of each line of text from current pos to targetPos */
 void CText::tick(void)
 {
-	for (u32 k = 0; k < m_lines.size(); ++k)// lines of text
-		for (u32 i = 0; i < m_lines[k].size(); ++i)// number of words per line[k]
+	for (u32 k = 0; k < m_lines.size(); ++k) // lines of text
+		for (u32 i = 0; i < m_lines[k].size(); ++i) // number of words per line[k]
 			m_lines[k][i].pos += (m_lines[k][i].targetPos - m_lines[k][i].pos) * 0.05f;
 }
 
@@ -409,6 +417,19 @@ string upperCase(string text)
 	return text;
 }
 
+// remove all spaces and dashes from a given string
+string removeSpaceDash(string s)
+{ 
+    s.erase(remove(s.begin(), s.end(), ' '), s.end()); 
+	s.erase(remove(s.begin(), s.end(), '-'), s.end()); 
+    return s; 
+}
+
+string capitalize(string text) // also added
+{
+	text[0] = toupper(text[0]);
+	return text;
+}
 
 string lowerCase(string text)
 {

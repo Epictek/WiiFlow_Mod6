@@ -26,8 +26,8 @@
  * gcvid.cpp
  ***************************************************************************/
 
-#include <cstdlib> //NULL
-#include <cstring> //memcmp
+#include <cstdlib> // NULL
+#include <cstring> // memcmp
 #include <string>
 #include <cassert>
 #include <turbojpeg.h>
@@ -91,10 +91,10 @@ void thpAudioInitialize(DecStruct& s, const u8* srcStart)
 
 s32 thpAudioGetNewSample(DecStruct& s)
 {
-	//the following if is executed all 14 calls
-	//to thpAudioGetNewSample() (once for each
-	//microblock) because mask & 0xf can contain
-	//16 different values and starts with 2
+	// the following if is executed all 14 calls
+	// to thpAudioGetNewSample() (once for each
+	// microblock) because mask & 0xf can contain
+	// 16 different values and starts with 2
 	if((s.blockCount & 0xf) == 0)
 	{
 		s.index = (*s.currSrcByte >> 4) & 0x7;
@@ -107,13 +107,13 @@ s32 thpAudioGetNewSample(DecStruct& s)
 	if((s.blockCount & 1) != 0)
 	{
 		s32 t = (*s.currSrcByte	<< 28) & 0xf0000000;
-		ret = t >> 28; //this has to be an arithmetic shift
+		ret = t >> 28; // this has to be an arithmetic shift
 		++s.currSrcByte;
 	}
 	else
 	{
 		s32 t = (*s.currSrcByte << 24) & 0xf0000000;
-		ret = t >> 28; //this has to be an arithmetic shift
+		ret = t >> 28; // this has to be an arithmetic shift
 	}
 
 	++s.blockCount;
@@ -141,14 +141,14 @@ int thpAudioDecode(s16 * destBuffer, const u8* srcBuffer, bool separateChannelsI
 
 	if(separateChannelsInOutput)
 	{
-		//separated channels in output
+		// separated channels in output
 		destChannel1 = destBuffer;
 		destChannel2 = destBuffer + numSamples;
 		delta = 1;
 	}
 	else
 	{
-		//interleaved channels in output
+		// interleaved channels in output
 		destChannel1 = destBuffer;
 		destChannel2 = destBuffer + 1;
 		delta = 2;
@@ -157,7 +157,7 @@ int thpAudioDecode(s16 * destBuffer, const u8* srcBuffer, bool separateChannelsI
 	DecStruct s;
 	if(!isInputStereo)
 	{
-		//mono channel in input
+		// mono channel in input
 
 		thpAudioInitialize(s, srcChannel1);
 
@@ -167,26 +167,26 @@ int thpAudioDecode(s16 * destBuffer, const u8* srcBuffer, bool separateChannelsI
 		for(u32 i = 0; i < numSamples; ++i)
 		{
 			s64 res = (s64)thpAudioGetNewSample(s);
-			res = ((res << s.shift) << 11); //convert to 53.11 fixedpoint
+			res = ((res << s.shift) << 11); // convert to 53.11 fixedpoint
 
-			//these values are 53.11 fixed point numbers
+			// these values are 53.11 fixed point numbers
 			s64 val1 = table1[2*s.index];
 			s64 val2 = table1[2*s.index + 1];
 
-			//convert to 48.16 fixed point
+			// convert to 48.16 fixed point
 			res = (val1*prev1 + val2*prev2 + res) << 5;
 
-			//rounding:
+			// rounding:
 			u16 decimalPlaces = res & 0xffff;
 			if(decimalPlaces > 0x8000) //i.e. > 0.5
-				//round up
+				// round up
 				++res;
 			else if(decimalPlaces == 0x8000) //i.e. == 0.5
 				if((res & 0x10000) != 0)
-					//round up every other number
+					// round up every other number
 					++res;
 
-			//get nonfractional parts of number, clamp to [-32768, 32767]
+			// get nonfractional parts of number, clamp to [-32768, 32767]
 			s32 final = (res >> 16);
 			if(final > 32767) final = 32767;
 			else if(final < -32768) final = -32768;
@@ -201,8 +201,8 @@ int thpAudioDecode(s16 * destBuffer, const u8* srcBuffer, bool separateChannelsI
 	}
 	else
 	{
-		//two channels in input - nearly the same as for one channel,
-		//so no comments here (different lines are marked with XXX)
+		// two channels in input - nearly the same as for one channel,
+		// so no comments here (different lines are marked with XXX)
 
 		thpAudioInitialize(s, srcChannel1);
 		s16 prev1 = *(s16*)(srcBuffer + 72);
@@ -229,15 +229,15 @@ int thpAudioDecode(s16 * destBuffer, const u8* srcBuffer, bool separateChannelsI
 			destChannel1 += delta;
 		}
 
-		thpAudioInitialize(s, srcChannel2);//XXX
-		prev1 = *(s16*)(srcBuffer + 76);//XXX
-		prev2 = *(s16*)(srcBuffer + 78);//XXX
+		thpAudioInitialize(s, srcChannel2); // XXX
+		prev1 = *(s16*)(srcBuffer + 76); // XXX
+		prev2 = *(s16*)(srcBuffer + 78); // XXX
 		for(u32 j = 0; j < numSamples; ++j)
 		{
 			s64 res = (s64)thpAudioGetNewSample(s);
 			res = ((res << s.shift) << 11);
-			s64 val1 = table2[2*s.index];//XXX
-			s64 val2 = table2[2*s.index + 1];//XXX
+			s64 val1 = table2[2*s.index]; // XXX
+			s64 val2 = table2[2*s.index + 1]; // XXX
 			res = (val1*prev1 + val2*prev2 + res) << 5;
 			u16 decimalPlaces = res & 0xffff;
 			if(decimalPlaces > 0x8000)
@@ -267,7 +267,7 @@ void VideoFrame::resize(int width, int height)
 	_w = width;
 	_h = height;
 
-	//32 bpp, 4 byte padding
+	// 32 bpp, 4 byte padding
 	_p = 4*width;
 	_p += (4 - _p%4)%4;
 
@@ -367,14 +367,14 @@ int VideoFile::getCurrentBuffer(s16*) const
 
 void VideoFile::loadFrame(VideoFrame& frame, const u8* src, int src_size)
 {
-	//convert format so jpeglib understands it...
+	// convert format so jpeglib understands it...
 	int start, end;
 	int newSize = countRequiredSize(src, src_size, start, end);
 	u8 *buff = (u8*)MEM2_alloc(newSize);
 	if(buff != NULL)
 	{
 		convertToRealJpeg(buff, src, src_size, start, end);
-		//...and feed it to jpeglib
+		// ...and feed it to jpeglib
 		decodeRealJpeg(buff, newSize, frame);
 		MEM2_free(buff);
 	}
@@ -386,16 +386,16 @@ bool ThpVideoFile::Init(FILE *f)
 	loop = false;
 	readThpHeader(_f, _head);
 
-	//this is just to find files that have this field != 0, i
-	//have no such a file
+	// this is just to find files that have this field != 0, i
+	// have no such a file
 	assert(_head.offsetsDataOffset == 0);
 
 	readThpComponents(_f, _components);
 	for(u32 i = 0; i < _components.numComponents; ++i)
 	{
-		if(_components.componentTypes[i] == 0) //video
+		if(_components.componentTypes[i] == 0) // video
 			readThpVideoInfo(_f, _videoInfo, _head.version == 0x00011000);
-		else if(_components.componentTypes[i] == 1) //audio
+		else if(_components.componentTypes[i] == 1) // audio
 		{
 			readThpAudioInfo(_f, _audioInfo, _head.version == 0x00011000);
 			assert(_head.maxAudioSamples != 0);
@@ -539,7 +539,7 @@ int MthVideoFile::getHeight() const
 
 float MthVideoFile::getFps() const
 {
-	return (float) 1.0f*_head.fps; //TODO: This has to be in there somewhere
+	return (float) 1.0f*_head.fps; // TODO: This has to be in there somewhere
 }
 
 int MthVideoFile::getFrameCount() const
@@ -634,19 +634,19 @@ void closeVideo(VideoFile*& vf)
 	vf = NULL;
 }
 
-//as mentioned above, we have to convert 0xff to 0xff 0x00
-//after the image date has begun (ie, after the 0xff 0xda marker)
-//but we must not convert the end-of-image-marker (0xff 0xd9)
-//this way. There may be 0xff 0xd9 bytes embedded in the image
-//data though, so I add 4 bytes to the input buffer
-//and fill them with zeroes and check for 0xff 0xd9 0 0
-//as end-of-image marker. this is not correct, but works
-//and is easier to code... ;-)
-//a better solution would be to patch jpeglib so that this conversion
-//is not neccessary
+// as mentioned above, we have to convert 0xff to 0xff 0x00
+// after the image date has begun (ie, after the 0xff 0xda marker)
+// but we must not convert the end-of-image-marker (0xff 0xd9)
+// this way. There may be 0xff 0xd9 bytes embedded in the image
+// data though, so I add 4 bytes to the input buffer
+// and fill them with zeroes and check for 0xff 0xd9 0 0
+// as end-of-image marker. this is not correct, but works
+// and is easier to code... ;-)
+// a better solution would be to patch jpeglib so that this conversion
+// is not neccessary
 
-u8 endBytesThp[] = { 0xff, 0xd9, 0, 0 }; //used in thp files
-u8 endBytesMth[] = { 0xff, 0xd9, 0xff, 0 }; //used in mth files
+u8 endBytesThp[] = { 0xff, 0xd9, 0, 0 }; // used in thp files
+u8 endBytesMth[] = { 0xff, 0xd9, 0xff, 0 }; // used in mth files
 
 int VideoFile::countRequiredSize(const u8* src, int src_size, int& start, int& end)
 {
@@ -667,8 +667,8 @@ int VideoFile::countRequiredSize(const u8* src, int src_size, int& start, int& e
 	{
 		if(src[i] == 0xff)
 		{
-			//if i == srcSize - 1, then this would normally overrun src - that's why 4 padding
-			//bytes are included at the end of src
+			// if i == srcSize - 1, then this would normally overrun src - that's why 4 padding
+			// bytes are included at the end of src
 			if(src[i + 1] == 0xda && start == 2*src_size)
 				start = i;
 			if(i > start)
@@ -684,8 +684,8 @@ void VideoFile::convertToRealJpeg(u8* dest, const u8* src, int srcSize, int star
 	for(int i = 0; i < srcSize; ++i, ++di)
 	{
 		dest[di] = src[i];
-		//if i == srcSize - 1, then this would normally overrun src - that's why 4 padding
-		//bytes are included at the end of src
+		// if i == srcSize - 1, then this would normally overrun src - that's why 4 padding
+		// bytes are included at the end of src
 		if(src[i] == 0xff && i > start && i < end)
 		{
 			++di;

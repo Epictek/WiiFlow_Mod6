@@ -59,11 +59,12 @@ public:
 	~CFanart(void);
 
 	void unload();
-	bool load(Config &m_wiiflowConfig, const char *path, const dir_discHdr *hdr);
+	// bool load(Config &m_wiiflowConfig, const char *path, const dir_discHdr *hdr, bool bgOnly = false);
+	bool load(const char *path, const dir_discHdr *hdr, bool bgOnly = false);
 	bool isAnimationComplete();
 	bool isLoaded();
 
-	void getBackground(const TexData * &hq, const TexData * &lq);
+	void getBackground(const TexData * &hq, const TexData * &lq, bool bgOnly = false);
 	void draw();
 	void tick();
 	bool noLoop();
@@ -74,8 +75,8 @@ private:
 
 	bool m_animationComplete;
 	u16 m_delayAfterAnimation;
-	u8 m_globalShowCoverAfterAnimation;
-	u16 m_defaultDelay;
+	// u8 m_globalShowCoverAfterAnimation;
+	// u16 m_defaultDelay;
 	bool m_loaded;
 	Config m_faConfig;
 

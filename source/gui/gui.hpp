@@ -54,10 +54,10 @@ public:
 	void hide(s16 id, int dx, int dy, float scaleX, float scaleY, bool instant = false);
 	void hide(s16 id, bool instant = false);
 	void show(s16 id, bool instant = false);
-	void mouse(int chan, int x, int y);
+	void mouse(int chan, int x, int y, bool enlargeButtons = false);
 	void setMouse(bool enable);
-	void up(void);
-	void down(void);
+	void up(bool enlargeButtons = false);
+	void down(bool enlargeButtons = false);
 	void draw(void);
 	void tick(void);
 	void noClick(bool noclick = false);
@@ -65,7 +65,7 @@ public:
 	void click(s16 id = -1);
 	bool selected(s16 button = -1);
 	void setSelected(s16 button);
-	void setRumble(int, bool wii = false, bool gc = false, bool wupc = false);
+	void setRumble(int chan, bool wii = false, bool gc = false, bool wupc = false);
 	void deselect(void){ for(int chan = WPAD_MAX_WIIMOTES-1; chan >= 0; chan--) m_selected[chan] = -1; }
 	void stopSounds(void);
 	void setSoundVolume(int vol);
@@ -89,19 +89,19 @@ private:
 		SHideParam hideParam;
 		EltType t;
 		bool visible;
-		int x;// x & y center of element (x + (width/2))
+		int x; // x & y center of element (x + (width/2))
 		int y;
 		int w;
 		int h;
-		Vector3D pos;// actual current position (x,y,z) as it moves from hide x,y to targetpos or vice versa
-		Vector3D targetPos;// position to move to (x,y,z) usually hide position or x,y of element
+		Vector3D pos; // actual current position (x,y,z) as it moves from hide x,y to targetpos or vice versa
+		Vector3D targetPos; // position to move to (x,y,z) usually hide position or x,y of element
 		u8 alpha;
 		u8 targetAlpha;
 		float scaleX;
 		float scaleY;
 		float targetScaleX;
 		float targetScaleY;
-		int moveByX;// keeps track of how much element has moved so when reset function is called x and y can be reset.
+		int moveByX; // keeps track of how much element has moved so when reset function is called x and y can be reset.
 		int moveByY;
 	public:
 		virtual ~SElement(void) { }

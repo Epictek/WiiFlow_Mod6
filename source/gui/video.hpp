@@ -34,7 +34,7 @@ public:
 		g = (rgba8 & 0x0000FF00) >> 8;
 		b = rgba8 & 0x000000FF;
 	}
-	//int intVal() { return a << 24 | r << 16 | g << 8 | b; }
+	// int intVal() { return a << 24 | r << 16 | g << 8 | b; }
 	int intVal() { return r << 16 | g << 8 | b; }
 	bool operator==(const CColor &c) const { return c.r == r && c.g == g && c.b == b && c.a == a; }
 	bool operator!=(const CColor &c) const { return c.r != r || c.g != g || c.b != b || c.a != a; }
@@ -62,17 +62,20 @@ public:
 	GXRModeObj *vid_mode(void) const { return m_rmode; }
 	u32 width2D(void) { return m_width2D; }
 	u32 height2D(void) { return m_height2D; }
-	bool wide(void) const { return m_wide; }// call m_vid.wide to check if wii is widescreen
+	bool wide(void) const { return m_wide; } // call m_vid.wide to check if wii is widescreen
 	bool vid_50hz(void) const { return m_50hz; }
 	u8 getAA(void) const { return m_aa; }
 	bool showingWaitMessage() { return m_WaitThreadRunning; }
-	void set2DViewport(u32 w, u32 h, int x, int y);
+	// void set2DViewport(u32 w, u32 h, int x, int y);
+	void set2DViewport(unsigned int w, unsigned int h, int x, int y);
 	void prepareStencil(void);
 	void renderStencil(void);
 	int stencilVal(int x, int y);
 	void setCustomWaitImgs(const char *path, bool loop);
 	void hideWaitMessage();
 	void startImage(void);
+	void usbImage(bool usb_mounted = false); //
+	void loadListImage(void); //
 	void waitMessage(float delay);
 	void waitMessage(const vector<TexData> &tex, float delay);
 	void waitMessage(const TexData &tex);
@@ -117,7 +120,7 @@ private:
 	static const float _jitter5[5][2];
 	static const float _jitter6[6][2];
 	static const float _jitter8[8][2];
-	//thread stack
+	// thread stack
 	static u8 waitMessageStack[2048];
 	static const u32 waitMessageStackSize;
 private:
@@ -130,7 +133,7 @@ private:
 };
 
 void DrawTexture(TexData * &tex);
-void DrawTexturePos(const TexData *tex);
+void DrawTexturePos(const TexData *tex, bool fullScreen = false);
 void DrawRectangle(f32 x, f32 y, f32 width, f32 height, GXColor color);
 
 extern CVideo m_vid;

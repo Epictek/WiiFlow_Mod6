@@ -220,7 +220,7 @@ TexErr STexture::fromImageFile(TexData &dest, const char *filename, u8 f, u32 mi
 	u8 *Image = fsop_ReadFile(filename, &fileSize);
 	if(Image == NULL)
 	{
-		memcpy((char*)filename+(strlen(filename)-3), "jp", 2);// change .png to .jpg
+		memcpy((char*)filename+(strlen(filename)-3), "jp", 2); // change .png to .jpg
 		Image = fsop_ReadFile(filename, &fileSize);
 	}
 	if(Image == NULL)
@@ -431,6 +431,7 @@ TexErr STexture::fromPNG(TexData &dest, const u8 *buffer, u8 f, u32 minMipSize, 
 		memset(tmpData2, 0, Size2);
 		PNGU_DecodeToRGBA8(ctx, imgProp.imgWidth, imgProp.imgHeight, tmpData2, 0, 0xFF);
 		PNGU_ReleaseImageContext(ctx);
+		/**/
 		// this if is only for covers that have alpha transparency - homebrew smallbox icon.png's and sourceflow smallbox
 		if(dest.thread && (imgProp.imgColorType == PNGU_COLOR_TYPE_GRAY_ALPHA 
 			|| imgProp.imgColorType == PNGU_COLOR_TYPE_RGB_ALPHA)
@@ -456,17 +457,16 @@ TexErr STexture::fromPNG(TexData &dest, const u8 *buffer, u8 f, u32 minMipSize, 
 			DCFlushRange(tmpData2, Size2);
 			Cleanup(dest);
 		}
-		u8 *tmpData3 = _genMipMaps(tmpData2, imgProp.imgWidth, imgProp.imgHeight, maxLODTmp, baseWidth, baseHeight);
-		if(tmpData3 == NULL)
+		/**/
+		tmpData2 = _genMipMaps(tmpData2, imgProp.imgWidth, imgProp.imgHeight, maxLODTmp, baseWidth, baseHeight);
+		if(tmpData2 == NULL)
 		{
 			Cleanup(dest);
-			MEM2_free(tmpData2);
 			return TE_NOMEM;
 		}
-		MEM2_free(tmpData2);
 		u32 nWidth = newWidth;
 		u32 nHeight = newHeight;
-		u8 *pSrc = tmpData3;
+		u8 *pSrc = tmpData2;
 		if(minLODTmp > 0)
 			pSrc += fixGX_GetTexBufferSize(baseWidth, baseHeight, f, minLODTmp > 1 ? GX_TRUE : GX_FALSE, minLODTmp - 1);
 		dest.dataSize = fixGX_GetTexBufferSize(newWidth, newHeight, f, GX_TRUE, maxLODTmp - minLODTmp);
@@ -474,8 +474,7 @@ TexErr STexture::fromPNG(TexData &dest, const u8 *buffer, u8 f, u32 minMipSize, 
 		if(dest.data == NULL)
 		{
 			Cleanup(dest);
-			MEM2_free(tmpData3);
-			//MEM2_free(tmpData2);
+			MEM2_free(tmpData2);
 			return TE_NOMEM;
 		}
 		memset(dest.data, 0, dest.dataSize);
@@ -499,7 +498,7 @@ TexErr STexture::fromPNG(TexData &dest, const u8 *buffer, u8 f, u32 minMipSize, 
 			nWidth >>= 1;
 			nHeight >>= 1;
 		}
-		MEM2_free(tmpData3);
+		MEM2_free(tmpData2);
 		dest.maxLOD = maxLODTmp - minLODTmp;
 		dest.format = f;
 		dest.width = newWidth;
@@ -535,7 +534,7 @@ TexErr STexture::fromPNG(TexData &dest, const u8 *buffer, u8 f, u32 minMipSize, 
 		PNGU_ReleaseImageContext(ctx);
 	}
 	DCFlushRange(dest.data, dest.dataSize);
-	// reduceAlpha only used for cover region flag images on cover settings menu.
+	// reduceAlpha was only used for cover region flag images on cover settings menu.
 	// on and off images use the same image but off has its alpha reduced.
 	_reduceAlpha(dest, reduce_alpha);
 	return TE_OK;

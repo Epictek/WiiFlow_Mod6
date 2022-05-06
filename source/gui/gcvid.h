@@ -32,6 +32,7 @@
 #include <stdio.h> //FILE*
 #include <string>
 #include <vector>
+
 using std::string;
 using std::vector;
 
@@ -46,35 +47,35 @@ struct ThpHeader
 {
   char tag[4]; //'THP\0'
 
-  //from monk's thp player:
-  u32 version; //0x00011000 = 1.1, 0x00010000 = 1.0
+  // from monk's thp player:
+  u32 version; // 0x00011000 = 1.1, 0x00010000 = 1.0
   u32 maxBufferSize;
   u32 maxAudioSamples; //!= 0 if sound is stored in file
 
 
-  float fps; //usually 29.something (=0x41efc28f) for ntsc
+  float fps; // usually 29.something (=0x41efc28f) for ntsc
   u32 numFrames;
-  u32 firstFrameSize; //size of first frame
+  u32 firstFrameSize; // size of first frame
 
-  u32 dataSize; //size of file - ThpHeader.offset
+  u32 dataSize; // size of file - ThpHeader.offset
 
-  //from monk's thp player:
-  u32 componentDataOffset; //ThpComponents stored here
-  u32 offsetsDataOffset; //?? if != 0, offset to table with offsets of all frames?
+  // from monk's thp player:
+  u32 componentDataOffset; // ThpComponents stored here
+  u32 offsetsDataOffset; // ?? if != 0, offset to table with offsets of all frames?
 
   u32 firstFrameOffset;
   u32 lastFrameOffset;
 };
 
-//monk:
+// monk:
 
 struct ThpComponents
 {
-  u32 numComponents; //usually 1 or 2 (video or video + audio)
+  u32 numComponents; // usually 1 or 2 (video or video + audio)
 
-  //component type 0 is video, type 1 is audio,
-  //type 0xff is "no component" (numComponent many entries
-  //are != 0xff)
+  // component type 0 is video, type 1 is audio,
+  // type 0xff is "no component" (numComponent many entries
+  // are != 0xff)
   u8 componentTypes[16];
 };
 
@@ -82,7 +83,7 @@ struct ThpVideoInfo
 {
   u32 width;
   u32 height;
-  u32 unknown; //only for version 1.1 thp files
+  u32 unknown; // only for version 1.1 thp files
 };
 
 struct ThpAudioInfo
@@ -90,73 +91,73 @@ struct ThpAudioInfo
   u32 numChannels;
   u32 frequency;
   u32 numSamples;
-  u32 numData; //only for version 1.1 - that many
-               //audio blocks are after each video block
-               //(for surround sound?)
+  u32 numData; // only for version 1.1 - that many
+               // audio blocks are after each video block
+               // (for surround sound?)
 };
 
-//endmonk
+// endmonk
 
 
-//a frame image is basically a normal jpeg image (without
-//the jfif application marker), the only important difference
-//is that after the image start marker (0xff 0xda) values
-//of 0xff are simply written as 0xff whereas the jpeg
-//standard requires them to be written as 0xff 0x00 because
-//0xff is the start of a 2-byte control code in jpeg
+// a frame image is basically a normal jpeg image (without
+// the jfif application marker), the only important difference
+// is that after the image start marker (0xff 0xda) values
+// of 0xff are simply written as 0xff whereas the jpeg
+// standard requires them to be written as 0xff 0x00 because
+// 0xff is the start of a 2-byte control code in jpeg
 
-//frame (offsets relative to frame start):
-//u32 total (image, sound, etc) size of NEXT frame
-//u32 size1 at 0x04 (total size of PREV frame according to monk)
-//u32 image data size at 0x08
-//size of one audio block ONLY IF THE FILE HAS SOUND. ThpAudioInfo.numData
-//many audio blocks after jpeg data
-//jpeg data
-//audio block(s)
+// frame (offsets relative to frame start):
+// u32 total (image, sound, etc) size of NEXT frame
+// u32 size1 at 0x04 (total size of PREV frame according to monk)
+// u32 image data size at 0x08
+// size of one audio block ONLY IF THE FILE HAS SOUND. ThpAudioInfo.numData
+// many audio blocks after jpeg data
+// jpeg data
+// audio block(s)
 
 struct ThpAudioBlockHeader
 {
-  //size 80 byte
-  u32 channelSize; //size of one channel in bytes
-  u32 numSamples; //number of samples/channel
-  s16 table1[16]; //table for first channel
-  s16 table2[16]; //table for second channel
+  // size 80 byte
+  u32 channelSize; // size of one channel in bytes
+  u32 numSamples; // number of samples/channel
+  s16 table1[16]; // table for first channel
+  s16 table2[16]; // table for second channel
   s16 channel1Prev1;
   s16 channel1Prev2;
   s16 channel2Prev1;
   s16 channel2Prev2;
 };
 
-//audio block:
-//u32 size of this audioblock
+// audio block:
+// u32 size of this audioblock
 //
-//u32 numBytes/channel of audioblock - that many bytes per channel after adpcm table)
+// u32 numBytes/channel of audioblock - that many bytes per channel after adpcm table)
 //
-//u32 number of samples per channel
+// u32 number of samples per channel
 //
-//2*16 shorts adpcm table (one per channel - always stored both,
-//even for mono files), 5.11 fixed point values
+// 2*16 shorts adpcm table (one per channel - always stored both,
+// even for mono files), 5.11 fixed point values
 //
-//4 s16: 2 shorts prev1 and prev2 for each channel (even for mono files)
+// 4 s16: 2 shorts prev1 and prev2 for each channel (even for mono files)
 //
-//sound data
+// sound data
 
-//sound data:
-//8 byte are 14 samples:
-//the first byte stores index (upper nibble) and shift (lower nibble),
-//the following 7 bytes contain 14o samples a 4 bit each
+// sound data:
+// 8 byte are 14 samples:
+// the first byte stores index (upper nibble) and shift (lower nibble),
+// the following 7 bytes contain 14o samples a 4 bit each
 
 
 /////////////////////////////////////////////////////////////////////
-//MTH ("mute thp"?)
+// MTH ("mute thp"?)
 
-//similar to a thp file, but without sound
+// similar to a thp file, but without sound
 
 struct MthHeader
 {
-  //one of the unknown has to be fps in some form
+  // one of the unknown has to be fps in some form
 
-  char tag[4]; //'MTHP'
+  char tag[4]; // 'MTHP'
   u32 unknown;
   u32 unknown2;
   u32 maxFrameSize;
@@ -170,20 +171,20 @@ struct MthHeader
   u32 unknown5;
   u32 firstFrameSize;
 
-  //5 padding u32's follow
+  // 5 padding u32's follow
 };
 
-//frame:
-//u32 size of NEXT frame
-//jpeg data
+// frame:
+// u32 size of NEXT frame
+// jpeg data
 
-//see thp (above) for jpeg format. there's a small difference, though:
-//mth jpegs end with 0xff 0xd9 0xff instead of 0xff 0xd9
+// see thp (above) for jpeg format. there's a small difference, though:
+// mth jpegs end with 0xff 0xd9 0xff instead of 0xff 0xd9
 
 #pragma pack(pop)
 
-//little helper class that represents one frame of video
-//data is 24 bpp, scanlines aligned to 4 byte boundary
+// little helper class that represents one frame of video
+// data is 24 bpp, scanlines aligned to 4 byte boundary
 class VideoFrame
 {
  public:
@@ -202,10 +203,10 @@ class VideoFrame
  private:
   int _w;
   int _h;
-  int _p; //pitch in bytes
+  int _p; // pitch in bytes
 
-  //copy constructor and asignment operator are not allowed
-  //VideoFrame(const VideoFrame& f);
+  // copy constructor and asignment operator are not allowed
+  // VideoFrame(const VideoFrame& f);
   VideoFrame& operator=(const VideoFrame& f);
 };
 
@@ -227,7 +228,7 @@ class VideoFile
 
   virtual void getCurrentFrame(VideoFrame& frame) = 0;
 
-  //sound support:
+  // sound support:
   virtual bool hasSound() const;
   virtual int getNumChannels() const;
   virtual int getFrequency() const;
@@ -239,7 +240,7 @@ class VideoFile
 
   FILE* _f;
 
-  //void loadFrame(long offset, int size);
+  // void loadFrame(long offset, int size);
   virtual void loadFrame(VideoFrame& frame, const u8* src, int src_size);
 
   int countRequiredSize(const u8* src, int src_size, int& start, int& end);

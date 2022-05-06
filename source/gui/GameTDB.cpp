@@ -21,6 +21,7 @@
  * 3. This notice may not be removed or altered from any source
  * distribution.
  ***************************************************************************/
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -35,7 +36,7 @@
 #include "gui/coverflow.hpp"
 
 #define NAME_OFFSET_DB	"gametdb_offsets.bin"
-#define MAXREADSIZE		1024*1024   //Cache size only for parsing the offsets: 1MB
+#define MAXREADSIZE		1024*1024 // Cache size only for parsing the offsets: 1MB
 
 typedef struct _ReplaceStruct
 {
@@ -459,7 +460,7 @@ bool GameTDB::GetTitle(const char *id, const char * &title, bool plugin)
 	
 	title = GetNodeText(language, "<title>", "</title>");
 
-	if(title == NULL && plugin)// If current language doesn't have Title then try in English
+	if(title == NULL && plugin) // If current language doesn't have Title then try in English
 	{
 		language = SeekLang(data, "EN");
 		if(language == NULL)
@@ -478,8 +479,8 @@ bool GameTDB::GetTitle(const char *id, const char * &title, bool plugin)
 	return true;
 }
 
-/* used for plugins database files */
-/* gets no-intro filename used for snapshots and cart/disk images */
+/* Used for plugins database files */
+/* Gets no-intro filename used for snapshots and cart/disk images */
 bool GameTDB::GetName(const char *id, const char * &name)
 {
 	name = NULL;
@@ -520,7 +521,7 @@ bool GameTDB::GetSynopsis(const char *id, const char * &synopsis)
 	}
 	synopsis = GetNodeText(language, "<synopsis>", "</synopsis>");
 
-	if(CoverFlow.getHdr()->type == TYPE_PLUGIN)
+	// if(CoverFlow.getHdr()->type == TYPE_PLUGIN) // default to english for all types
 	{
 		// Default to English
 		if(synopsis == NULL)
@@ -555,6 +556,23 @@ bool GameTDB::GetRegion(const char *id, const char * &region)
 	MEM2_free(data);
 
 	if(region == NULL)
+		return false;
+	return true;
+}
+
+bool GameTDB::GetLanguages(const char *id, const char * &lang) // added
+{
+	lang = NULL;
+	if(!id)
+		return false;
+
+	char *data = GetGameNode(id);
+	if(!data)
+		return false;
+	lang = GetNodeText(data, "<languages>", "</languages>");
+	MEM2_free(data);
+
+	if(lang == NULL)
 		return false;
 	return true;
 }
@@ -642,11 +660,11 @@ u32 GameTDB::GetPublishDate(const char *id)
 	return ((year & 0xFFFF) << 16 | (month & 0xFF) << 8 | (day & 0xFF));
 }
 
-bool GameTDB::GetGenres(const char *id, const char * &gen)
+bool GameTDB::GetGenres(const char *id, const char * &gen, u8 type)
 {
 	gen = NULL;
-
-	if(CoverFlow.getHdr()->type == TYPE_PLUGIN)
+	
+	if(type == TYPE_PLUGIN)
 	{
 		if(!id)
 			return false;
@@ -694,10 +712,12 @@ bool GameTDB::GetGenres(const char *id, const char * &gen)
 		return false;
 
 	gen = GetNodeText(data, "<genre>", "</genre>");
+
 	MEM2_free(data);
 
 	if(gen == NULL)
 		return false;
+
 	return true;
 }
 
@@ -840,8 +860,8 @@ int GameTDB::GetWifiPlayers(const char *id)
 	}
 
 	players = atoi(PlayersNode);
-
-	MEM2_free(data);
+	
+	MEM2_free(data); //
 	return players;
 }
 
@@ -913,7 +933,7 @@ int GameTDB::GetPlayers(const char *id)
 
 	players = atoi(PlayersNode);
 
-	MEM2_free(data);
+	MEM2_free(data); //
 	return players;
 }
 
@@ -986,8 +1006,8 @@ u32 GameTDB::GetCaseColor(const char *id)
 	}
 
 	color = strtoul(ColorNode, NULL, 16);
-	//if(color != 0xffffffff)
-	//	gprintf("GameTDB: Found alternate color(%x) for: %s\n", color, id);
+	// if(color != 0xffffffff)
+		// gprintf("GameTDB: Found alternate color(%x) for: %s\n", color, id);
 
 	MEM2_free(data);
 	return color;
@@ -1003,7 +1023,7 @@ int GameTDB::GetCaseVersions(const char *id)
 	char *data = GetGameNode(id);
 	if(!data)
 	{
-		//gprintf("GameTDB: GameNode for %s not found\n", id);
+		// gprintf("GameTDB: GameNode for %s not found\n", id);
 		return altcase;
 	}
 

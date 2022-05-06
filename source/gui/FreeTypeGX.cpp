@@ -1,4 +1,4 @@
-/* 
+/**
  * FreeTypeGX is a wrapper class for libFreeType which renders a compiled
  * FreeType parsable font into a GX texture for Wii homebrew development.
  * Copyright (C) 2008 Armin Tamzarian
@@ -17,7 +17,8 @@
  * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with FreeTypeGX.  If not, see <http://www.gnu.org/licenses/>.
- */
+ **/
+ 
 #include "FreeTypeGX.h"
 #include "memory/mem2.hpp"
 
@@ -61,7 +62,7 @@ void FreeTypeGX::loadFont(const uint8_t* fontBuffer, FT_Long bufferSize, FT_Pos 
 {
 	// lastFace is true for wii system font from buffer
 	unloadFont();
-	//ftPointSize = pointSize != 0 ? pointSize : ftPointSize;
+	// ftPointSize = pointSize != 0 ? pointSize : ftPointSize;
 	ftWeight = weight;
 
 	int faceIndex = 0;
@@ -79,7 +80,7 @@ void FreeTypeGX::loadFont(const uint8_t* fontBuffer, FT_Long bufferSize, FT_Pos 
 	// load font face 0 or the last face available
 	FT_New_Memory_Face(this->ftLibrary, (FT_Byte *) fontBuffer, bufferSize, faceIndex, &this->ftFace);
 	
-	ftKerningEnabled = false;//FT_HAS_KERNING(ftFace);
+	ftKerningEnabled = false; // FT_HAS_KERNING(ftFace);
 }
 
 void FreeTypeGX::unloadFont()
@@ -121,7 +122,7 @@ ftgxCharData * FreeTypeGX::cacheGlyphData(wchar_t charCode, int16_t pixelSize)
 		ftPointSize = pixelSize;
 		FT_Set_Pixel_Sizes(ftFace, 0, ftPointSize);
 
-		//!Cache ascender and decender as well
+		//! Cache ascender and decender as well
 		std::map<int16_t, ftgxDataOffset>::iterator itrAlign = ftgxAlign.find(ftPointSize);
 		if (itrAlign == ftgxAlign.end())
 		{
@@ -190,23 +191,23 @@ void FreeTypeGX::loadGlyphData(FT_Bitmap *bmp, ftgxCharData *charData)
 
     uint8_t *src = (uint8_t *)bmp->buffer;
     uint8_t *dst = glyphData;
-    uint32_t pos, x1, y1, x, y;
+    uint32_t pos, x1, y1, x, y; // not int32_t
 
-    for(y1 = 0; y1 < bmp->rows; y1 += 8)
+    for(y1 = 0; y1 < (uint32_t)bmp->rows; y1 += 8)
     {
-            for(x1 = 0; x1 < bmp->width; x1 += 8)
+            for(x1 = 0; x1 < (uint32_t)bmp->width; x1 += 8)
             {
                     for(y = y1; y < (y1 + 8); y++)
                     {
                             for(x = x1; x < (x1 + 8); x += 2, dst++)
                             {
-                                    if(x >= bmp->width || y >= bmp->rows)
+                                    if(x >= (uint32_t)bmp->width || y >= (uint32_t)bmp->rows)
                                             continue;
 
-                                    pos = y * bmp->width + x;
+                                    pos = y * (uint32_t)bmp->width + x;
                                     *dst = (src[pos] & 0xF0);
 
-                                        if(x+1 < bmp->width)
+                                        if(x+1 < (uint32_t)bmp->width)
                                             *dst |= (src[pos + 1] >> 4);
                             }
                     }
@@ -452,8 +453,8 @@ void FreeTypeGX::copyFeatureToFramebuffer(uint16_t featureWidth, uint16_t featur
 {
 	f32	f32FeatureWidth = (float)featureWidth;
 	f32 f32FeatureHeight = (float)featureHeight;
-	float x = (float)screenX;// + xPos;
-	float y = (float)screenY;// + yPos;
+	float x = (float)screenX; // + xPos;
+	float y = (float)screenY; // + yPos;
 	
 	GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 	GX_Position3f32(x, y, 0);

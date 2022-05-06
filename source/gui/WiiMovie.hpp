@@ -15,7 +15,7 @@ public:
 	void Stop();
 	bool Continue();
 	volatile bool loaded;
-	TexData *Frame; //our current texture
+	TexData *Frame; // our current texture
 	TexData Buffer[2];
 	u8 BufferPos;
 protected:

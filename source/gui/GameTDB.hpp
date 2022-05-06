@@ -21,14 +21,13 @@
  * 3. This notice may not be removed or altered from any source
  * distribution.
  ***************************************************************************/
+ 
 #ifndef GAMETDB_HPP_
 #define GAMETDB_HPP_
 
 #include <vector>
 #include <string>
 #include <gccore.h>
-
-//using namespace std;
 
 enum
 {
@@ -78,6 +77,8 @@ public:
 	bool GetSynopsis(const char *id, const char * &synopsis);
 	//! Get the region of a game for a specific game id
 	bool GetRegion(const char *id, const char * &region);
+	//! Get the languages of a game for a specific game id
+	bool GetLanguages(const char *id, const char * &lang); // added
 	//! Get the developer of a game for a specific game id
 	bool GetDeveloper(const char *id, const char * &dev);
 	//! Get the publisher of a game for a specific game id
@@ -87,7 +88,7 @@ public:
 	//! year = (return >> 16), month = (return >> 8) & 0xFF, day = return & 0xFF
 	u32 GetPublishDate(const char *id);
 	//! Get the genre list of a game for a specific game id
-	bool GetGenres(const char * id, const char * &gen);
+	bool GetGenres(const char * id, const char * &gen, u8 type);
 	//! Get the rating type for a specific game id
 	//! The rating type can be converted to a string with GameTDB::RatingToString(rating)
 	int GetRating(const char * id);
