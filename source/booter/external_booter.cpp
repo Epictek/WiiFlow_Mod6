@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #include <gccore.h>
 #include <string.h>
 #include <ogc/machine/processor.h>
@@ -32,9 +33,9 @@
 #include "loader/sys.h"
 #include "homebrew/homebrew.h"
 #include "memory/mem2.hpp"
-//#include "network/FTP_Dir.hpp"
 #include "network/https.h"
 #include "plugin/crc32.h"
+#include "banner/AnimatedBanner.h"
 
 /* External WiiFlow Game Booter */
 the_CFG normalCFG;
@@ -61,8 +62,7 @@ extern u32 *gameconf;
 u8 *booter_ptr = NULL;
 u32 booter_size = 0;
 
-void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 patchVidMode, s8 aspectRatio, u8 private_server, const char *server_addr, 
-							bool patchFix480p, u8 deflicker, u32 returnTo, u8 BootType, bool use_led)
+void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 patchVidMode, s8 aspectRatio, u8 private_server, const char *server_addr, u8 deflicker, u32 returnTo, bool patchFix480p, u8 BootType, bool use_led)
 {
 	normalCFG.vidMode = vidMode;
 	normalCFG.vipatch = vipatch;
@@ -71,8 +71,8 @@ void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 pat
 	normalCFG.aspectRatio = aspectRatio;
 	normalCFG.private_server = private_server;
 	strncpy(normalCFG.server_addr, server_addr, 23);
-	normalCFG.patchFix480p = patchFix480p;
 	normalCFG.deflicker = deflicker;
+	normalCFG.patchFix480p = patchFix480p;
 	normalCFG.returnTo = returnTo;
 	normalCFG.configbytes[0] = configbytes[0];
 	normalCFG.configbytes[1] = configbytes[1];
@@ -96,7 +96,7 @@ void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 pat
 	DCFlushRange(&lowCFG, sizeof(the_CFG));
 	*EXT_ADDR_CFG = ((u32)lowCFG);
 	/* Unmount devices etc */
-	ShutdownBeforeExit();// before launching wii game or channel via external booter
+	ShutdownBeforeExit();
 	/* Set proper time */
 	settime(secs_to_ticks(time(NULL) - 946684800));
 	/* Copy in booter */
@@ -109,13 +109,18 @@ void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 pat
 	JumpToEntry(LDR_ENTRY);
 }
 
-bool ExternalBooter_LoadBins(const char *binDir)
+extern const u8 ext_loader_bin[];
+extern const u32 ext_loader_bin_size;
+extern const u8 ext_booter_bin[];
+extern const u32 ext_booter_bin_size;
+
+bool ExternalBooter_LoadBins(void)
 {
-	extldr_ptr = fsop_ReadFile(fmt("%s/ext_loader.bin", binDir), &extldr_size);
+	extldr_ptr = DecompressCopy(ext_loader_bin, ext_loader_bin_size, &extldr_size);
 	if(extldr_size == 0 || extldr_ptr == NULL)
 		return false;
 
-	booter_ptr = fsop_ReadFile(fmt("%s/ext_booter.bin", binDir), &booter_size);
+	booter_ptr = DecompressCopy(ext_booter_bin, ext_booter_bin_size, &booter_size);
 	if(booter_size > 0 && booter_ptr != NULL)
 		return true;
 
@@ -148,6 +153,9 @@ void ExternalBooter_ChannelSetup(u64 title, bool dol)
 
 void ShutdownBeforeExit(void)
 {
+	DeviceHandle.UnMountAll();
+	NandHandle.DeInit_ISFS();
+	WDVD_Close();
 	Close_Inputs();
 	/* Deinit network */
 	if(networkInit == true)
@@ -155,14 +163,13 @@ void ShutdownBeforeExit(void)
 		while(net_get_status() == -EBUSY)
 			usleep(50);
 		WiFiDebugger.Close();
-		//ftp_endTread();
 		wolfSSL_Cleanup();
+		// net_wc24cleanup();
 		net_deinit();
 		networkInit = false;
 	}
-	/* Avoid issues on vWii by always calling this */
-	net_wc24cleanup();
-	NandHandle.DeInit_ISFS();
-	DeviceHandle.UnMountAll();
-	WDVD_Close();
+	net_wc24cleanup(); // moved this here to fix an issue with disc launch
+	// DeviceHandle.UnMountAll();
+	// NandHandle.DeInit_ISFS();
+	// WDVD_Close();
 }

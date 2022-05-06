@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #ifndef EXTERNAL_BOOTER_HPP
 #define EXTERNAL_BOOTER_HPP
 
@@ -28,11 +29,11 @@ extern u32 hooktype;
 }
 #endif
 
-void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 patchVidMode, s8 aspectRatio, u8 private_server, const char *server_addr, 
-							bool patchFix480p, u8 deflicker, u32 returnTo, u8 BootType, bool use_led);
-bool ExternalBooter_LoadBins(const char *binDir);
+void WiiFlow_ExternalBooter(u8 vidMode, bool vipatch, bool countryString, u8 patchVidMode, s8 aspectRatio, u8 private_server, const char *server_addr, u8 deflicker, u32 returnTo, bool patchFix480p, u8 BootType, bool use_led);
+bool ExternalBooter_LoadBins(void);
 void ExternalBooter_ChannelSetup(u64 title, bool dol);
 void ExternalBooter_WiiGameSetup(bool wbfs, bool dvd, bool patchregion, const char *ID);
+
 void ShutdownBeforeExit(void);
 
 #endif
