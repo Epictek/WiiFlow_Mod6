@@ -9,7 +9,8 @@ void AddBootArgument(const char *argv);
 void AddBootArgument(const char *argv, unsigned int size);
 bool LoadHomebrew(const char *filepath);
 char *GetHomebrew(unsigned int *size);
-bool LoadAppBooter(const char *filepath);
+// bool LoadAppBooter(const char *filepath);
+bool LoadAppBooter(void);
 void JumpToEntry(entry EntryPoint);
 void writeStub();
 

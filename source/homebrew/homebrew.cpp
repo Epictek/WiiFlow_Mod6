@@ -18,7 +18,7 @@ static u8 *EXECUTE_ADDR = (u8*)0x92000000;
 static u8 *BOOTER_ADDR = (u8*)0x93300000;
 static entry BOOTER_ENTRY = (entry)BOOTER_ADDR;
 
-static __argv *ARGS_ADDR = (__argv*)0x93300800; //more than twice as much as the appbooter, just for safety
+static __argv *ARGS_ADDR = (__argv*)0x93300800; // more than twice as much as the appbooter, just for safety
 static char *CMD_ADDR = (char*)ARGS_ADDR + sizeof(struct __argv);
 
 extern "C" { void __exception_closeall(); }
@@ -32,8 +32,13 @@ u32 appbooter_size = 0;
 using std::string;
 using std::vector;
 
+#ifdef APP_WIIFLOW_LITE
+extern const u8 stub_bin[];
+extern const u32 stub_bin_size;
+#else
 extern const u8 wfstub_bin[];
 extern const u32 wfstub_bin_size;
+#endif
 
 u8 valid = 0;
 
@@ -63,13 +68,13 @@ void AddBootArgument(const char *argv, unsigned int size)
 	string arg(argv, size);
 	Arguments.push_back(arg);
 }
-
+/**
 bool LoadAppBooter(const char *filepath)
 {
 	u8 *tmp_ptr = fsop_ReadFile(filepath, &appbooter_size);
 	if(appbooter_size == 0 || tmp_ptr == NULL)
 		return false;
-	appbooter_ptr = (u8*)MEM2_lo_alloc(appbooter_size); /* safety because upper mem2 is dol */
+	appbooter_ptr = (u8*)MEM2_lo_alloc(appbooter_size); // safety because upper mem2 is dol
 	if(appbooter_ptr == NULL)
 	{
 		free(tmp_ptr);
@@ -80,7 +85,19 @@ bool LoadAppBooter(const char *filepath)
 	free(tmp_ptr);
 	return true;
 }
+**/
+/**/
+extern const u8 app_booter_bin[];
+extern const u32 app_booter_bin_size;
 
+bool LoadAppBooter(void)
+{
+	appbooter_ptr = DecompressCopy(app_booter_bin, app_booter_bin_size, &appbooter_size);
+	if(appbooter_size == 0 || appbooter_ptr == NULL)
+		return false;
+	return true;
+}
+/**/
 bool LoadHomebrew(const char *filepath)
 {
 	if(filepath == NULL)
@@ -116,13 +133,13 @@ static int SetupARGV()
 
 	u32 position = 0;
 
-	/** Count Arguments Size **/
+	/* Count Arguments Size */
 	u32 stringlength = 1;
 	for(u32 i = 0; i < Arguments.size(); i++)
 		stringlength += Arguments[i].size()+1;
 	args->length = stringlength;
 
-	/** Append Arguments **/
+	/* Append Arguments */
 	args->argc = Arguments.size();
 	args->commandLine = CMD_ADDR;
 	for(int i = 0; i < args->argc; i++)
@@ -145,17 +162,40 @@ void writeStub()
 
 	/* Extract our stub */
 	u32 StubSize = 0;
-	u8 *Stub = DecompressCopy(wfstub_bin, wfstub_bin_size, &StubSize);
+#ifdef APP_WIIFLOW_LITE
+	//! stub.bin loads WiiFlow Lite channel WFLA
+	u8 *Stub = DecompressCopy(stub_bin, stub_bin_size, &StubSize); 
+#else
+	//! wfstub.bin loads Wiiflow channel DWFA (no more WIIH)
+	u8 *Stub = DecompressCopy(wfstub_bin, wfstub_bin_size, &StubSize); 
+#endif
 
 	/* Copy our own stub into memory */
 	memcpy((void*)0x80001800, Stub, StubSize);
 	DCFlushRange((void*)0x80001800, StubSize);
 
 	/* And free the memory again */
+#ifdef APP_WIIFLOW_LITE
+	if(Stub != stub_bin)
+#else
 	if(Stub != wfstub_bin)
+#endif
 		free(Stub);
 }
-
+/**
+void BootHomebrew()
+{
+	if(!IsDollZ(EXECUTE_ADDR) && !IsSpecialELF(EXECUTE_ADDR))
+		SetupARGV();
+	else
+		gprintf("Homebrew Boot Arguments disabled\n");
+	memcpy(BOOTER_ADDR, appbooter_ptr, appbooter_size);
+	DCFlushRange(BOOTER_ADDR, appbooter_size);
+	free(appbooter_ptr);
+	JumpToEntry(BOOTER_ENTRY);
+}
+**/
+/**/
 void BootHomebrew()
 {
 	if(!IsDollZ(EXECUTE_ADDR) && !IsSpecialELF(EXECUTE_ADDR))
@@ -167,15 +207,14 @@ void BootHomebrew()
 	memcpy(BOOTER_ADDR, appbooter_ptr, appbooter_size);
 	DCFlushRange(BOOTER_ADDR, appbooter_size);
 	ICInvalidateRange(BOOTER_ADDR, appbooter_size);
-	free(appbooter_ptr);
-	//JumpToEntry(BOOTER_ENTRY);
+	// free(appbooter_ptr);
 	SYS_ResetSystem(SYS_SHUTDOWN, 0, 0);
 	_CPU_ISR_Disable( cpu_isr );
 	__exception_closeall();
 	BOOTER_ENTRY();
 	_CPU_ISR_Restore( cpu_isr );
 }
-
+/**/
 extern "C" { extern void __exception_closeall(); }
 u32 AppEntrypoint = 0;
 void JumpToEntry(entry EntryPoint)
