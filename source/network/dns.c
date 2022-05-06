@@ -11,9 +11,9 @@
  */
 u32 getipbyname(char *domain)
 {
-	//Care should be taken when using net_gethostbyname,
-	//it returns a static buffer which makes it not threadsafe
-	//TODO: implement some locking mechanism to make below code atomic
+	// Care should be taken when using net_gethostbyname,
+	// it returns a static buffer which makes it not threadsafe
+	// TODO: implement some locking mechanism to make below code atomic
 	struct hostent *host = net_gethostbyname(domain);
 	
 	if(host == NULL) return 0;
@@ -24,12 +24,12 @@ u32 getipbyname(char *domain)
 
 
 
-//Defines how many DNS entries should be cached by getipbynamecached()
+// Defines how many DNS entries should be cached by getipbynamecached()
 #define MAX_DNS_CACHE_ENTRIES 20
 
-//The cache is defined as a linked list,
-//The last resolved domain name will always be at the front
-//This will allow heavily used domainnames to always stay cached
+// The cache is defined as a linked list,
+// The last resolved domain name will always be at the front
+// This will allow heavily used domainnames to always stay cached
 struct dnsentry {
 	char *domain;
 	u32 ip;
@@ -45,7 +45,7 @@ static int dnsentrycount = 0;
  */
 u32 getipbynamecached(char *domain)
 {
-	//Search if this domainname is already cached
+	// Search if this domainname is already cached
 	struct dnsentry *node = firstdnsentry;
 	struct dnsentry *previousnode = NULL;
 	
@@ -53,7 +53,7 @@ u32 getipbynamecached(char *domain)
 	{
 		if(strcmp(node->domain, domain) == 0)
 		{
-			//DNS node found in the cache, move it to the front of the list
+			// DNS node found in the cache, move it to the front of the list
 			if(previousnode != NULL)
 				previousnode->nextnode = node->nextnode;
 				
@@ -63,13 +63,13 @@ u32 getipbynamecached(char *domain)
 			
 			return node->ip;
 		}
-		//Go to the next element in the list
+		// Go to the next element in the list
 		previousnode = node;
 		node = node->nextnode;
 	}
 	u32 ip = getipbyname(domain);
 	
-	//No cache of this domain could be found, create a cache node and add it to the front of the cache
+	// No cache of this domain could be found, create a cache node and add it to the front of the cache
 	struct dnsentry *newnode = malloc(sizeof(struct dnsentry));
 	if(newnode == NULL) return ip;
 		
@@ -86,13 +86,13 @@ u32 getipbynamecached(char *domain)
 	firstdnsentry = newnode;
 	dnsentrycount++;
 
-	//If the cache grows too big delete the last (and probably least important) node of the list
+	// If the cache grows too big delete the last (and probably least important) node of the list
 	if(dnsentrycount > MAX_DNS_CACHE_ENTRIES)
 	{
 		struct dnsentry *node = firstdnsentry;
 		struct dnsentry *previousnode = NULL;
 		
-		//Fetch the last two elements of the list
+		// Fetch the last two elements of the list
 		while(node->nextnode != NULL)
 		{
 			previousnode = node;
