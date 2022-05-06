@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #include <stdio.h>
 #include <string.h>
 
@@ -38,9 +39,9 @@ void GC_Disc::init(const char *path)
 	if(strstr(GamePath, "boot.bin") != NULL)
 	{
 		GameType = TYPE_FST;
-		if(strchr(GamePath, '/') != NULL) //boot.bin
+		if(strchr(GamePath, '/') != NULL) // boot.bin
 			*strrchr(GamePath, '/') = '\0';
-		if(strchr(GamePath, '/') != NULL) //sys
+		if(strchr(GamePath, '/') != NULL) // sys
 			*strrchr(GamePath, '/') = '\0';
 		char *FstPath = fmt_malloc("%s/sys/fst.bin", GamePath);
 		if(FstPath != NULL)
@@ -112,7 +113,7 @@ u8 *GC_Disc::GetGameCubeBanner()
 	FST *fst = (FST*)FSTable;
 	for(u32 i = 1; i < FSTEnt; ++i)
 	{
-		if(fst[i].Type) //Folder
+		if(fst[i].Type) // Folder
 			continue;
 		else if(strcmp(FSTNameOff + fst[i].NameOffset, "opening.bnr") == 0)
 		{
