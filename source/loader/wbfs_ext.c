@@ -39,6 +39,7 @@ struct statvfs wbfs_ext_vfs;
 #define STRCOPY(DEST,SRC) strcopy(DEST,SRC,sizeof(DEST)) 
 char* strcopy(char *dest, const char *src, int size)
 {
+	// strncpy(dest,src,size);
 	memcpy(dest,src,size);
 	dest[size-1] = 0;
 	return dest;
@@ -47,17 +48,18 @@ char* strcopy(char *dest, const char *src, int size)
 wbfs_disc_t* WBFS_Ext_OpenDisc(u8 *discid, char *fname)
 {
 	bool sd = strstr(fname, "sd") != NULL;
-	if (strcasecmp(strrchr(fname,'.'), ".iso") == 0)
+	if(strcasecmp(strrchr(fname,'.'), ".iso") == 0)
 	{
 		// .iso file
 		// create a fake wbfs_disc
 		int fd = open(fname, O_RDONLY);
-		if (fd == -1) return NULL;
+		if(fd == -1) 
+			return NULL;
 
 		wbfs_disc_t *iso_file = malloc(sizeof(wbfs_disc_t));
 		memset(iso_file, 0, sizeof(wbfs_disc_t));
 
-		if (iso_file == NULL) 
+		if(iso_file == NULL) 
 			return NULL;
 
 		// mark with a special wbfs_part
@@ -76,11 +78,12 @@ wbfs_disc_t* WBFS_Ext_OpenDisc(u8 *discid, char *fname)
 
 void WBFS_Ext_CloseDisc(wbfs_disc_t* disc)
 {
-	if (!disc) return;
+	if(!disc) 
+		return;
 	wbfs_t *part = disc->p;
 
 	// is this really a .iso file?
-	if (part == &wbfs_iso_file)
+	if(part == &wbfs_iso_file)
 	{
 		close((int)disc->header);
 		free(disc);
@@ -99,7 +102,7 @@ s32 WBFS_Ext_DiskSpace(f32 *used, f32 *free)
 	static s32 wbfs_ext_vfs_have = 0, wbfs_ext_vfs_lba = 0,  wbfs_ext_vfs_dev = 0;
 
 	// statvfs is slow, so cache values
-	if (!wbfs_ext_vfs_have || wbfs_ext_vfs_lba != (s32)wbfs_part_lba || wbfs_ext_vfs_dev != wbfsDev )
+	if(!wbfs_ext_vfs_have || wbfs_ext_vfs_lba != (s32)wbfs_part_lba || wbfs_ext_vfs_dev != wbfsDev)
 	{
 		if(statvfs(fmt("%s:", wbfs_fs_drive), &wbfs_ext_vfs))
 			return 0;
@@ -124,11 +127,11 @@ wbfs_t* WBFS_Ext_OpenPart(char *fname)
 		return NULL;
 
 	wbfs_set_force_mode(1);
-	wbfs_t *part = wbfs_open_partition(split_read_sector, 0, //readonly //split_write_sector,
+	wbfs_t *part = wbfs_open_partition(split_read_sector, 0, // readonly // split_write_sector,
 		&split, sd ? 512 : USBStorage2_GetSectorSize(), split.total_sec, 0, 0);
 	wbfs_set_force_mode(0);
 
-	if (!part)
+	if(!part)
 		split_close(&split);
 
 	return part;
@@ -136,10 +139,12 @@ wbfs_t* WBFS_Ext_OpenPart(char *fname)
 
 void WBFS_Ext_ClosePart(wbfs_t* part)
 {
-	if (!part) return;
+	if(!part) 
+		return;
 	split_info_t *s = (split_info_t*)part->callback_data;
 	wbfs_close(part);
-	if (s) split_close(s);
+	if(s) 
+		split_close(s);
 }
 
 s32 WBFS_Ext_RemoveGame(u8 *discid, char *gamepath)
@@ -148,12 +153,14 @@ s32 WBFS_Ext_RemoveGame(u8 *discid, char *gamepath)
 	struct dirent *ent;
 	char file[MAX_FAT_PATH];
 	char folder[MAX_FAT_PATH];
-	STRCOPY(folder, gamepath);// why function STRCOPY and not just strcpy?
+	STRCOPY(folder, gamepath); // why function STRCOPY and not just strcpy?
 	char *p = strrchr(folder, '/');
-	if(p) *p = 0;
+	if(p) 
+		*p = 0;
 
 	dir_iter = opendir(folder);
-	if (!dir_iter) return 0;
+	if(!dir_iter) 
+		return 0;
 	while((ent = readdir(dir_iter)) != NULL)
 	{
 		if(strstr(ent->d_name, (char*)discid) != NULL)
@@ -186,12 +193,14 @@ s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data)
 	asprintf(&cleantitle, header.title);
 	for(cp = strpbrk(cleantitle, illegal); cp; cp = strpbrk(cp, illegal))
 		*cp = '_';
+
 	memcpy(folder, fmt(wii_games_dir, wbfs_fs_drive), sizeof(folder));
 	fsop_MakeFolder(folder);
+	
 	memcpy(folder, fmt("%s/%s [%s]", folder, cleantitle, header.id), sizeof(folder));
 	fsop_MakeFolder(folder);
 	free(cleantitle);
-
+	
 	memcpy(gamepath, fmt("%s/%s.wbfs", folder, header.id), sizeof(gamepath));
 	u64 size = (u64)143432*2*0x8000ULL;
 	u32 n_sector = size / 512;
@@ -199,16 +208,16 @@ s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data)
 	if(split_create(&split, gamepath, OPT_split_size, size, true))
 		return -1;
 
-	//force create first file
+	// force create first file
 	u32 scnt = 0;
-	if (split_get_file(&split, 0, &scnt, 0) < 0)
+	if(split_get_file(&split, 0, &scnt, 0) < 0)
 	{
 		split_close(&split);
 		return -1;
 	}
 
 	wbfs_t *part = wbfs_open_partition(split_read_sector, split_write_sector, &split, 512, n_sector, 0, 1);
-	if (!part)
+	if(!part)
 	{
 		split_close(&split);
 		return -1;
@@ -220,11 +229,13 @@ s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data)
 	s32 ret = wbfs_add_disc(part, __WBFS_ReadDVD, NULL, spinner, spinner_data, REMOVE_UPDATE_PARTITION, 0);
 	hdd = old_hdd;
 
-	if(ret == 0) wbfs_trim(part);
+	if(ret == 0) 
+		wbfs_trim(part);
 
 	WBFS_Ext_ClosePart(part);
 	
-	if(ret < 0) WBFS_Ext_RemoveGame(NULL, gamepath);
+	if(ret < 0) 
+		WBFS_Ext_RemoveGame(NULL, gamepath);
 
 	return ret < 0 ? ret : 0;
 }

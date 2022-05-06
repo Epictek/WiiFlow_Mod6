@@ -1,4 +1,4 @@
-/*
+/**
  *  Copyright (C) 2008 Nuke (wiinuke@gmail.com)
  *
  *  this file is part of GeckoOS for USB Gecko
@@ -17,7 +17,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+ **/
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +28,6 @@
 
 #include "fst.h"
 #include "sys.h"
-
 #include "gecko/gecko.hpp"
 #include "memory/mem2.hpp"
 
@@ -66,8 +66,10 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 	u32 ret;
 	s32 gameidmatch, maxgameidmatch = -1, maxgameidmatch2 = -1;
 	u32 i, numnonascii, parsebufpos;
-	u32 codeaddr, codeval, codeaddr2, codeval2, codeoffset;
-	u32 temp, tempoffset = 0;
+	// u32 codeaddr, codeval, codeaddr2, codeval2, codeoffset;
+	// u32 temp, tempoffset = 0;
+	unsigned long codeaddr, codeval, codeaddr2, codeval2, codeoffset;
+	unsigned long temp, tempoffset = 0;
 	char parsebuffer[18];
 
 	// Remove non-ASCII characters
@@ -82,7 +84,7 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 	tempgameconfsize -= numnonascii;
 
 	*(tempgameconf + tempgameconfsize) = 0;
-	//gameconf = (tempgameconf + tempgameconfsize) + (4 - (((u32) (tempgameconf + tempgameconfsize)) % 4));
+	// gameconf = (tempgameconf + tempgameconfsize) + (4 - (((u32) (tempgameconf + tempgameconfsize)) % 4));
 
 	for (maxgameidmatch = 0; maxgameidmatch <= 6; maxgameidmatch++)
 	{
@@ -114,8 +116,7 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 					else if (tempgameconf[i] == ' ')
 						break;
 					else i++;
-					if (parsebufpos == 8)
-						break;
+					if (parsebufpos == 8) break;
 				}
 				parsebuffer[parsebufpos] = 0;
 				if (strncasecmp("DEFAULT", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer) == 7)
@@ -139,18 +140,19 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 				parsebufpos = 0;
 				while ((i != tempgameconfsize) && (tempgameconf[i] != 10 && tempgameconf[i] != 13))
 				{
-					if (tempgameconf[i] != 0 && tempgameconf[i] != ' ' && tempgameconf[i] != '(' && tempgameconf[i] != ':')
+					if (tempgameconf[i] != 0 && tempgameconf[i] != ' ' && tempgameconf[i] != '(' && tempgameconf[i]
+							!= ':')
 						parsebuffer[parsebufpos++] = tempgameconf[i++];
 					else if (tempgameconf[i] == ' ' || tempgameconf[i] == '(' || tempgameconf[i] == ':')
 						break;
 					else i++;
-					if (parsebufpos == 17) 
-						break;
+					if (parsebufpos == 17) break;
 				}
 				parsebuffer[parsebufpos] = 0;
-				//if (!autobootcheck)
+				// if (!autobootcheck)
 				{
-					if (strncasecmp("codeliststart", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer) == 13)
+					if (strncasecmp("codeliststart", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer)
+							== 13)
 					{
 						sscanf((char *) (tempgameconf + i), " = %x", (unsigned int *) &codelist);
 					}
@@ -160,7 +162,7 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 					}
 					if (strncasecmp("poke", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer) == 4)
 					{
-						ret = sscanf((char *) tempgameconf + i, "( %x , %x", &codeaddr, &codeval);
+						ret = sscanf((char *) tempgameconf + i, "( %lx , %lx", &codeaddr, &codeval);
 						if (ret == 2)
 						{
 							*(gameconf + (gameconfsize / 4)) = 0;
@@ -176,7 +178,8 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 					}
 					if (strncasecmp("pokeifequal", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer) == 11)
 					{
-						ret = sscanf((char *) (tempgameconf + i), "( %x , %x , %x , %x", &codeaddr, &codeval, &codeaddr2, &codeval2);
+						ret = sscanf((char *) (tempgameconf + i), "( %lx , %lx , %lx , %lx", &codeaddr, &codeval,
+								&codeaddr2, &codeval2);
 						if (ret == 4)
 						{
 							*(gameconf + (gameconfsize / 4)) = 0;
@@ -192,9 +195,10 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 							DCFlushRange((void *) (gameconf + (gameconfsize / 4) - 5), 20);
 						}
 					}
-					if (strncasecmp("searchandpoke", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer) == 13)
+					if (strncasecmp("searchandpoke", parsebuffer, strlen(parsebuffer)) == 0 && strlen(parsebuffer)
+							== 13)
 					{
-						ret = sscanf((char *) (tempgameconf + i), "( %x%n", &codeval, &tempoffset);
+						ret = sscanf((char *) (tempgameconf + i), "( %lx%ln", &codeval, &tempoffset);
 						if (ret == 1)
 						{
 							gameconfsize += 4;
@@ -205,10 +209,11 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 								gameconfsize += 4;
 								temp++;
 								i += tempoffset;
-								ret = sscanf((char *) (tempgameconf + i), " %x%n", &codeval, &tempoffset);
+								ret = sscanf((char *) (tempgameconf + i), " %lx%ln", &codeval, &tempoffset);
 							}
 							*(gameconf + (gameconfsize / 4) - temp - 1) = temp;
-							ret = sscanf((char *) (tempgameconf + i), " , %x , %x , %x , %x", &codeaddr, &codeaddr2, &codeoffset, &codeval2);
+							ret = sscanf((char *) (tempgameconf + i), " , %lx , %lx , %lx , %lx", &codeaddr, &codeaddr2,
+									&codeoffset, &codeval2);
 							if (ret == 4)
 							{
 								*(gameconf + (gameconfsize / 4)) = codeaddr;
@@ -230,17 +235,16 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 				{
 					while ((i != tempgameconfsize) && (tempgameconf[i] != 10 && tempgameconf[i] != 13))
 						i++;
-					if (i != tempgameconfsize)
-						i++;
+					if (i != tempgameconfsize) i++;
 				}
 			}
-			if (i != tempgameconfsize)
-				while ((tempgameconf[i] != 10 && tempgameconf[i] != 13) && (i != 0))
-					i--;
+			if (i != tempgameconfsize) while ((tempgameconf[i] != 10 && tempgameconf[i] != 13) && (i != 0))
+				i--;
 		}
 	}
 	return 0;
 }
+
 
 u8 *code_buf = NULL;
 u32 code_size = 0;
@@ -255,7 +259,7 @@ int ocarina_load_code(const u8 *cheat, u32 cheatSize)
 
 	if(cheatSize <= 0)
 	{
-		//gprintf("Ocarina: No codes found\n");
+		// gprintf("Ocarina: No codes found\n");
 		code_buf = NULL;
 		code_size = 0;
 		return 0;

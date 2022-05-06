@@ -14,7 +14,7 @@ static fstats stats ATTRIBUTE_ALIGN(32);
 u8 *ISFS_GetFile(const char *path, u32 *size, s32 length)
 {
 	*size = 0;
-	//gprintf("ISFS_GetFile %s", path);
+	// gprintf("ISFS_GetFile %s", path);
 	s32 fd = ISFS_Open(path, ISFS_OPEN_READ);
 	u8 *buf = NULL;
 
@@ -41,10 +41,10 @@ u8 *ISFS_GetFile(const char *path, u32 *size, s32 length)
 	}
 	if(*size > 0)
 	{
-		//gprintf(" succeed!\n");
+		// gprintf(" succeed!\n");
 		DCFlushRange(buf, *size);
 	}
-	//else
-	//	gprintf(" failed!\n");
+	// else
+		// gprintf(" failed!\n");
 	return buf;
 }

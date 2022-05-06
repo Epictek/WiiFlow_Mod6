@@ -73,7 +73,7 @@ static u32 ios_60[16] ATTRIBUTE_ALIGN(32)=
 	0x20203750+1, // ios_printf (thumb)
 };
 
-static u32 patch_datas[8] ATTRIBUTE_ALIGN(32);
+u32 patch_datas[8] ATTRIBUTE_ALIGN(32);
 static int my_thread_id = 0;
 static data_elf my_data_elf;
 

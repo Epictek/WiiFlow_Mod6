@@ -70,6 +70,7 @@ iosinfo_t *IOS_GetInfo(u8 ios)
 	if(TMD == NULL)
 		return NULL;
 	char filepath[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
+	// sprintf(filepath, "/title/00000001/%08x/content/%08x.app", ios, *(u8 *)((u32)TMD+0x1E7));
 	snprintf(filepath, ISFS_MAXPATH, "/title/00000001/%08x/content/%08x.app", ios, *(u8 *)((u32)TMD+0x1E7));
 	MEM2_free(TMD);
 
@@ -120,6 +121,8 @@ bool IOS_D2X(u8 ios, u8 *base)
 
 u8 IOS_GetType(u8 slot)
 {
+	if(neek2o())
+		return IOS_TYPE_NEEK2O;
 	if(isWiiVC)
 		return IOS_TYPE_NORMAL_IOS;
 	u32 TMD_Length;
@@ -186,7 +189,8 @@ void IOS_GetCurrentIOSInfo()
 	{
 		if(CurrentIOS.Revision >= 18)
 			CurrentIOS.Base = wanin_mload_get_IOS_base();
-		gprintf("Waninkoko IOS%i[%i] v%i\n", CurrentIOS.Version, CurrentIOS.Base, CurrentIOS.Revision);
+		gprintf("Waninkoko IOS%i[%i] v%i\n", CurrentIOS.Version, CurrentIOS.Base, 
+			CurrentIOS.Revision);
 	}
 	else if(CurrentIOS.Type == IOS_TYPE_HERMES)
 	{

@@ -365,7 +365,7 @@ s32 GCDump::DumpGame()
 		FSTNameOff = (char*)(FSTable + FSTEnt * 0x0C);
 		FST *fst = (FST *)(FSTable);
 
-		snprintf(minfo, sizeof(minfo), "[%.06s] %s", gc_hdr.id, gc_hdr.title);
+		snprintf(minfo, sizeof(minfo), "%s [%.06s]", gc_hdr.title, gc_hdr.id);
 
 		if(FSTTotal > FSTSize)
 			mainMenu.GC_Messenger(4, Disc+1, minfo);
@@ -374,14 +374,14 @@ s32 GCDump::DumpGame()
 
 		gprintf("Dumping: %s %s\n", gc_hdr.title, compressed ? "compressed" : "full");
 
-		gprintf("Apploader size : %d\n", ApploaderSize);
-		gprintf("DOL offset     : 0x%08x\n", DOLOffset);
-		gprintf("DOL size       : %d\n", DOLSize);
-		gprintf("FST offset     : 0x%08x\n", FSTOffset);
-		gprintf("FST size       : %d\n", FSTSize);
-		gprintf("Num FST entries: %d\n", FSTEnt);
-		gprintf("Data Offset    : 0x%08x\n", FSTOffset+FSTSize);
-		gprintf("Disc size      : %d\n", DiscSize);
+		// gprintf("Apploader size : %d\n", ApploaderSize);
+		// gprintf("DOL offset     : 0x%08x\n", DOLOffset);
+		// gprintf("DOL size       : %d\n", DOLSize);
+		// gprintf("FST offset     : 0x%08x\n", FSTOffset);
+		// gprintf("FST size       : %d\n", FSTSize);
+		// gprintf("Num FST entries: %d\n", FSTEnt);
+		// gprintf("Data Offset    : 0x%08x\n", FSTOffset+FSTSize);
+		// gprintf("Disc size      : %d\n", DiscSize);
 
 		if(writeexfiles && !Disc)
 		{
@@ -389,15 +389,15 @@ s32 GCDump::DumpGame()
 			snprintf(folder, sizeof(folder), "%s/%s [%.06s]/sys", basedir, gc_hdr.title, gc_hdr.id);
 			fsop_MakeFolder(folder);
 
-			gprintf("Writing %s/boot.bin\n", folder);
+			// gprintf("Writing %s/boot.bin\n", folder);
 			snprintf(gamepath, sizeof(gamepath), "%s/boot.bin", folder);
 			gc_done += __DiscWrite(gamepath, NextOffset, 0x440, ReadBuffer);
 
-			gprintf("Writing %s/bi2.bin\n", folder);
+			// gprintf("Writing %s/bi2.bin\n", folder);
 			snprintf(gamepath, sizeof(gamepath), "%s/bi2.bin", folder);
 			gc_done += __DiscWrite(gamepath, 0x440+NextOffset, 0x2000, ReadBuffer);
 
-			gprintf("Writing %s/apploader.img\n", folder);
+			// gprintf("Writing %s/apploader.img\n", folder);
 			snprintf(gamepath, sizeof(gamepath), "%s/apploader.img", folder);
 			gc_done += __DiscWrite(gamepath, 0x2440+NextOffset, ApploaderSize, ReadBuffer);
 		}
@@ -409,7 +409,7 @@ s32 GCDump::DumpGame()
 			if(ptz != NULL)
 				memcpy(ptz, "gam1.iso", 8);
 		}
-		gprintf("Writing %s\n", gamepath);
+		// gprintf("Writing %s\n", gamepath);
 		if(compressed)
 		{
 			u32 align;
@@ -466,7 +466,7 @@ s32 GCDump::DumpGame()
 				}
 			}
 
-			gprintf("Updating FST\n");
+			// gprintf("Updating FST\n");
 			fseek(f, FSTOffset, SEEK_SET);
 			fwrite(fst, 1, FSTSize, f);
 			fclose(f);

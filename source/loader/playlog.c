@@ -1,4 +1,4 @@
-/*
+/**
 	PLAYLOG.C
 	This code allows to modify play_rec.dat in order to store the
 	game time in Wii's log correctly.
@@ -7,7 +7,7 @@
 	Thanks to tueidj for giving me some hints on how to do it :)
 	Most of the code was taken from here:
 	http://forum.wiibrew.org/read.php?27,22130
-*/
+**/
 
 #include <stdio.h>
 #include <string.h>
@@ -48,18 +48,18 @@ u64 getWiiTime(void)
 
 int Playlog_Update(const char ID[6], const u8 title[84])
 {
-	gprintf("Update Play log\n");
+	// gprintf("Update Play log\n");
 	u32 sum = 0;
 	u8 i;
 
-	//Open play_rec.dat
+	// Open play_rec.dat
 	s32 playrec_fd = IOS_Open(PLAYRECPATH, IPC_OPEN_RW);
 	if(playrec_fd == -106)
 	{
-		gprintf("IOS_Open error ret: %i\n",playrec_fd);
+		gprintf("Playlog_Update: IOS_Open error ret: %i\n",playrec_fd);
 		IOS_Close(playrec_fd);
 		
-		//In case the play_rec.dat wasn´t found create one and try again
+		// In case the play_rec.dat wasn't found create one and try again
 		if(ISFS_CreateFile(PLAYRECPATH,0,3,3,3) < 0 )
 			goto error_2;
 			
@@ -74,18 +74,18 @@ int Playlog_Update(const char ID[6], const u8 title[84])
 	playrec_buf.ticks_boot = stime;
 	playrec_buf.ticks_last = stime;
 
-	//Update channel name and ID
+	// Update channel name and ID
 	memcpy(playrec_buf.name, title, 84);
 	strcpy(playrec_buf.title_id, ID);
 
 	memset(playrec_buf.padding2, 0, 18);
 
-	//Calculate and update checksum
-	for(i=0; i<31; i++)
+	// Calculate and update checksum
+	for(i = 0; i < 31; i++)
 		sum += playrec_buf.data[i];
 	playrec_buf.checksum=sum;
 
-	//Write play_rec.dat
+	// Write play_rec.dat
 	if(IOS_Write(playrec_fd, &playrec_buf, sizeof(playrec_buf)) != sizeof(playrec_buf))
 		goto error_1;
 
@@ -93,22 +93,22 @@ int Playlog_Update(const char ID[6], const u8 title[84])
 	return 0;
 
 error_1:
-	gprintf("error_1\n");
+	gprintf("Playlog_Update: error_1\n");
 	IOS_Close(playrec_fd);
 
 error_2:
-	gprintf("error_2\n");
+	gprintf("Playlog_Update: error_2\n");
 	return -1;
 }
 
-int Playlog_Delete(void) //Make Wiiflow not show in playlog
+int Playlog_Delete(void) // Make Wiiflow not show in playlog
 {
-	//Open play_rec.dat
+	// Open play_rec.dat
 	s32 playrec_fd = IOS_Open(PLAYRECPATH, IPC_OPEN_RW);
 	if(playrec_fd < 0)
 		goto error_2;
 
-	//Read play_rec.dat
+	// Read play_rec.dat
 	if(IOS_Read(playrec_fd, &playrec_buf, sizeof(playrec_buf)) != sizeof(playrec_buf))
 		goto error_1;
 

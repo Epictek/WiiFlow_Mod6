@@ -1,4 +1,4 @@
-/* mload.c (for PPC) (c) 2009, Hermes 
+/** mload.c (for PPC) (c) 2009, Hermes 
 
   This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+**/
 
 #include "mload.h"
 #include "gecko/gecko.hpp"
@@ -379,7 +379,7 @@ int wanin_mload_get_IOS_base()
 	if(mload_init()<0) return -1;
 	
 	ret = IOS_IoctlvFormat(hid, mload_fd, MLOAD_GET_IOS_BASE, ":d", &ios, sizeof(ios));
-	//gprintf("get_ios_base: %d %x\n", ret, ios.dipVersion);
+	// gprintf("get_ios_base: %d %x\n", ret, ios.dipVersion);
 	if (ret == 0) {
 		switch(ios.dipVersion) {
 			case 0x48776F72: /* DIP: 07/11/08 14:34:26 */

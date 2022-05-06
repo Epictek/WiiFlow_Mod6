@@ -57,12 +57,12 @@ bool loadIOS(int ios, bool MountDevices)
 	if(ios != CurIOS && IOS_GetType(ios) != IOS_TYPE_STUB)
 	{
 		gprintf("Reloading into IOS %i from %i...\n", ios, CurIOS);
-		ShutdownBeforeExit();// unmount all, close inputs and dvd drive, deinit ISFS, and close network
-		NandHandle.Patch_AHB(); //apply a patch so the new IOS will also have AHBPROT disabled
-		ret = IOS_ReloadIOS(ios) == 0;// convert ret value to true or false
+		ShutdownBeforeExit(); // unmount all, close inputs and dvd drive, deinit ISFS, and close network
+		NandHandle.Patch_AHB(); // apply a patch so the new IOS will also have AHBPROT disabled
+		ret = IOS_ReloadIOS(ios) == 0; // convert ret value to true or false
 		gprintf("AHBPROT disabled after IOS Reload: %s\n", AHBPROT_Patched() ? "yes" : "no");
-		NandHandle.Init_ISFS();// re init ISFS
-		WDVD_Init();// re open dvd drive
+		NandHandle.Init_ISFS(); // re init ISFS
+		WDVD_Init(); // re open dvd drive
 	}
 	/* Init_ISFS() before calling IOS_GetCurrentIOSInfo() */
 	IOS_GetCurrentIOSInfo();
@@ -71,7 +71,7 @@ bool loadIOS(int ios, bool MountDevices)
 	else if(CurrentIOS.Type == IOS_TYPE_WANIN && CurrentIOS.Revision >= 18)
 		load_dip_249();
 	DeviceHandle.SetModes();
-	if(MountDevices && ios != CurIOS)// remount sd and USB if desired
+	if(MountDevices && ios != CurIOS) // remount sd and USB if desired
 		DeviceHandle.MountAll();
 
 	return ret;
