@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #include <malloc.h>
 #include "memory/mem2.hpp"
 #include "nand_save.hpp"
@@ -44,10 +45,10 @@ NandSave::NandSave()
 	loaded = false;
 }
 
-/* checks for wiiflow save WFSF by searching for the banner.bin. if found then wiiflow save found. */
-/* if not found then we use save.bin to create banner.bin, tik.bin, and tmd.bin which are compressed into save.bin. */
-/* the IOS and port settings are only created if they are changed in startup settings menu. */
-/* also the ticket and its folder are deleted after the tmd is created. */
+/* Checks for wiiflow save WFSF by searching for the banner.bin. if found then wiiflow save found. 
+If not found then we use save.bin to create banner.bin, tik.bin, and tmd.bin which are compressed into save.bin.
+The IOS and port settings are only created if they are changed in startup settings menu.
+Also the ticket and its folder are deleted after the tmd is created. */
 bool NandSave::CheckSave()
 {
 	/* 10 million variables */
@@ -72,11 +73,11 @@ bool NandSave::CheckSave()
 		gprintf("Found WiiFlow Save\n");
 		goto done;
 	}
-	/* extract our archive */
+	/* Extract our archive */
 	u8_bin = DecompressCopy(save_bin, save_bin_size, &u8_bin_size);
 	if(u8_bin == NULL || u8_bin_size == 0)
 		goto error;
-	/* grab cert.sys */
+	/* Grab cert.sys */
 	memset(&ISFS_Path, 0, ISFS_MAXPATH);
 	strcpy(ISFS_Path, "/sys/cert.sys");
 	certBuffer = (signed_blob*)ISFS_GetFile(ISFS_Path, &certSize, -1);
@@ -164,19 +165,23 @@ void NandSave::LoadSettings()
 
 	u32 size = 0;
 	memset(&ISFS_Path, 0, ISFS_MAXPATH);
-	strcpy(ISFS_Path, IOS_SAVE_PATH);
-	ios_settings_t *file = (ios_settings_t*)ISFS_GetFile(ISFS_Path, &size, -1);
-	if(file != NULL && size == sizeof(ios_settings_t))
+
+	if(!useMetaArgIOS) // IOS not forced in meta.xml
 	{
-		gprintf("Loading IOS Settings from wiiflow save\n");
-		cur_ios = file->cios;
-		if(cur_ios > 0)
-			mainIOS = cur_ios;
-		cur_load = file->use_cios;
-		useMainIOS = cur_load;
+		strcpy(ISFS_Path, IOS_SAVE_PATH);
+		ios_settings_t *file = (ios_settings_t*)ISFS_GetFile(ISFS_Path, &size, -1);
+		if(file != NULL && size == sizeof(ios_settings_t))
+		{
+			cur_ios = file->cios;
+			cur_load = file->use_cios;
+			gprintf("Loading IOS Settings from wiiflow save\n");
+			if(cur_ios > 0)
+				mainIOS = cur_ios;
+			useMainIOS = cur_load;
+		}
+		if(file != NULL)
+			MEM2_free(file);
 	}
-	if(file != NULL)
-		MEM2_free(file);
 
 	strcpy(ISFS_Path, PORT_SAVE_PATH);
 	u8 *port = ISFS_GetFile(ISFS_Path, &size, -1);

@@ -162,7 +162,7 @@ u8 *Banner::GetFile(const char *name, u32 *size)
 	if(curfile == NULL || *size == 0)
 		return NULL;
 
-	//I like to have stuff in a separate memory region
+	// I like to have stuff in a separate memory region
 	u8 *file = (u8*)MEM2_lo_alloc(*size);
 	if(file == NULL)
 		return NULL;

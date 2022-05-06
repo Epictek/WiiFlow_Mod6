@@ -25,6 +25,7 @@
  *
  * for WiiXplorer 2010
  ***************************************************************************/
+ 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -74,7 +75,7 @@ u8 Channels::GetRequestedIOS(u64 title)
 	else
 	{
 		char tmd[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-		snprintf(tmd, ISFS_MAXPATH, "/title/%08x/%08x/content/title.tmd", TITLE_UPPER(title), TITLE_LOWER(title));
+		snprintf(tmd, ISFS_MAXPATH, "/title/%08lx/%08lx/content/title.tmd", TITLE_UPPER(title), TITLE_LOWER(title));
 		titleTMD = ISFS_GetFile(tmd, &size, -1);
 	}
 	if(titleTMD == NULL)
@@ -108,7 +109,7 @@ u64 *Channels::GetChannelList(u32 *count)
 	return titles;
 }
 
-bool Channels::GetAppNameFromTmd(u64 title, char *app, u32 *bootcontent)// get banner .app name
+bool Channels::GetAppNameFromTmd(u64 title, char *app, u32 *bootcontent)
 {
 	bool ret = false;
 	u32 size = 0;
@@ -118,7 +119,7 @@ bool Channels::GetAppNameFromTmd(u64 title, char *app, u32 *bootcontent)// get b
 	else
 	{
 		char tmd[ISFS_MAXPATH] ATTRIBUTE_ALIGN(32);
-		snprintf(tmd, ISFS_MAXPATH, "/title/%08x/%08x/content/title.tmd", TITLE_UPPER(title), TITLE_LOWER(title));
+		snprintf(tmd, ISFS_MAXPATH, "/title/%08lx/%08lx/content/title.tmd", TITLE_UPPER(title), TITLE_LOWER(title));
 		data = ISFS_GetFile(tmd, &size, -1);
 	}
 	if(data == NULL || size < 0x208)
@@ -128,12 +129,13 @@ bool Channels::GetAppNameFromTmd(u64 title, char *app, u32 *bootcontent)// get b
 		return ret;
 	}
 	_tmd *tmd_file = (_tmd *)SIGNATURE_PAYLOAD((u32 *)data);
-	for(u32 i = 0; i < tmd_file->num_contents; ++i)
+	u16 i;
+	for(i = 0; i < tmd_file->num_contents; ++i)
 	{
-		if(tmd_file->contents[i].index == 0)// banner app
+		if(tmd_file->contents[i].index == 0)
 		{
 			*bootcontent = tmd_file->contents[i].cid;
-			snprintf(app, ISFS_MAXPATH, "/title/%08x/%08x/content/%08x.app", TITLE_UPPER(title), TITLE_LOWER(title), *bootcontent);
+			snprintf(app, ISFS_MAXPATH, "/title/%08lx/%08lx/content/%08lx.app", TITLE_UPPER(title), TITLE_LOWER(title), (unsigned long)*bootcontent);
 			ret = true;
 			break;
 		}
@@ -158,13 +160,18 @@ bool Channels::GetChannelNameFromApp(u64 title, wchar_t* name, int language)
 {
 	bool ret = false;
 
-	if (language > CONF_LANG_KOREAN)
+	if(language > CONF_LANG_KOREAN)
 		language = CONF_LANG_ENGLISH;
 
 	GetBanner(title, true);
 	if(CurrentBanner.IsValid())
 	{
-		ret = CurrentBanner.GetName(name, language);
+		// ret = CurrentBanner.GetName(name, language);	
+		/* Small fix to also retrieve games that don't have channel titles */
+		/* Channel will have no title in coverflow unless using gameTDB */
+		ret = true; //
+		CurrentBanner.GetName(name, language); //
+		
 		CurrentBanner.ClearBanner();
 	}
 
@@ -191,7 +198,7 @@ void Channels::Search()
 {
 	u32 count;
 	u64 *list = NULL;
-	if(NANDemuView)
+	if(!neek2o() && NANDemuView)
 		list = NandHandle.GetChannels(&count);
 	else
 		list = GetChannelList(&count);
@@ -207,7 +214,7 @@ void Channels::Search()
 		{
 			u32 Title = TITLE_LOWER(list[i]);
 			if(Title == RF_NEWS_CHANNEL || Title == RF_FORECAST_CHANNEL)
-				continue; //skip region free news and forecast channel
+				continue; // skip region free news and forecast channel
 			Channel CurrentChan;
 			memset(&CurrentChan, 0, sizeof(Channel));
 			if(GetChannelNameFromApp(list[i], CurrentChan.name, language))

@@ -66,6 +66,7 @@ class Nand
 {
 public:
 	void Init();
+	bool LoadDefaultIOS(void);
 
 	/* Prototypes */
 	void SetNANDEmu(u32 partition);
@@ -74,9 +75,9 @@ public:
 	bool EmulationEnabled(void);
 
 	void Set_Partition(u32 partition) { Partition = partition; };
-	void Set_FullMode(bool fullmode) { FullMode = fullmode ? 0x100 : 0; };// 00000001 00000000
-	void Set_RCMode(bool rcmode) { FullMode = rcmode ? 0x40 : 0; };//00000000 01000000
-	void Set_SSMode(bool ssmode) { FullMode = ssmode ? 0x60 : 0; };//00000000 01100000
+	void Set_FullMode(bool fullmode) { FullMode = fullmode ? 0x100 : 0; }; // 00000001 00000000
+	void Set_RCMode(bool rcmode) { FullMode = rcmode ? 0x40 : 0; }; // 00000000 01000000
+	void Set_SSMode(bool ssmode) { FullMode = ssmode ? 0x60 : 0; }; // 00000000 01100000
 
 	void Patch_AHB();
 	void Init_ISFS();
@@ -102,6 +103,7 @@ public:
 	s32 CalcFlashSize(const char *source, dump_callback_t i_dumper, void *i_data);
 	s32 CalcDumpSpace(const char *source, dump_callback_t i_dumper, void *i_data);
 	void ResetCounters(void);
+	void Clear_Region_Patch(void); //
 
 private:
 	enum GameRegion 

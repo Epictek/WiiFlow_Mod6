@@ -26,6 +26,7 @@
  * Nand/Emulation Handling Class for Wiiflow
  *
  ***************************************************************************/
+ 
 #include <ogc/machine/processor.h>
 #include <stdio.h>
 #include <ogcsys.h>
@@ -76,7 +77,16 @@ void Nand::Init()
 	memset(NandPath, 0, sizeof(NandPath));
 	isfs_inited = false;
 }
-
+/*
+bool Nand::LoadDefaultIOS(void)
+{
+	Patch_AHB(); // apply a patch so the new IOS will also have AHBPROT disabled
+	s32 ret = IOS_ReloadIOS(IOS_GetPreferredVersion()); // reload to preferred IOS, not sure what wiiflows preferred IOS is.
+	loadIOS(IOS_GetVersion(), false); // this basically does nothing (well very little), definitely doesn't load a IOS or shutdown anything.
+	Init_ISFS();
+	return (ret == 0);
+}
+*/
 void Nand::SetNANDEmu(u32 partition)
 {
 	EmuDevice = partition == 0 ? EMU_SD : EMU_USB;
@@ -218,7 +228,6 @@ void Nand::__configshifttxt(char *str)
 	char *ctr = str;
 	int i;
 	int j = strlen(str);
-	
 	for( i=0; i<j; ++i )
 	{		
 		if( strncmp( str+(i-3), "PALC", 4 ) == 0 )
@@ -241,8 +250,8 @@ void Nand::__GetNameList(const char *source, namelist **entries, int *count)
 	u32 i, j, k, l;
 	u32 numentries = 0;	
 	char *names = NULL;
-	char curentry[ISFS_MAXPATH];//64
-	char entrypath[ISFS_MAXPATH];//64
+	char curentry[ISFS_MAXPATH]; // 64
+	char entrypath[ISFS_MAXPATH]; // 64
 
 	s32 ret = ISFS_ReadDir(source, NULL, &numentries);
 	names = (char *)memalign(32, ALIGN32((ISFS_MAXPATH) * numentries));
@@ -275,7 +284,7 @@ void Nand::__GetNameList(const char *source, namelist **entries, int *count)
 
 		strcpy((*entries)[i].name, curentry);
 
-		/* this could still cause a buffer overrun */
+		/* This could still cause a buffer overrun */
 		strcpy(entrypath, source);
 		if(source[strlen(source)-1] != '/')
 			strcat(entrypath, "/");
@@ -287,7 +296,7 @@ void Nand::__GetNameList(const char *source, namelist **entries, int *count)
 	free(names);
 }
 
-u32 Nand::__GetSystemMenuRegion(void)
+u32 Nand::__GetSystemMenuRegion(void) // not used anymore
 {
 	u32 Region = EUR;
 	char *source = (char *)memalign(32, 256);
@@ -302,14 +311,14 @@ u32 Nand::__GetSystemMenuRegion(void)
 		ISFS_Read(fd, TMD, status->file_length);
 		Region = *(u16*)(TMD+0x1DC) & 0xF;
 		ISFS_Close(fd);
-		free(TMD);
+		// free(TMD); // commented out to fix an issue on game boot
 		free(status);
 	}
 	free(source);
 	return Region;
 }
 
-s32 Nand::__configclose(void)
+s32 Nand::__configclose(void) // not used anymore
 {
 	__Dec_Enc_TB();
 	free(confbuffer);
@@ -434,7 +443,7 @@ s32 Nand::__configwrite(bool realnand)
 u32 Nand::__configsetbyte(const char *item, u8 val)
 {
 	u32 i;
-	for(i=0; i<cfg_hdr->ncnt; ++i)
+	for(i = 0; i < cfg_hdr->ncnt; ++i)
 	{
 		if(memcmp(confbuffer+(cfg_hdr->noff[i] + 1), item, strlen(item)) == 0)
 		{
@@ -448,7 +457,7 @@ u32 Nand::__configsetbyte(const char *item, u8 val)
 u32 Nand::__configsetbigarray(const char *item, void *val, u32 size)
 {
 	u32 i;
-	for(i=0; i<cfg_hdr->ncnt; ++i)
+	for(i = 0; i < cfg_hdr->ncnt; ++i)
 	{
 		if(memcmp(confbuffer+(cfg_hdr->noff[i] + 1), item, strlen(item)) == 0)
 		{
@@ -463,13 +472,12 @@ u32 Nand::__configsetsetting(const char *item, const char *val)
 {		
 	char *curitem = strstr(txtbuffer, item);
 	char *curstrt, *curend;
-	
 	if(curitem == NULL)
 		return 0;
 	
 	curstrt = strchr(curitem, '=');
 	curend = strchr(curitem, 0x0d);
-	
+
 	if(curstrt && curend)
 	{
 		curstrt += 1;
@@ -477,14 +485,16 @@ u32 Nand::__configsetsetting(const char *item, const char *val)
 		if(strlen(val) > len)
 		{
 			static char buffer[0x100];
-			strcpy( buffer, curend );
-			memcpy( curstrt, val, strlen(val));
+			u32 nlen;
+			nlen = txtbuffer-(curstrt+strlen(val));
+			strcpy(buffer, txtbuffer + nlen);
+			memcpy(curstrt, val, strlen(val)); //
 			curstrt += strlen(val); 
-			memcpy(curstrt, buffer, strlen(buffer));
+			memcpy(curstrt, buffer, strlen(buffer)); //
 		}
 		else
 		{
-			memcpy(curstrt, val, strlen(val));
+			memcpy(curstrt, val, strlen(val)); //
 		}
 
 		__configshifttxt(txtbuffer);
@@ -687,7 +697,7 @@ s32 Nand::__DumpNandFile(const char *source, const char *dest)
 		return 0;
 	}
 
-	if(fsop_FileExist(dest))
+	if(fsop_FileExist(dest)) //
 		fsop_deleteFile(dest);
 
 	FILE *file = fopen(dest, "wb");
@@ -779,7 +789,7 @@ s32 Nand::__FlashNandFolder(const char *source, const char *dest)
 		if(ent->d_name[0] == '.') 
 			continue;
 
-		/* this could still cause a buffer overrun */
+		/* This could still cause a buffer overrun */
 		strcpy(ndest, dest);
 		if(dest[strlen(dest)-1] != '/')
 			strcat(ndest, "/");
@@ -821,7 +831,7 @@ s32 Nand::__DumpNandFolder(const char *source, const char *dest)
 
 	for(i = 0; i < cnt; i++) 
 	{
-		/* this could still cause a buffer overrun */
+		/* This could still cause a buffer overrun */
 		strcpy(nsource, source);
 		if(source[strlen(source)-1] != '/')
 			strcat(nsource, "/");
@@ -884,17 +894,19 @@ void Nand::CreateTitleTMD(dir_discHdr *hdr)
 	u32 tmd_size = wbfs_extract_file(disc, (char*)"TMD", (void**)&titleTMD);
 	WBFS_CloseDisc(disc);
 
-	if(titleTMD == NULL) 
+	if(titleTMD == NULL)
 		return;
 
-	u32 highTID = *(u32*)(titleTMD+0x18c);
-	u32 lowTID = *(u32*)(titleTMD+0x190);
+	// u32 highTID = *(u32*)(titleTMD+0x18c);
+	// u32 lowTID = *(u32*)(titleTMD+0x190);
+	unsigned long highTID = *(unsigned long*)(titleTMD+0x18c);
+	unsigned long lowTID = *(unsigned long*)(titleTMD+0x190);
 
 	CreatePath("%s/title/%08x/%08x/data", FullNANDPath, highTID, lowTID);
 	CreatePath("%s/title/%08x/%08x/content", FullNANDPath, highTID, lowTID);
 
 	char nandpath[MAX_FAT_PATH];
-	snprintf(nandpath, sizeof(nandpath), "%s/title/%08x/%08x/content/title.tmd", FullNANDPath, highTID, lowTID);
+	snprintf(nandpath, sizeof(nandpath), "%s/title/%08lx/%08lx/content/title.tmd", FullNANDPath, highTID, lowTID);
 
 	if(fsop_FileExist(nandpath))
 	{
@@ -1004,7 +1016,7 @@ s32 Nand::CreateConfig()
 
 s32 Nand::PreNandCfg(bool miis, bool realconfig)
 {
-	/* create paths only if they don't exist */
+	/* Create paths only if they don't exist */
 	CreatePath(FullNANDPath);
 	CreatePath("%s/shared2", FullNANDPath);
 	CreatePath("%s/shared2/sys", FullNANDPath);
@@ -1038,13 +1050,16 @@ s32 Nand::PreNandCfg(bool miis, bool realconfig)
 
 bool Nand::Do_Region_Change(string id, bool realnand)
 {	
+/* check of system menu region sometimes prevents games from launching
+ this check is not essential since the patch is applied on a per-game basis
+ patching a PAL Wii to PAL will only lead to a forced UK conf anyway */
 	if(__configread() == 1)
 	{
 		switch(id[3])
 		{
 			case 'J':
-				if(realnand && __GetSystemMenuRegion() == JAP)
-					return __configclose();
+				// if(realnand && __GetSystemMenuRegion() == JAP)
+					// return __configclose();
 
 				gprintf("Switching region to NTSC-J \n");
 				CCode[0] = 1;
@@ -1057,8 +1072,8 @@ bool Nand::Do_Region_Change(string id, bool realnand)
 				__configsetsetting("GAME", "JP");
 				break;
 			case 'E':
-				if(realnand && __GetSystemMenuRegion() == USA)
-					return __configclose();
+				// if(realnand && __GetSystemMenuRegion() == USA)
+					// return __configclose();
 					
 				gprintf("Switching region to NTSC-U \n");
 				CCode[0] = 31;
@@ -1078,8 +1093,12 @@ bool Nand::Do_Region_Change(string id, bool realnand)
 			case 'S': // Spain
 			case 'U': // United Kingdom
 			case 'L': // Japanese Import
-				if(realnand && __GetSystemMenuRegion() == EUR)
-					return __configclose();
+			case 'H': //
+			case 'X': //
+			case 'Y': //
+			case 'Z': //
+				// if(realnand && __GetSystemMenuRegion() == EUR)
+					// return __configclose();
 
 				gprintf("Switching region to PAL \n");
 				CCode[0] = 110; // UK
@@ -1094,8 +1113,8 @@ bool Nand::Do_Region_Change(string id, bool realnand)
 			case 'K':
 			case 'Q':
 			case 'T':
-				if(realnand && __GetSystemMenuRegion() == KOR)
-					return __configclose();
+				// if(realnand && __GetSystemMenuRegion() == KOR)
+					// return __configclose();
 
 				gprintf("Switching region to NTSC-K \n");
 				CCode[0] = 137;
@@ -1113,26 +1132,36 @@ bool Nand::Do_Region_Change(string id, bool realnand)
 	return true;
 }
 
+/** This deletes nand:/sys/wiiflow.reg left by Do_Region_Change()**/
+void Nand::Clear_Region_Patch(void)
+{
+	char *dest = (char *)memalign(32, 256);
+	strcpy(dest, TSYSCONFPATH);
+	ISFS_Delete(dest);
+	free(dest);
+	return;
+}
+
 void Nand::Init_ISFS()
 {
 	if(isfs_inited)
 		return;
 	PatchIOS(IOS_GetVersion() < 222, isWiiVC);
 	usleep(1000);
-	//gprintf("Init ISFS\n");
+	gprintf("Init ISFS\n");
 	ISFS_Initialize();
 	isfs_inited = true;
 }
 
 void Nand::DeInit_ISFS()
 {
-	//gprintf("Deinit ISFS\n");
+	gprintf("Deinit ISFS\n");
 	ISFS_Deinitialize();
 	isfs_inited = false;
 	usleep(1000);
 }
 
-/* Thanks to postloader for that patch */
+/** Thanks to postloader for that patch **/
 #define ES_MODULE_START	(u16*)0x939F0000
 
 static const u16 ticket_check[] = {
@@ -1158,8 +1187,8 @@ void Nand::PatchAHB()
 	}
 }
 
-/* if AHB protection is currently disabled then call PatchAHB above */
-/* to set the ES_MODULE to keep it disabled for the next IOS */
+/* If AHB protection is currently disabled then call PatchAHB above 
+to set the ES_MODULE to keep it disabled for the next IOS */
 void Nand::Patch_AHB()
 {
 	if(AHBPROT_Patched())
@@ -1240,20 +1269,25 @@ void Nand::SetPaths(const char *emuPath, const char *currentPart)
 {
 	/* emuPath should = /nands/nand_name */
 
-	/* set wiiflow full nand path */
-	snprintf(FullNANDPath, sizeof(FullNANDPath), "%s:%s", currentPart, emuPath);// example - sd:/nands/default
+	/* Set wiiflow full nand path */
+	snprintf(FullNANDPath, sizeof(FullNANDPath), "%s:%s", currentPart, emuPath);
+	// gprintf("Emu NAND Full Path = %s\n", FullNANDPath);	
 	
-	/* set IOS compatible NAND Path */
-	memset(NandPath, 0, sizeof(NandPath));
-	strncpy(NandPath, emuPath, sizeof(NandPath) - 1);
+	/* Set IOS compatible NAND Path */
+	strncpy(NandPath, emuPath, sizeof(NandPath));
+	NandPath[sizeof(NandPath) - 1] = '\0';
+	if(strlen(NandPath) == 0)
+		strcat(NandPath, "/");
+	// gprintf("IOS Compatible NAND Path = %s\n", NandPath);
 }
 
-/*
+/**
    part of miniunz.c
    Version 1.01e, February 12th, 2005
 
    Copyright (C) 1998-2005 Gilles Vollant
-*/
+**/
+
 #include <errno.h>
 #include <fcntl.h>
 #include <utime.h>
