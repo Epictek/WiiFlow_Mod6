@@ -21,6 +21,7 @@
  * 3. This notice may not be removed or altered from any source
  * distribution.
  ***************************************************************************/
+ 
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,9 +30,10 @@
 #include <errno.h>
 #include "wifi_gecko.hpp"
 #include "loader/utils.h"
+#include "gecko.hpp" //
 
-/* set to use TCP socket instead of UDP */
-//#define WIFI_GECKO_USE_TCP 1
+/* Set to use TCP socket instead of UDP */
+// #define WIFI_GECKO_USE_TCP 1
 
 WifiGecko WiFiDebugger;
 
@@ -55,6 +57,7 @@ void WifiGecko::Init(const char *ip, const u16 port)
 	dest_ip = ip;
 	dest_port = port;
 	inited = true;
+	gprintf("WifiGecko inited\n"); // added to fix an issue with Wifi debugger
 }
 
 void WifiGecko::Close()
@@ -96,6 +99,7 @@ int WifiGecko::Connect()
         Close();
 		return -4;
 	}
+
 	connection = tmp_con;
 	return connection;
 }
