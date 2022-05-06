@@ -1,4 +1,4 @@
-/*
+/**
 SHA-1 in C
 By Steve Reid <steve@edmweb.com>
 100% Public Domain
@@ -10,7 +10,7 @@ Test Vectors (from FIPS PUB 180-1)
   84983E44 1C3BD26E BAAE4AA1 F95129E5 E54670F1
 A million repetitions of "a"
   34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
-*/
+**/
 
 #define SHA1HANDSOFF
 
@@ -24,7 +24,7 @@ A million repetitions of "a"
 #include "memory/memory.h"
 #include "sha1.h"
 
-//should be divisibly by four
+// should be divisibly by four
 #define BLOCKSIZE 32
 
 #define SHA_CMD_FLAG_EXEC (1<<31)
