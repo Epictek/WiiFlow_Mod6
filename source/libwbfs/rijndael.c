@@ -1,13 +1,13 @@
-/* Rijndael Block Cipher - rijndael.c
-
- Written by Mike Scott 21st April 1999
- mike@compapp.dcu.ie
-
- Permission for free direct or derivative use is granted subject
- to compliance with any conditions that the originators of the
- algorithm place on its exploitation.
-
- */
+/** Rijndael Block Cipher - rijndael.c
+ * 
+ * Written by Mike Scott 21st April 1999
+ * mike@compapp.dcu.ie
+ *
+ * Permission for free direct or derivative use is granted subject
+ * to compliance with any conditions that the originators of the
+ * algorithm place on its exploitation.
+ *
+ **/
 
 #include <stdio.h>
 #include <string.h>
@@ -370,7 +370,7 @@ void aes_decrypt(u8 *iv, u8 *inbuf, u8 *outbuf, u64 len)
 	u8 block[16];
 	u32 blockno = 0, i;
 
-	//printf("aes_decrypt(%p, %p, %p, %lld)\n", iv, inbuf, outbuf, len);
+	// printf("aes_decrypt(%p, %p, %p, %lld)\n", iv, inbuf, outbuf, len);
 
 	for (blockno = 0; blockno <= (len / sizeof(block)); blockno++)
 	{
@@ -393,8 +393,8 @@ void aes_decrypt(u8 *iv, u8 *inbuf, u8 *outbuf, u64 len)
 
 		for (i = 0; i < fraction; i++)
 			outbuf[blockno * sizeof(block) + i] = ctext_ptr[i] ^ block[i];
-		//	debug_printf("Block %d output: ", blockno);
-		//	hexdump(outbuf + blockno*sizeof(block), 16);
+		// debug_printf("Block %d output: ", blockno);
+		// hexdump(outbuf + blockno*sizeof(block), 16);
 	}
 }
 
@@ -404,7 +404,7 @@ void aes_encrypt(u8 *iv, u8 *inbuf, u8 *outbuf, u64 len)
 	u8 block[16];
 	u32 blockno = 0, i;
 
-	//  debug_printf("aes_decrypt(%p, %p, %p, %lld)\n", iv, inbuf, outbuf, len);
+	// debug_printf("aes_decrypt(%p, %p, %p, %lld)\n", iv, inbuf, outbuf, len);
 
 	for (blockno = 0; blockno <= (len / sizeof(block)); blockno++)
 	{
@@ -417,7 +417,7 @@ void aes_encrypt(u8 *iv, u8 *inbuf, u8 *outbuf, u64 len)
 		}
 		else fraction = 16;
 
-		//	debug_printf("block %d: fraction = %d\n", blockno, fraction);
+		// debug_printf("block %d: fraction = %d\n", blockno, fraction);
 		memcpy(block, inbuf + blockno * sizeof(block), fraction);
 
 		for (i = 0; i < fraction; i++)
@@ -426,8 +426,8 @@ void aes_encrypt(u8 *iv, u8 *inbuf, u8 *outbuf, u64 len)
 		encrypt((char*) block);
 		memcpy(iv, block, sizeof(block));
 		memcpy(outbuf + blockno * sizeof(block), block, sizeof(block));
-		//	debug_printf("Block %d output: ", blockno);
-		//	hexdump(outbuf + blockno*sizeof(block), 16);
+		// debug_printf("Block %d output: ", blockno);
+		// hexdump(outbuf + blockno*sizeof(block), 16);
 	}
 }
 

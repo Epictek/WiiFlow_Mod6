@@ -58,4 +58,11 @@ static inline void wbfs_free(void *ptr)
 #define wbfs_memcpy(x,y,z)	memcpy(x,y,z)
 #define wbfs_memset(x,y,z)	memset(x,y,z)
 
+#define wbfs_fatal(x)	   do { printf("\nwbfs panic: %s\n\n",x); return; } while(0)
+#define wbfs_error(x)	   do { printf("\nwbfs error: %s\n\n",x); } while(0)
+#define wbfs_malloc(x)	  MEM2_alloc(x)
+#define wbfs_free(x)		free(x)
+#define wbfs_ioalloc(x)	 MEM2_alloc(((x) + 31) & ~31)
+#define wbfs_iofree(x)	  free(x)
+
 #endif
