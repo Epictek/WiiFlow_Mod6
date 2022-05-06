@@ -1,0 +1,40 @@
+> stub.bin
+
+homebrew/plugin games (including GC games) will return to WF using Wiiflow Lite WFLA forwarder
+
+only used if WF is compiled as Wiiflow Lite
+
+> wfstub.bin
+
+homebrew/plugin games (including GC games) will return to WF using Wiiflow DWFA forwarder
+
+only used if WF is compiled as Wiiflow
+
+> wfstub.bin.old_WIIH (renamed to wfstub.bin)
+
+homebrew/plugin games (including GC games) will return to WF using Wiiflow hidden channel WIIH forwarder (not DWFA)
+
+only used if WF is compiled as Wiiflow
+
+> app_booter.bin
+
+used to boot homebrew apps: required for homebrew/plugin games (including GC games)
+Compiled with main Makefile
+
+> ext_booter.bin
+
+used to patch and boot wii/channel games
+Compiled with main Makefile
+
+> ext_loader.bin
+
+used to patch and boot wii/channel games
+-Not- compiled with main Makefile if using Devkit R39
+
+> custombanner.bin
+
+used to create GC banner
+
+> save.bin
+
+used to install WF nand save: contains (c)IOS and USB port info

@@ -1,0 +1,61 @@
+
+ ----------------------------------
+           Control tips
+ ----------------------------------
+
+- Main menu (coverflow):
+  Minus / Plus  =  Fast skip through games
+  Minus out of screen  =  Enable / disable menu bar
+  Plus out of screen  =  Next game in sorted list (alpha default)
+  B + A on game cover  =  Launch game immediately
+  B + A on DVD icon  =  Launch DVD immediately
+  B + A on menu icon  =  Cycle through coverflow views
+  B + A on sort icon  =  Cycle through sort modes
+  B + A on settings icon  =  Global settings
+  B + Minus / B + Plus  =  Previous / next song
+  B + Up / B + Down  =  Previous / next coverflow layout
+  B + Left / B + Right  =  Previous / next emunand
+  Z  =  Screenshot
+
+- Game selected:
+  A on box  =  Flip Cover
+  Plus / Minus / Left / Right on flipped cover  =  zoom and move
+  Minus out of screen  =  Enable / disable menu bar
+  Plus out of screen =  Flip cover
+  
+- Home menu:
+  Home  =  Shortcut to default exit
+  
+- Coverflow adjust settings:
+  A / 2 held  =  Fast increase or decrease values
+  B + Minus / B + Plus  =  Previous / next page
+
+ ----------------------------------
+        Controller mapping
+ ----------------------------------
+
+- Classic controller:
+  Button Minus / Plus  =  L / R trigger
+
+- Gamecube controller:
+  Button Home  =  Button Start
+  Button Minus / Plus  =  L / R trigger
+
+- Guitar:
+  Button A / B  =  Green / Red button
+  Button 1 / 2  =  Blue / Yellow button
+
+ ----------------------------------
+          Nand emulation
+ ----------------------------------
+
+- Wii disc games:
+  Off  =  Use Wii saves, DLC and Miis
+  Saves/DLC  =  Use emunand saves and DLC
+  Full  =  Use emunand saves, DLC and Miis
+  Neek2o  =  Launch neek2o emunand system menu
+
+- Wii channels:
+  Partial  =  Use Wii config and Miis
+  Full  =  Use emunand config and Miis
+  Neek2o  =  Launch game in Neek2o mode
