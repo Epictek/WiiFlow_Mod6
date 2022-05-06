@@ -34,6 +34,7 @@
 #include "gecko.h"
 
 #define EXT_ADDR_CFG	((vu32*)0x90100000)
+// using namespace std;
 IOS_Info CurrentIOS;
 
 /* Boot Variables */
@@ -56,12 +57,14 @@ int main()
 	InitGecko();
 	gprintf("WiiFlow External Booter by FIX94\n");
 	memcpy(&normalCFG, ((void*)*EXT_ADDR_CFG), sizeof(the_CFG));
-	VIDEO_Init();// libogc
-	video_init();// tinyload progress bar
+	VIDEO_Init();
+#ifdef PBAR
+	video_init();
 	prog10();
+#endif
 
-	configbytes[0] = normalCFG.configbytes[0];// game language 0 - 9 or 0xCD = not patched
-	configbytes[1] = normalCFG.configbytes[1];// not used
+	configbytes[0] = normalCFG.configbytes[0];
+	configbytes[1] = normalCFG.configbytes[1];
 	hooktype = normalCFG.hooktype;
 	debuggerselect = normalCFG.debugger;
 	CurrentIOS = normalCFG.IOS;
@@ -71,24 +74,29 @@ int main()
 	copy_frag_list(normalCFG.fragments);
 	wbfsDev = normalCFG.wbfsDevice;
 	wbfs_part_idx = normalCFG.wbfsPart;
+#ifdef PBAR
 	prog10();
+#endif
+
+	/* Setup Low Memory */
+	Disc_SetLowMemPre();
 
 	if(normalCFG.BootType == TYPE_WII_GAME)
 	{
 		WDVD_Init();
 		if(CurrentIOS.Type == IOS_TYPE_D2X)
 		{
-			// only for wii games - no known channels require block IOS Reload
 			s32 ret = BlockIOSReload();
 			gprintf("Block IOS Reload using d2x %s.\n", ret < 0 ? "failed" : "succeeded");
 		}
 		if(normalCFG.GameBootType == TYPE_WII_DISC)
 		{
-			Disc_SetUSB(NULL, false);
+			if(CurrentIOS.Type != IOS_TYPE_NEEK2O)
+				Disc_SetUSB(NULL, false);
 			if(CurrentIOS.Type == IOS_TYPE_HERMES)
 				Hermes_Disable_EHC();
-			if(normalCFG.vidMode > 1) //forcing a video mode
-				normalCFG.patchVidMode = 1; //always normal patching
+			if(normalCFG.vidMode > 1) // forcing a video mode
+				normalCFG.patchVidMode = 1; // always normal patching
 		}
 		else
 		{
@@ -96,46 +104,41 @@ int main()
 			if(CurrentIOS.Type == IOS_TYPE_HERMES)
 				Hermes_shadow_mload();
 		}
+#ifdef PBAR
 		prog(20);
-		/* Clear Disc ID */
-		memset((u8*)Disc_ID, 0, 32);
-		Disc_Open(normalCFG.GameBootType);// sets Disc_ID
+#endif
+		Disc_Open(normalCFG.GameBootType); // Disc_ID is set here
 		u32 offset = 0;
 		Disc_FindPartition(&offset);
 		WDVD_OpenPartition(offset, &GameIOS);
-		Disc_SetLowMem();
+		//! Setup Low Memory
+		Disc_SetLowMem(GameIOS);
+
 		if(normalCFG.vidMode == 5)
-			normalCFG.patchVidMode = 1; //progressive mode requires this
-		vmode = Disc_SelectVMode(normalCFG.vidMode, &vmode_reg);// requires Disc_ID[3]
-		AppEntrypoint = Apploader_Run(normalCFG.vidMode, vmode, normalCFG.vipatch, normalCFG.countryString, normalCFG.patchVidMode, normalCFG.aspectRatio, 
-						normalCFG.returnTo, normalCFG.patchregion, normalCFG.private_server, normalCFG.server_addr, normalCFG.patchFix480p, normalCFG.deflicker, normalCFG.BootType);
+			normalCFG.patchVidMode = 1; // progressive mode requires this
+		vmode = Disc_SelectVMode(normalCFG.vidMode, &vmode_reg);
+		//! Apply patches
+		AppEntrypoint = Apploader_Run(normalCFG.vidMode, vmode, normalCFG.vipatch, normalCFG.countryString, normalCFG.patchVidMode, normalCFG.aspectRatio, normalCFG.returnTo, normalCFG.patchregion, normalCFG.private_server, normalCFG.server_addr, normalCFG.patchFix480p, normalCFG.deflicker, normalCFG.BootType);
 		WDVD_Close();
 	}
 	else if(normalCFG.BootType == TYPE_CHANNEL)
 	{
 		ISFS_Initialize();
-		AppEntrypoint = LoadChannel(normalCFG.title, normalCFG.use_dol, &GameIOS);// sets Disc_ID
+		*Disc_ID = TITLE_LOWER(normalCFG.title); // required before applying Disc_SelectVMode()
+		vmode = Disc_SelectVMode(normalCFG.vidMode, &vmode_reg);
+		AppEntrypoint = LoadChannel(normalCFG.title, normalCFG.use_dol, &GameIOS);
+		//! Setup Low Memory
+		Disc_SetLowMem(GameIOS);
+		if(AppEntrypoint != 0x3400)
+			Disc_SetLowMemChan(); // real DOL without appldr
+		//! Apply patches
+		PatchChannel(normalCFG.vidMode, vmode, normalCFG.vipatch, normalCFG.countryString, normalCFG.patchVidMode, normalCFG.aspectRatio, normalCFG.returnTo, normalCFG.private_server, normalCFG.server_addr, normalCFG.deflicker, normalCFG.patchFix480p, normalCFG.BootType);
 		ISFS_Deinitialize();
-		vmode = Disc_SelectVMode(normalCFG.vidMode, &vmode_reg);// requires Disc_ID[3]
-		PatchChannel(normalCFG.vidMode, vmode, normalCFG.vipatch, normalCFG.countryString, normalCFG.patchVidMode, normalCFG.aspectRatio,
-					normalCFG.returnTo, normalCFG.private_server, normalCFG.server_addr, normalCFG.patchFix480p, normalCFG.deflicker, normalCFG.BootType);
 	}
 	gprintf("Entrypoint: %08x, Requested Game IOS: %i\n", AppEntrypoint, GameIOS);
+#ifdef PBAR
 	setprog(320);
-
-	/* Set Disc ID for WiiRD - must be set after ocarina stuff is done */
-	memcpy((void*)0x80001800, (void*)Disc_ID, 8);
-	
-	/* Error 002 Fix (thanks WiiPower and uLoader) */
-	*Current_IOS = (GameIOS << 16) | 0xffff;
-	if(!isForwarder)
-		*Apploader_IOS = (GameIOS << 16) | 0xffff;
-	
-	/* Flush everything */
-	DCFlushRange((void*)0x80000000, 0x3f00);
-	
-	/* Enable front LED if requested */
-	if(normalCFG.use_led) *HW_GPIOB_OUT |= 0x20;
+#endif
 
 	/* Set an appropriate video mode */
 	Disc_SetVMode(vmode, vmode_reg);
@@ -144,6 +147,9 @@ int main()
 	u32 level = IRQ_Disable();
 	__IOS_ShutdownSubsystems();
 	__exception_closeall();
+
+	/* Enable front LED if requested */
+	if(normalCFG.use_led) *HW_GPIOB_OUT |= 0x20;
 
 	/* Originally from tueidj - taken from NeoGamma (thx) */
 	*(vu32*)0xCC003024 = 1;

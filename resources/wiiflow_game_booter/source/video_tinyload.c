@@ -40,10 +40,11 @@ void memset32(u32 *addr, u32 data, u32 count)
 
 static void drawbar(int pix)
 {
-	int i = 16;
+	// int i = 16;
+	int i = 32; //
 	u32* p = framebuffer + 320 * 400;
 	while(i--) {
-		memset32(p, COLOR_WHITE, pix);
+		memset32(p, COLOR_BLUE, pix); // COLOR_BLACK to mask it
 		p += 320;
 	}
 }
@@ -71,8 +72,10 @@ inline void viw(u32 addr, u32 data)
 void video_init(void)
 {
 	memset32(framebuffer, COLOR_BLACK, 320*574);
-	memset32(framebuffer + 320 * 398, COLOR_WHITE, 320*2);
-	memset32(framebuffer + 320 * 416, COLOR_WHITE, 320*2);
+	// memset32(framebuffer + 320 * 398, COLOR_WHITE, 320*2); // COLOR_BLACK to mask it
+	memset32(framebuffer + 320 * 400, COLOR_GRAY, 320*32); //
+	// memset32(framebuffer + 320 * 416, COLOR_WHITE, 320*2); // COLOR_BLACK to mask it
+	memset32(framebuffer + 320 * 432, COLOR_BLUE, 320*2); //
 
 	vtrdcr = oldvtrdcr = *(vu32*)(0xCC002000);
 	oldvtovte = *(vu64*)0xCC00200c;
@@ -83,10 +86,13 @@ void video_init(void)
 	vto = 0x30018;
 	vte = 0x20019;
 	
-	if(vtrdcr & 4) { // progressive
+	if(vtrdcr & 4) // progressive
+	{ 
 		vto = vte = 0x60030;
 		vtrdcr += 0x0F000000;
-	} else if(vimode == 1) {
+	} 
+	else if(vimode == 1) 
+	{
 		vto = 0x10023;
 		vte = 0x24;
 		vtrdcr += 0x02F00000;

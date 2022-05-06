@@ -15,6 +15,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+// #define PBAR // comment out to disable tinyload
+
 void video_init(void);
 void video_clear(void);
 void prog(int p);

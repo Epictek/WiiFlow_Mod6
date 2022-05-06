@@ -80,7 +80,7 @@ void ocarina_set_codes(void *list, u8 *listend, u8 *cheats, u32 cheatSize)
 		code_size = 0;
 		return;
 	}
-	if (cheatSize > (u32)codelistend - (u32)codelist)
+	if(cheatSize > (u32)codelistend - (u32)codelist)
 	{
 		gprintf("Ocarina: Too many codes found.\n");
 		code_buf = NULL;
@@ -97,13 +97,13 @@ void app_pokevalues()
 {
 	u32 i, *codeaddr, *codeaddr2, *addrfound = NULL;
 
-	if (gameconfsize != 0)
+	if(gameconfsize != 0)
 	{
-		for (i = 0; i < gameconfsize/4; i++)
+		for(i = 0; i < gameconfsize/4; i++)
 		{
-			if (*(gameconf + i) == 0)
+			if(*(gameconf + i) == 0)
 			{
-				if (((u32 *) (*(gameconf + i + 1))) == NULL ||
+				if(((u32 *) (*(gameconf + i + 1))) == NULL ||
 					*((u32 *) (*(gameconf + i + 1))) == *(gameconf + i + 2))
 				{
 					*((u32 *) (*(gameconf + i + 3))) = *(gameconf + i + 4);
@@ -115,24 +115,24 @@ void app_pokevalues()
 			{
 				codeaddr = (u32 *)*(gameconf + i + *(gameconf + i) + 1);
 				codeaddr2 = (u32 *)*(gameconf + i + *(gameconf + i) + 2);
-				if (codeaddr == 0 && addrfound != NULL)
+				if(codeaddr == 0 && addrfound != NULL)
 					codeaddr = addrfound;
-				else if (codeaddr == 0 && codeaddr2 != 0)
+				else if(codeaddr == 0 && codeaddr2 != 0)
 					codeaddr = (u32 *) ((((u32) codeaddr2) >> 28) << 28);
-				else if (codeaddr == 0 && codeaddr2 == 0)
+				else if(codeaddr == 0 && codeaddr2 == 0)
 				{
 					i += *(gameconf + i) + 4;
 					continue;
 				}
-				if (codeaddr2 == 0)
+				if(codeaddr2 == 0)
 					codeaddr2 = codeaddr + *(gameconf + i);
 				addrfound = NULL;
-				while (codeaddr <= (codeaddr2 - *(gameconf + i)))
+				while(codeaddr <= (codeaddr2 - *(gameconf + i)))
 				{
-					if (memcmp(codeaddr, gameconf + i + 1, (*(gameconf + i)) * 4) == 0)
+					if(memcmp(codeaddr, gameconf + i + 1, (*(gameconf + i)) * 4) == 0)
 					{
 						*(codeaddr + ((*(gameconf + i + *(gameconf + i) + 3)) / 4)) = *(gameconf + i + *(gameconf + i) + 4);
-						if (addrfound == NULL) addrfound = codeaddr;
+						if(addrfound == NULL) addrfound = codeaddr;
 					}
 					codeaddr++;
 				}

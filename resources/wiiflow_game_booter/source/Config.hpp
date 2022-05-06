@@ -20,9 +20,9 @@
 #include "cios.h"
 #include "frag.h"
 #include "wip.h"
-
+//! This struct should match exactly the one in source/booter/Config.h
 struct the_CFG {
-	/* needed for wii games */
+	//! needed for wii games
 	char gameID[7];
 	FragList *fragments;
 	s32 wbfsDevice;
@@ -35,20 +35,20 @@ struct the_CFG {
 	void *codelist;
 	u8 *codelistend;
 	bool patchregion;
-	/* needed for channels */
+	//! needed for channels
 	u64 title;
 	bool use_dol;
-	/* needed for both channels and wii games */	
+	//! needed for both channels and wii games
 	IOS_Info IOS;
 	u8 BootType;
-	u8 configbytes[2];// [0] used for language. [1] not used
-	u8 countryString;
+	u8 configbytes[2]; // [0] used for language. [1] not used
+	u8 countryString; // u8?
 	u8 vidMode;
 	u8 patchVidMode;
 	u8 vipatch;
 	s8 aspectRatio;
-	bool patchFix480p;
 	u8 deflicker;
+	bool patchFix480p;
 	u8 private_server;
 	char server_addr[24];
 	u8 *cheats;

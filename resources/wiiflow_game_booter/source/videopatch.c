@@ -1,4 +1,5 @@
 // Inspired by WiiPower's "video toy", but simpler
+// Updated for libogc 2.0.0
 
 #include "videopatch.h"
 

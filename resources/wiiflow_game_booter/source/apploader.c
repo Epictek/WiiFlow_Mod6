@@ -28,15 +28,15 @@ static const char *GameID = (const char*)0x80000000;
 #define APPLDR_OFFSET	0x910
 #define APPLDR_CODE		0x918
 
-void maindolpatches(void *dst, int len, u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, 
-					u32 returnTo, bool patchregion, u8 private_server, const char *server_addr, u8 deflicker, u8 bootType);
+void maindolpatches(void *dst, int len, u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, u32 returnTo, bool patchregion, u8 private_server, const char *server_addr, u8 deflicker, u8 bootType);
+
 static void patch_NoDiscinDrive(void *buffer, u32 len);
 static void Anti_002_fix(void *Address, int Size);
 static bool Remove_001_Protection(void *Address, int Size);
 static void PrinceOfPersiaPatch();
 static void NewSuperMarioBrosPatch();
-static void Patch_23400_and_MKWii_vulnerability();
 bool hookpatched = false;
+static void Patch_23400_and_MKWii_vulnerability();
 
 /* Thanks Tinyload */
 static struct
@@ -48,18 +48,18 @@ static struct
 	s32 padding;
 } apploader_hdr ATTRIBUTE_ALIGN(32);
 
-u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, u32 returnTo, 
-					bool patchregion , u8 private_server, const char *server_addr, bool patchFix480p, u8 deflicker, u8 bootType)
+u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, u32 returnTo, bool patchregion, u8 private_server, const char *server_addr,  bool patchFix480p, u8 deflicker, u8 bootType)
 {
-	//! Disable private server for games that still have official servers.
-	if(memcmp(GameID, "SC7", 3) == 0 || memcmp(GameID, "RJA", 3) == 0 ||
+	/* Disable private server for games that still have official servers */
+	if (memcmp(GameID, "SC7", 3) == 0 || memcmp(GameID, "RJA", 3) == 0 ||
 		memcmp(GameID, "SM8", 3) == 0 || memcmp(GameID, "SZB", 3) == 0 || memcmp(GameID, "R9J", 3) == 0)
 	{
 		private_server = PRIVSERV_OFF; // Private server patching causes error 20100
 	}
 	
-	// if either of these 2 games - adds internal wip codes before do_wip_code() is called in maindolpatches()
-	// note: using external .wip codes for these games will prevent their internal codes.
+	//! If either of these 2 games:
+	//! adds internal wip codes before do_wip_code() is called in maindolpatches()
+	//! note: using external .wip codes for these games will prevent their internal codes.
 	PrinceOfPersiaPatch();
 	NewSuperMarioBrosPatch();
 
@@ -104,54 +104,65 @@ u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryStrin
 	{
 		/* Read data from DVD */
 		WDVD_Read(dst, len, offset);
-		// if server is wiimmfi and game is mario kart wii don't patch private server here, do_new_wiimfi() patches it below.
+				
+		//! If server is wiimmfi and game is mario kart wii don't patch private server here, do_new_wiimfi() patches it below.
 		if(private_server == PRIVSERV_WIIMMFI && memcmp("RMC", GameID, 3) == 0)
-			maindolpatches(dst, len, vidMode, vmode, vipatch, countryString, patchVidModes, aspectRatio, returnTo, patchregion, 
-							0, NULL, deflicker, bootType);
+			maindolpatches(dst, len, vidMode, vmode, vipatch, countryString, patchVidModes, aspectRatio, returnTo, patchregion, 0, NULL, deflicker, bootType);
 		else
-			maindolpatches(dst, len, vidMode, vmode, vipatch, countryString, patchVidModes, aspectRatio, returnTo, patchregion, 
-							private_server,  server_addr, deflicker, bootType);
-			
+			maindolpatches(dst, len, vidMode, vmode, vipatch, countryString, patchVidModes, aspectRatio, returnTo, patchregion, private_server, server_addr, deflicker, bootType);
 		DCFlushRange(dst, len);
 		ICInvalidateRange(dst, len);
+#ifdef PBAR
 		prog(20);
+#endif
 	}
 	free_wip();
 	if(hooktype != 0 && hookpatched)
 		ocarina_do_code();
-	
-	//! Apply the 480p fix.
+
+	//! Apply the 480p fix
 	//! This needs to be done after the call to maindolpatches(), after loading any code handler.
 	//! Can (and should) be done before Wiimmfi patching, can't be done in maindolpatches() itself.
+	//! Exclude Prince of Persia: The Forgotten Sands and a few games that use MetaFortress
+	/**
+	bool excludeGame = false;
+	if (memcmp("RPW", GameID, 3) == 0 || memcmp("SPX", GameID, 3) == 0 ||
+		memcmp("R3D", GameID, 3) == 0 || memcmp("SDV", GameID, 3) == 0 ||
+		memcmp("SUK", GameID, 3) == 0 || memcmp("STN", GameID, 3) == 0 ||
+		memcmp("S7S", GameID, 3) == 0 || memcmp("SDUP41", GameID, 6) == 0 ||
+		memcmp("SDUE41", GameID, 6) == 0 || memcmp("SDUX41", GameID, 6) == 0)
+	{
+		excludeGame = true;
+	}
+
+	if(patchFix480p && !excludeGame)
+	**/
 	if(patchFix480p)
 		PatchFix480p();
-
-	//! If we're NOT on Wiimmfi, patch the known Remote Code Execution (RCE) vulnerability in MKWii. 
+	
+	//! If we're NOT on Wiimmfi, patch the known RCE vulnerability in MKWii. 
 	//! Wiimmfi will handle that on its own through the update payload.
 	//! This will also patch error 23400 for a couple games that still have official servers.
 	if(private_server != PRIVSERV_WIIMMFI)
 		Patch_23400_and_MKWii_vulnerability();
-	
-	else //PRIVSERV_WIIMMFI
+	else //wiimmfi patch
 	{
 		if(memcmp("RMC", GameID, 3) != 0)// This isn't MKWii, perform the patch for other games.
-			do_new_wiimmfi_nonMKWii();// does not patch the server address - done in maindolpatches()
+			do_new_wiimmfi_nonMKWii(); 
 		else // This is MKWii, perform the known patch from 2018.
-			do_new_wiimmfi();// includes patching the server address
+			do_new_wiimmfi(); 
 	}
 
 	/* Set entry point from apploader */
 	return (u32)appldr_final();
 }
 
-void maindolpatches(void *dst, int len, u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, 
-					u32 returnTo, bool patchregion , u8 private_server, const char *serverAddr, u8 deflicker, u8 bootType)
+void maindolpatches(void *dst, int len, u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, u32 returnTo, bool patchregion, u8 private_server, const char *serverAddr, u8 deflicker, u8 bootType)
 {
 	u8 vfilter_off[7] = {0, 0, 21, 22, 21, 0, 0};
 	u8 vfilter_low[7] = {4, 4, 16, 16, 16, 4, 4};
 	u8 vfilter_medium[7] = {4, 8, 12, 16, 12, 8, 4};
 	u8 vfilter_high[7] = {8, 8, 10, 12, 10, 8, 8};
-
 	do_wip_code((u8 *)dst, len);
 	Remove_001_Protection(dst, len);
 	if(CurrentIOS.Type == IOS_TYPE_WANIN && CurrentIOS.Revision < 13)
@@ -179,8 +190,7 @@ void maindolpatches(void *dst, int len, u8 vidMode, GXRModeObj *vmode, bool vipa
 	if(patchregion)
 		PatchRegion(dst, len);
 	if(private_server)
-		PrivateServerPatcher(dst, len, private_server, serverAddr);
-
+		PrivateServerPatcher(dst,len, private_server, serverAddr);
 	if(deflicker == DEFLICKER_ON_LOW)
 	{
 		patch_vfilters(dst, len, vfilter_low);
@@ -200,8 +210,7 @@ void maindolpatches(void *dst, int len, u8 vidMode, GXRModeObj *vmode, bool vipa
 	{
 		patch_vfilters(dst, len, vfilter_off);
 		patch_vfilters_rogue(dst, len, vfilter_off);
-		// This might break fade and brightness effects
-		if (deflicker == DEFLICKER_OFF_EXTENDED)
+		if(deflicker == DEFLICKER_OFF_EXTENDED) // This might break fade and brightness effects
 			deflicker_patch(dst, len);
 	}
 }
@@ -215,7 +224,7 @@ static void patch_NoDiscinDrive(void *buffer, u32 len)
 /* Patch cover register */
 	for(n = 0; n < len - sizeof oldcode; n += 4) // n is not 4 aligned here, so you can get an out of buffer thing
 	{
-		if (memcmp(buffer + n, (void *)oldcode, sizeof oldcode) == 0)
+		if(memcmp(buffer + n, (void *)oldcode, sizeof oldcode) == 0)
 			memcpy(buffer + n, (void *)newcode, sizeof newcode);
 	}
 }
@@ -235,7 +244,7 @@ static void Anti_002_fix(void *Address, int Size)
 	}
 }
 
-static void PrinceOfPersiaPatch()// Prince of Persia: The Forgotten Sands
+static void PrinceOfPersiaPatch()
 {
 	if(memcmp("SPX", GameID, 3) != 0 && memcmp("RPW", GameID, 3) != 0)
 		return;
@@ -332,46 +341,46 @@ static void Patch_23400_and_MKWii_vulnerability()
 
 	// Patch error 23400 for CoD (Black Ops, Reflex, MW3) and Rock Band 3 / The Beatles
 
-	if (memcmp(GameID, "SC7", 3) == 0) 
+	if(memcmp(GameID, "SC7", 3) == 0) 
 	{
 		gprintf("Patching error 23400 for game %s\n", GameID);
 		*(u32 *)0x8023c954 = 0x41414141;
 	}
 
-	else if (memcmp(GameID, "RJA", 3) == 0) 
+	else if(memcmp(GameID, "RJA", 3) == 0) 
 	{
 		gprintf("Patching error 23400 for game %s\n", GameID);
 		*(u32 *)0x801b838c = 0x41414141;
 	}
 
-	else if (memcmp(GameID, "SM8", 3) == 0) 
+	else if(memcmp(GameID, "SM8", 3) == 0) 
 	{
 		gprintf("Patching error 23400 for game %s\n", GameID);
 		*(u32 *)0x80238c74 = 0x41414141;
 	}
 
-	else if (memcmp(GameID, "SZB", 3) == 0) 
+	else if(memcmp(GameID, "SZB", 3) == 0) 
 	{
 		gprintf("Patching error 23400 for game %s\n", GameID);
 		*(u32 *)0x808e3b20 = 0x41414141;
 	}
 
-	else if (memcmp(GameID, "R9J", 3) == 0) 
+	else if(memcmp(GameID, "R9J", 3) == 0) 
 	{
 		gprintf("Patching error 23400 for game %s\n", GameID);
 		*(u32 *)0x808d6934 = 0x41414141;
 	}
 
 	// Patch RCE vulnerability in MKWii.
-	else if (memcmp(GameID, "RMC", 3) == 0) 
+	else if(memcmp(GameID, "RMC", 3) == 0) 
 	{
-		switch (GameID[3]) {
+		switch(GameID[3]) {
 
 			case 'P':
 				patched = (char *)0x80276054;
 				patch_addr = (u32 *)0x8089a194;
 				break; 
-			
+
 			case 'E': 
 				patched = (char *)0x80271d14;
 				patch_addr = (u32 *)0x80895ac4;
@@ -381,7 +390,7 @@ static void Patch_23400_and_MKWii_vulnerability()
 				patched = (char *)0x802759f4;
 				patch_addr = (u32 *)0x808992f4;
 				break;
-			
+
 			case 'K': 
 				patched = (char *)0x80263E34; 
 				patch_addr = (u32 *)0x808885cc; 
@@ -392,7 +401,7 @@ static void Patch_23400_and_MKWii_vulnerability()
 				return;
 		}
 
-		if (*patched != '*')
+		if(*patched != '*')
 		{
 			gprintf("Game is already Wiimmfi-patched, don't apply the RCE fix\n");
 		}
@@ -400,7 +409,7 @@ static void Patch_23400_and_MKWii_vulnerability()
 		{
 			gprintf("Patching RCE vulnerability for game ID %s\n", GameID);
 
-			for (int i = 0; i < 7; i++)
+			for(int i = 0; i < 7; i++)
 				*patch_addr++ = 0xff; 
 		}
 	}

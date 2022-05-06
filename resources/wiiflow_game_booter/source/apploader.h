@@ -6,8 +6,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Prototypes */
-u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, u32 returnTo, 
-					bool patchregion, u8 private_server, const char * server_addr, bool patchFix480p, u8 deflicker, u8 bootType);
+u32 Apploader_Run(u8 vidMode, GXRModeObj *vmode, bool vipatch, bool countryString, u8 patchVidModes, int aspectRatio, u32 returnTo, bool patchregion, u8 private_server, const char * server_addr, bool patchFix480p, u8 deflicker, u8 bootType);
 
 enum
 {
@@ -15,7 +14,7 @@ enum
 	PRIVSERV_NOSSL,
 	PRIVSERV_WIIMMFI,
 	PRIVSERV_MAX_CHOICE
-	
+
 };
 
 enum

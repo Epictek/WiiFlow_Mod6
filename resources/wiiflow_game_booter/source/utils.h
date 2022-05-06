@@ -16,8 +16,10 @@
 #define ALIGN32(x)			(((x) + 31) & ~31)
 
 #define TITLE_ID(x,y)		(((u64)(x) << 32) | (y))
-#define TITLE_UPPER(x)		((u32)((x) >> 32))
-#define TITLE_LOWER(x)		((u32)(x) & 0xFFFFFFFF)
+// #define TITLE_UPPER(x)		((u32)((x) >> 32))
+// #define TITLE_LOWER(x)		((u32)(x) & 0xFFFFFFFF)
+#define TITLE_UPPER(x)		((unsigned long)((x) >> 32))
+#define TITLE_LOWER(x)		((unsigned long)(x) & 0xFFFFFFFF)
 
 #define Write8(addr, val)	*(u8 *)addr = val; DCFlushRange((void *)addr, sizeof(u8));
 #define Write16(addr, val)	*(u16 *)addr = val; DCFlushRange((void *)addr, sizeof(u16));
