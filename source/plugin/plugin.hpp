@@ -35,7 +35,6 @@ using std::ios;
 #define TAG_CONSOLE		"{console}"
 
 #define PLUGIN			"PLUGIN"
-#define PLUGIN_ENABLED	"PLUGINS_ENABLED"
 #define PLUGIN_DEV		"{device}"
 #define PLUGIN_PATH		"{path}"
 #define PLUGIN_NAME		"{name}"
@@ -49,6 +48,10 @@ struct PluginOptions
 	u32 caseColor;
 	int romPartition;
 	string romDir;
+	string explorerPath; //
+	bool fileNamesAsTitles; //
+	string guideName; //
+	string guideTitle; //
 	string fileTypes;	
 	string DolName;
 	string coverFolder;
@@ -71,6 +74,10 @@ public:
 	const char *GetCoverFolderName(u32 magic);
 	const char *GetRomDir(u8 pos);
 	void SetRomDir(u8 pos, const string &rd);
+	const char *GetExplorerPath(u32 magic); //
+	bool GetFileNamesAsTitles(u32 magic); //
+	string GetGuideName(u32 magic); //
+	string GetGuideTitle(u32 magic); //
 	string GetRomName(const char *FullPath);
 	string GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *datadir, const char *platform, const char *name);
 	int GetRomPartition(u8 pos);
@@ -81,7 +88,6 @@ public:
 	u32 GetPluginMagic(u8 pos);
 	u8 GetPluginPosition(u32 magic);
 	s8 GetBoxMode(u8 pos);
-	
 	void init(const string& m_pluginsDir);
 	void AddPlugin(Config &plugin, const string &iniPath);
 	void Cleanup();
@@ -92,7 +98,6 @@ public:
 	
 	vector<string> CreateArgs(const char *device, const char *path, 
 		const char *title, const char *loader, u32 title_len_no_ext, u32 magic);
-	string GenerateCoverLink(dir_discHdr gameHeader, const string& constURL, Config &Checksums);
 	char PluginMagicWord[9];
 	
 private:

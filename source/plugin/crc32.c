@@ -1,6 +1,6 @@
 
-/* Copyright (C) 1986 Gary S. Brown.  You may use this program, or
-   code or tables extracted from it, as desired without restriction.*/
+/** Copyright (C) 1986 Gary S. Brown.  You may use this program, or
+   code or tables extracted from it, as desired without restriction. **/
 
 /* First, the polynomial itself and its table of feedback terms.  The  */
 /* polynomial is                                                       */

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #include <gccore.h>
 #include <ogcsys.h>
 #include <stdio.h>
@@ -47,7 +48,7 @@ static bool PluginOptions_cmp(PluginOptions lhs, PluginOptions rhs)
 static vector<string> INI_List;
 static void GrabINIFiles(char *FullPath)
 {
-	//Just push back
+	//! Just push back
 	INI_List.push_back(FullPath);
 }
 
@@ -69,9 +70,10 @@ void Plugin::init(const string& m_pluginsDir)
 			if(iniFile->find("scummvm.ini") != string::npos)
 				continue;
 			m_plugin_cfg.load(iniFile->c_str());
-			if(m_plugin_cfg.loaded() && Plugins.size() < 255)// max plugins count = 255
+			if(m_plugin_cfg.loaded() && Plugins.size() < 255) // max plugin count = 255
+			{
 				m_plugin.AddPlugin(m_plugin_cfg, *iniFile);
-
+			}
 			m_plugin_cfg.unload();
 		}
 		std::sort(Plugins.begin(), Plugins.end(), PluginOptions_cmp);
@@ -87,11 +89,12 @@ void Plugin::AddPlugin(Config &plugin, const string &iniPath)
 {
 	PluginOptions NewPlugin;
 	string magic = plugin.getString(PLUGIN, "magic", "");
-	if(magic.empty())// no magic number don't add to list.
+	if(magic.empty()) // no magic number don't add to list.
 		return;
+		
 	NewPlugin.path = iniPath;
 	NewPlugin.DolName = plugin.getString(PLUGIN, "dolFile");
-	NewPlugin.coverFolder = plugin.getString(PLUGIN, "coverFolder", magic);// no coverfolder use magic as folder name
+	NewPlugin.coverFolder = plugin.getString(PLUGIN, "coverFolder", magic); // no coverfolder: use magic as folder name
 	NewPlugin.magic = strtoul(magic.c_str(), NULL, 16);
 	NewPlugin.caseColor = strtoul(plugin.getString(PLUGIN, "coverColor", "000000").c_str(), NULL, 16);
 	NewPlugin.romPartition = plugin.getInt(PLUGIN, "rompartition", -1);
@@ -108,6 +111,10 @@ void Plugin::AddPlugin(Config &plugin, const string &iniPath)
 	}
 	NewPlugin.DisplayName.fromUTF8(PluginName.c_str());
 	NewPlugin.consoleCoverID = plugin.getString(PLUGIN,"consoleCoverID");
+	NewPlugin.explorerPath = plugin.getString(PLUGIN, "explorerPath"); // used for text browser view
+	NewPlugin.fileNamesAsTitles = plugin.getBool(PLUGIN, "fileNamesAsTitles", false); // used in coverflow to force the use of file names as game titles
+	NewPlugin.guideName = plugin.getString(PLUGIN, "guideName"); // used in game selection to display a controller input guide for the plugin
+	NewPlugin.guideTitle = plugin.getString(PLUGIN, "guideTitle", "Controller mapping"); // gives a title to the controller input guide page
 
 	const string &bannerfilepath = sfmt("%s/%s", pluginsDir.c_str(), plugin.getString(PLUGIN,"bannerSound").c_str());
 	fsop_GetFileSizeBytes(bannerfilepath.c_str(), &NewPlugin.BannerSoundSize);
@@ -148,7 +155,7 @@ u8* Plugin::GetBannerSound(u32 magic)
 
 u32 Plugin::GetBannerSoundSize()
 {
-	//We call that directly after GetBannerSound, so no need to search for the magic again
+	//! We call that directly after GetBannerSound, so no need to search for the magic again
 	if(Plugin_Pos >= 0)
 		return Plugins[Plugin_Pos].BannerSoundSize;
 	return 0;
@@ -170,9 +177,7 @@ const char *Plugin::GetCoverFolderName(u32 magic)
 
 int Plugin::GetRomPartition(u8 pos)
 {
-	if(pos < Plugins.size())
-		return Plugins[pos].romPartition;
-	return -1;
+	return Plugins[pos].romPartition;
 }
 
 void Plugin::SetRomPartition(u8 pos, int part)
@@ -188,6 +193,34 @@ const char *Plugin::GetRomDir(u8 pos)
 void Plugin::SetRomDir(u8 pos, const string &rd)
 {
 	Plugins[pos].romDir = rd;
+}
+
+const char *Plugin::GetExplorerPath(u32 magic) // 
+{
+	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
+		return Plugins[Plugin_Pos].explorerPath.c_str();
+	return NULL;
+}
+
+bool Plugin::GetFileNamesAsTitles(u32 magic) // 
+{
+	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
+		return Plugins[Plugin_Pos].fileNamesAsTitles;
+	return NULL;
+}
+
+string Plugin::GetGuideName(u32 magic) // 
+{
+	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
+		return Plugins[Plugin_Pos].guideName;
+	return NULL;
+}
+
+string Plugin::GetGuideTitle(u32 magic) // 
+{
+	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
+		return Plugins[Plugin_Pos].guideTitle;
+	return NULL;
 }
 
 const string& Plugin::GetFileTypes(u8 pos)
@@ -246,7 +279,6 @@ const vector<bool> &Plugin::GetEnabledPlugins(u8 *num)
 		enabledPlugins.push_back(GetEnabledStatus(i));
 		if(GetEnabledStatus(i))
 			enabledPluginsNumber++;
-
 	}
 	if(enabledPluginsNumber == Plugins.size())
 		enabledPlugins.clear();
@@ -286,7 +318,6 @@ string Plugin::GetRomName(const char *FullPath)
 {
 	string FullName = strrchr(FullPath, '/') + 1;
 	FullName = FullName.substr(0, FullName.find_last_of("."));
-
 	// Remove common suffixes and replace unwanted characters. 
 	string ShortName = FullName.substr(0, FullName.find(" (")).substr(0, FullName.find(" ["));
 	replace(ShortName.begin(), ShortName.end(), '_', ' ');
@@ -437,7 +468,7 @@ void GetSerialMegaCD(const char *path, string &Serial)
 string Plugin::GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *datadir, const char *platform, const char *name)
 {
 	string GameID = "";
-	string CRC_Serial(12, '*');// 12 digits because of ps1 and megaCD serials which can be 10 or more digits
+	string CRC_Serial(12, '*'); // 12 digits because of ps1 and megaCD serials which can be 10 or more digits
 
 	// Search a platform list that is used to identify the current game.
 	// It contains a default filename(preferably No-intro without region flag), the GameID and then all known CRC32/serials.
@@ -470,6 +501,7 @@ string Plugin::GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *dat
 			// Look for for the file's crc inside the archive 
 			if(strstr(romPath, ".zip") != NULL)
 			{
+				//infile.open(gameHeader->path, ios::binary);
 				infile.open(romPath, ios::binary);
 				infile.seekg(0x0e, ios::beg);
 				infile.read((char*)&buffer, 8);
@@ -536,13 +568,13 @@ string Plugin::GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *dat
 				}
 				else if(!strcasecmp(platform, "DOS"))
                 {
-                    u8 pos = m_plugin.GetPluginPosition(Magic);
+					u8 pos = m_plugin.GetPluginPosition(Magic);
                     string FileTypes = m_plugin.GetFileTypes(pos);
 
                     if(strcasestr(FileTypes.c_str(), ".conf"))
                     {
                         ifstream inputFile;
-                        inputFile.open(romPath, std::ios::binary);
+						inputFile.open(romPath, std::ios::binary);
                         string line;
                         std::string dospath;
                         std::string temp;
@@ -604,7 +636,7 @@ string Plugin::GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *dat
                             }
                         }
                     }
-                }// Just check CRC for a regular file on any other system.
+                } // Just check CRC for a regular file on any other system.
 				else
 				{
 					strncpy(crc_string, fmt("%08x", crc32file(romPath)), 8);
@@ -614,10 +646,7 @@ string Plugin::GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *dat
 		}
 		
 		if(crc_string[0] != '\0')
-		{
 			CRC_Serial = crc_string;
-			//gprintf("romCRC=%s\n", crc_string);
-		}
 
 		/****************************************************************/
 		/* Now search ID with the obtained CRC/Serial */
@@ -642,13 +671,15 @@ string Plugin::GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *dat
 
 				if(!ID.empty())
 					GameID = ID;
+				GameID = ID;
 				break;
 			}
 		}
 	}
+	
 	return GameID;
 }
-
+/*
 string Plugin::GenerateCoverLink(dir_discHdr gameHeader, const string& constURL, Config &Checksums)
 {
 	string url(constURL);
@@ -662,6 +693,7 @@ string Plugin::GenerateCoverLink(dir_discHdr gameHeader, const string& constURL,
 
 	char gamePath[256];
 	if(string(gameHeader.path).find_last_of("/") != string::npos)
+		// strncpy(gamePath, &gameHeader.path[string(gameHeader.path).find_last_of("/")+1], sizeof(gamePath));
 		strcpy(gamePath, &gameHeader.path[string(gameHeader.path).find_last_of("/")+1]);
 	else
 		strncpy(gamePath, gameHeader.path, sizeof(gamePath));
@@ -711,3 +743,4 @@ string Plugin::GenerateCoverLink(dir_discHdr gameHeader, const string& constURL,
 	gprintf("URL: %s\n", url.c_str());
 	return url;
 }
+*/
