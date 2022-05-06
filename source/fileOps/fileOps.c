@@ -1,10 +1,10 @@
-/*////////////////////////////////////////////////////////////////////////////////////////
+/*****************************************************************************************
 
-fsop contains coomprensive set of function for file and folder handling
+fsop contains comprehensive set of function for file and folder handling
 
-en exposed s_fsop fsop structure can be used by callback to update operation status
+an exposed s_fsop fsop structure can be used by callback to update operation status
 
-////////////////////////////////////////////////////////////////////////////////////////*/
+*****************************************************************************************/
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -23,6 +23,8 @@ en exposed s_fsop fsop structure can be used by callback to update operation sta
 #define SET(a, b) a = b; DCFlushRange(&a, sizeof(a));
 #define STACKSIZE 8192
 
+#define BLOCKSIZE			   70*1024	  //70KB
+
 static u8 *buff = NULL;
 static FILE *fs = NULL, *ft = NULL;
 static u32 block = 32768;
@@ -33,7 +35,7 @@ static s32 stopThread;
 static u64 folderSize = 0;
 u64 FolderProgressBytes;
 
-// return false if the file doesn't exist
+/* Return false if the file doesn't exist */
 bool fsop_GetFileSizeBytes(const char *path, u32 *filesize)	// for me stats st_size report always 0 :(
 {
 	FILE *f;
@@ -47,7 +49,7 @@ bool fsop_GetFileSizeBytes(const char *path, u32 *filesize)	// for me stats st_s
 		return false;
 	}
 
-	//Get file size
+	/* Get file size */
 	fseek(f, 0, SEEK_END);
 	size = ftell(f);
 	if(filesize)
@@ -78,7 +80,7 @@ u64 fsop_GetFolderBytes(const char *source)
 		// If it is a folder... recurse...
 		if(fsop_FolderExist(newSource))
 			bytes += fsop_GetFolderBytes(newSource);
-		else	// It is a file !
+		else // It is a file!
 		{
 			u32 s;
 			fsop_GetFileSizeBytes(newSource, &s);
@@ -97,7 +99,7 @@ u32 fsop_GetFolderKb(const char *source)
 	return ret;
 }
 
-u32 fsop_GetFreeSpaceKb(const char *path) // Return free kb on the device passed
+u32 fsop_GetFreeSpaceKb(const char *path) // return free kb on the device passed
 {
 	struct statvfs s;
 
@@ -132,7 +134,7 @@ static void *thread_CopyFileReader()
 
 bool fsop_CopyFile(const char *source, const char *target, progress_callback_t spinner, void *spinner_data)
 {
-	//gprintf("Creating file: %s\n", target);
+	// gprintf("Creating file: %s\n", target);
 	int err = 0;
 
 	u32 size;
@@ -149,18 +151,18 @@ bool fsop_CopyFile(const char *source, const char *target, progress_callback_t s
 		return false;
 	}
 
-	//Get file size
+	// Get file size
 	fseek(fs, 0, SEEK_END);
 	size = ftell(fs);
 
-	if (size == 0)
+	if(size == 0)
 	{
 		fclose(fs);
 		fclose(ft);
 		return true;
 	}
 
-	// Return to beginning....
+	// Return to beginning...
 	fseek(fs, 0, SEEK_SET);
 
 	u8 *threadStack = NULL;
@@ -192,7 +194,7 @@ bool fsop_CopyFile(const char *source, const char *target, progress_callback_t s
 	do
 	{
 		while(!blockReady)
-			usleep(1); // Let's wait for incoming block from the thread
+			usleep(1); // let's wait for incoming block from the thread
 
 		bi = blockIdx;
 
@@ -267,7 +269,7 @@ static bool doCopyFolder(const char *source, const char *target, progress_callba
 		// If it is a folder... recurse...
 		if(fsop_FolderExist(newSource))
 			ret = doCopyFolder(newSource, newTarget, spinner, spinner_data);
-		else	// It is a file !
+		else // It is a file!
 			ret = fsop_CopyFile(newSource, newTarget, spinner, spinner_data);
 	}
 
@@ -278,7 +280,7 @@ static bool doCopyFolder(const char *source, const char *target, progress_callba
 
 bool fsop_CopyFolder(const char *source, const char *target, progress_callback_t spinner, void *spinner_data)
 {
-	gprintf("DML game USB->SD job started!\n");
+	// gprintf("DML game USB->SD job started!\n");
 
 	FolderProgressBytes = 0;
 	folderSize = fsop_GetFolderBytes(source);
@@ -293,7 +295,7 @@ void fsop_deleteFolder(const char *source)
 
 	pdir = opendir(source);
 
-	/* first delete all subfolders and files in the folder */
+	/* First delete all subfolders and files in the folder */
 	while((pent = readdir(pdir)) != NULL) 
 	{
 		// Skip it
@@ -307,7 +309,7 @@ void fsop_deleteFolder(const char *source)
 			fsop_deleteFolder(newSource);
 			pdir = opendir(source);
 		}
-		else // It is a file !
+		else // It is a file!
 		{
 			closedir(pdir);
 			fsop_deleteFile(newSource);
@@ -315,14 +317,14 @@ void fsop_deleteFolder(const char *source)
 		}
 	}
 	closedir(pdir);
-	/* now actually delete the folder */
+	/* Now actually delete the folder */
 	gprintf("Deleting directory: %s\n", source);
-	unlink(source);// using POSIX unlink to delete the folder
+	unlink(source); // using POSIX unlink to delete the folder
 }
 
 bool fsop_FileExist(const char *fn)
 {
-	FILE * f;
+	FILE *f;
 	f = fopen(fn, "rb");
 	if(f)
 	{
@@ -350,7 +352,7 @@ u8 *fsop_ReadFile(const char *path, u32 *size)
 		mem = (u8*)MEM2_alloc(filesize);
 		if(mem != NULL)
 		{
-			//gprintf("Reading file: %s\n", path);
+			// gprintf("Reading file: %s\n", path);
 			fsop_ReadFileLoc(path, filesize, mem);
 			*size = filesize;
 		}
@@ -366,7 +368,7 @@ bool fsop_WriteFile(const char *path, const void *mem, const u32 size)
 	FILE *f = fopen(path, "wb");
 	if(f == NULL)
 		return false;
-	//gprintf("Writing file: %s\n", path);
+	// gprintf("Writing file: %s\n", path);
 	fwrite(mem, size, 1, f);
 	fclose(f);
 	return true;
@@ -391,13 +393,15 @@ bool fsop_FolderExist(const char *path)
 	return false;
 }
 
-/*void fsop_MakeFolder(const char *path)
+/*
+void fsop_MakeFolder(const char *path)
 {
 	if(fsop_FolderExist(path))
 		return;
 	//gprintf("Folder path to create: %s\n", path);
 	mkdir(path, S_IREAD | S_IWRITE);
-}*/
+}
+*/
 
 bool fsop_MakeFolder(const char *fullpath)
 {
@@ -417,9 +421,8 @@ bool fsop_MakeFolder(const char *fullpath)
 	}
 
 	if(fsop_FolderExist(dirnoslash))
-	{
 		return true;
-	}
+
 	else
 	{
 		char parentpath[strlen(dirnoslash)+2];
@@ -428,7 +431,7 @@ bool fsop_MakeFolder(const char *fullpath)
 
 		if(!ptr)
 		{
-			//!Device root directory (must be with '/')
+			//! Device root directory (must be with '/')
 			strcat(parentpath, "/");
 			struct stat filestat;
 			if (stat(parentpath, &filestat) == 0)
@@ -446,11 +449,8 @@ bool fsop_MakeFolder(const char *fullpath)
 	if(!result)
 		return false;
 
-	if (mkdir(dirnoslash, 0777) == -1)
-	{
+	if(mkdir(dirnoslash, 0777) == -1)
 		return false;
-	}
 
 	return true;
 }
-
