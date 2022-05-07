@@ -897,8 +897,6 @@ void Nand::CreateTitleTMD(dir_discHdr *hdr)
 	if(titleTMD == NULL)
 		return;
 
-	// u32 highTID = *(u32*)(titleTMD+0x18c);
-	// u32 lowTID = *(u32*)(titleTMD+0x190);
 	unsigned long highTID = *(unsigned long*)(titleTMD+0x18c);
 	unsigned long lowTID = *(unsigned long*)(titleTMD+0x190);
 
