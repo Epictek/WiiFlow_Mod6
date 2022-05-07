@@ -77,7 +77,6 @@ public:
 	const char *GetExplorerPath(u32 magic); //
 	bool GetFileNamesAsTitles(u32 magic); //
 	string GetGuideName(u32 magic); //
-	string GetGuideTitle(u32 magic); //
 	string GetRomName(const char *FullPath);
 	string GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *datadir, const char *platform, const char *name);
 	int GetRomPartition(u8 pos);

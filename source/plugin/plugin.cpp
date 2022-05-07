@@ -114,7 +114,6 @@ void Plugin::AddPlugin(Config &plugin, const string &iniPath)
 	NewPlugin.explorerPath = plugin.getString(PLUGIN, "explorerPath"); // used for text browser view
 	NewPlugin.fileNamesAsTitles = plugin.getBool(PLUGIN, "fileNamesAsTitles", false); // used in coverflow to force the use of file names as game titles
 	NewPlugin.guideName = plugin.getString(PLUGIN, "guideName"); // used in game selection to display a controller input guide for the plugin
-	NewPlugin.guideTitle = plugin.getString(PLUGIN, "guideTitle", "Controller mapping"); // gives a title to the controller input guide page
 
 	const string &bannerfilepath = sfmt("%s/%s", pluginsDir.c_str(), plugin.getString(PLUGIN,"bannerSound").c_str());
 	fsop_GetFileSizeBytes(bannerfilepath.c_str(), &NewPlugin.BannerSoundSize);
@@ -213,13 +212,6 @@ string Plugin::GetGuideName(u32 magic) //
 {
 	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
 		return Plugins[Plugin_Pos].guideName;
-	return NULL;
-}
-
-string Plugin::GetGuideTitle(u32 magic) // 
-{
-	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
-		return Plugins[Plugin_Pos].guideTitle;
 	return NULL;
 }
 
