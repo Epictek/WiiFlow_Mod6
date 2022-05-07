@@ -560,6 +560,14 @@ void CMenu::_game(bool launch)
 				if(hdr->type == TYPE_PLUGIN) // controller input guide
 				{
 					string guideBG = m_plugin.GetGuideName(hdr->settings[0]);
+					if(guideBG == "")
+					{
+						if(m_platform.loaded())
+						{
+							guideBG = m_platform.getString("PLUGINS", m_plugin.PluginMagicWord, "");
+							guideBG += ".png";
+						}
+					}
 					if(TexHandle.fromImageFile(m_game_guide, fmt("%s/inputs/%s", m_pluginsDir.c_str(), guideBG.c_str())) != TE_OK)
 					{
 						TexHandle.Cleanup(m_game_guide);
@@ -575,8 +583,7 @@ void CMenu::_game(bool launch)
 						m_btnMgr.show(m_gameGuideLblUser[i]);
 					m_btnMgr.show(m_gameLblGuide);
 					m_btnMgr.show(m_configBtnBack);
-					string gTitle = m_plugin.GetGuideTitle(hdr->settings[0]); 
-					m_btnMgr.setText(m_configLblTitle, gTitle);
+					m_btnMgr.setText(m_configLblTitle, _t("cfg825", L"Controller mapping"));		
 					m_btnMgr.show(m_configLblTitle);
 					while(!m_exit)
 					{
