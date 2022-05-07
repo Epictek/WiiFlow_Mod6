@@ -305,7 +305,6 @@ static s32 ftp_PORT(client_t *client, char *portspec) {
 	if(ftp_allow_active == false) /* port is only used for active clients */
 		return write_reply(client, 502, "Command not implemented.");
 
-    // u32 h1, h2, h3, h4, p1, p2;
 	unsigned int h1, h2, h3, h4, p1, p2;
 	if (sscanf(portspec, "%3u,%3u,%3u,%3u,%3u,%3u", &h1, &h2, &h3, &h4, &p1, &p2) < 6) {
         return write_reply(client, 501, "Syntax error in parameters.");
