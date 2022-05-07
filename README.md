@@ -2,16 +2,16 @@
 My mod of the Wii USB Loader WiiFlow
 
 ## Description
-I've been working on this fork of WiiFlow for quite a long time now for my own personal use and decided I should eventually release it.
+I've been working on this fork of WiiFlow for quite a long time for my own personal use and decided I should eventually release it.
 It brings back some features of WiiFlow 4 and many new features and quality of life changes.
 
 ## Changes
-- Icons and menus have been completely rewritten and redrawn to have a more consistent look, settings are now categorized and themes are easier to write and maintain.
-- Almost all settings can now be tweaked within WiiFlow menus, no need to edit ini files anymore.
 - Added ability to jump to a specific game using a virtual keyboard on screen.
 - Install game feature is back, with the help of USB Loader GX source code.
 - Added ability to install wad folders (batch mode).
 - FTP server is back.
+- Icons and menus have been completely rewritten and redrawn to have a more consistent look, settings are now categorized and themes are easier to write and maintain.
+- Almost all settings can now be tweaked within WiiFlow menus, no need to edit ini files anymore.
 - Neek2o mode is back: WiiFlow can be relaunched under neek2o for channel coverflow only.
 - Added many checks and error messages when it comes to use neek2o features, with the help of USB Loader GX source code.
 - Game categories can now be automatically retrieved from GameTDB and Wiimpathy's databases.
@@ -43,7 +43,7 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 - Added option to retrieve disc label images from GameTDB (shown in game info).
 - Rumble is attenuated.
 - Removed white progress bar when launching games.
-- Created a new theme called melodii, and adapted rhapsodii and carbonik themes to make them work with this fork.
+- Created a new theme called melodii, and adapted rhapsodii, carbonik and whitewii themes to make them work with this fork.
 - Added ability to force source menu attributes (sourceflow, smallbox, boxmode) in theme ini files.
 - Heavily modified wording of GUI, currently only english and french languages are available.
 - Modified handling of fanart, animation is delayed and acts as a screen saver.
