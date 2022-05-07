@@ -66,8 +66,6 @@ int app_gameconfig_load(const char *discid, u8 *tempgameconf, u32 tempgameconfsi
 	u32 ret;
 	s32 gameidmatch, maxgameidmatch = -1, maxgameidmatch2 = -1;
 	u32 i, numnonascii, parsebufpos;
-	// u32 codeaddr, codeval, codeaddr2, codeval2, codeoffset;
-	// u32 temp, tempoffset = 0;
 	unsigned long codeaddr, codeval, codeaddr2, codeval2, codeoffset;
 	unsigned long temp, tempoffset = 0;
 	char parsebuffer[18];
