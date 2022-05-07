@@ -7,7 +7,7 @@
 #include "loader/fs.h"
 #include "network/https.h"
 #include "unzip/ZipFile.h"
-#include "network/FTP_dir.hpp" // -ftp-
+#include "network/FTP_Dir.hpp" // -ftp-
 // #include "loader/wbfs.h"
 // #include "loader/wdvd.h"
 // #include "types.h"
