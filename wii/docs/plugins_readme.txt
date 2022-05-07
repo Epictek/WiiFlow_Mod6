@@ -1,4 +1,4 @@
- Update April 29, 2022
+ Update May 7, 2022
 
  PLUGIN SETUP:
  =============
@@ -66,10 +66,7 @@ filenamesastitles=
 # optional (emulators only) - force WiiFlow to use rom file names as titles instead of Wiimpathy's database (yes/no - default to no)
 
 guidename=
-# optional - background image (e.g. "atari_guide.png") to use for the plugin controller input guide (PNG or JPG must be placed in wiiflow/plugins/inputs/)
-
-guidetitle=
-# optional - title displayed on the controller input guide page (default is "Controller mapping")
+# optional - background image (e.g. "atari_guide.png") to use for the plugin controller input guide (PNG or JPG must be placed in wiiflow/plugins/inputs/), default to "[platform_name].png" (platform_name from platform.ini)
 
 
  You can use multiple "homebrew" plugins each with its own romdir=. First six characters of magic number must be 484252. The last two can be random.
