@@ -45,8 +45,6 @@ jobs:
         run: |
           cp -r wii/apps apps
           mkdir -p apps/wiiflow/
-          cp -r out/bins apps/wiiflow/bins
-          cp -r out/imgs apps/wiiflow/imgs
           cp out/boot.dol apps/wiiflow/
           mkdir -p wiiflow
           cp -r wii/wiiflow/Languages wiiflow/languages
