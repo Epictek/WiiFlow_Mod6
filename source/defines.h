@@ -3,11 +3,11 @@
 #define SCREENSHOT // comment this line to remove screenshot feature
 
 #ifdef APP_WIIFLOW_LITE
-#define APP_NAME				"WiiFlow Lite Mod"
+#define APP_NAME				"WiiFlow Lite Mod6"
 #else
-#define APP_NAME				"WiiFlow Mod"
+#define APP_NAME				"WiiFlow Mod6"
 #endif
-#define APP_VERSION				"6.11-656"
+#define APP_VERSION				"1.0.0"
 
 #define APP_DATA_DIR			"wiiflow"
 #ifdef APP_WIIFLOW_LITE
