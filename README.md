@@ -51,5 +51,12 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 - Fixed many minor bugs and made hundreds of other minor changes that would be too long to list.
 - Removed Devolution support.
 
+## Screenshots
+![Keyboard](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/keyboard.png?raw=true)
+![Categories](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/categories.png?raw=true)
+![Settings](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/settings.png?raw=true)
+![Cheats](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/cheats.png?raw=true)
+![Game info](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/gameinfo.png?raw=true)
+
 ## Booting
 To start WiiFlow Mod6 you will need the Homebrew Channel or a WiiFlow forwarder channel installed on your Wii or vWii system menu.
