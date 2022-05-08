@@ -164,14 +164,11 @@ void SFont::ClearData(void)
 	dataSize = 0;
 }
 
-// bool SFont::fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lspacing, u32 w, u32 idx, const char *fontname)
 bool SFont::fromBuffer(const u8 *buffer, const unsigned int bufferSize, unsigned int size, unsigned int lspacing, unsigned int w, unsigned int idx, const char *fontname)
 {
 	if(buffer == NULL)
 		return false;
-	// fSize = std::min(std::max(6ul, size), 1000ul);
-	// lineSpacing = std::min(std::max(6ul, lspacing), 1000ul);
-	// weight = std::min(w, 32ul);
+
 	fSize = std::min(std::max(6u, size), 1000u);
 	lineSpacing = std::min(std::max(6u, lspacing), 1000u);
 	weight = std::min(w, 32u);
@@ -192,12 +189,8 @@ bool SFont::fromBuffer(const u8 *buffer, const unsigned int bufferSize, unsigned
 	return true;
 }
 
-// bool SFont::fromFile(const char *path, u32 size, u32 lspacing, u32 w, u32 idx, const char *fontname)
 bool SFont::fromFile(const char *path, unsigned int size, unsigned int lspacing, unsigned int w, unsigned int idx, const char *fontname)
 {
-	// fSize = std::min(std::max(6ul, size), 1000ul);
-	// weight = std::min(w, 32ul);
-	// lineSpacing = std::min(std::max(6ul, lspacing), 1000ul);
 	fSize = std::min(std::max(6u, size), 1000u);
 	weight = std::min(w, 32u);
 	lineSpacing = std::min(std::max(6u, lspacing), 1000u);

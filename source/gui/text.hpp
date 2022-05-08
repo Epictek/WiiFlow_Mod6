@@ -19,8 +19,6 @@ public:
 	SFont(void) : font(NULL), fSize(0), lineSpacing(0), weight(0), index(0), data(NULL), dataSize(0) { memset(name, 0, 128); };
 	~SFont(void) { };
 	void ClearData(void);
-	// bool fromBuffer(const u8 *buffer, const u32 bufferSize, u32 size, u32 lspacing, u32 w = 0, u32 idx = 0, const char *fontname = "");
-	// bool fromFile(const char *path, u32 size, u32 lspacing, u32 w = 0, u32 idx = 0, const char *fontname = "");
 	bool fromBuffer(const u8 *buffer, const unsigned int bufferSize, unsigned int size, unsigned int lspacing, unsigned int w = 0, unsigned int idx = 0, const char *fontname = "");
 	bool fromFile(const char *path, unsigned int size, unsigned int lspacing, unsigned int w = 0, unsigned int idx = 0, const char *fontname = "");
 	FreeTypeGX *font;

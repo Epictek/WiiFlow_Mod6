@@ -14,10 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
+ 
 #include <stdlib.h>
 #include <stdio.h>
 #include <memory/mem2.hpp>
-//#include <malloc.h>
+// #include <malloc.h>
 #include <string.h>
 
 #include "ash.h"
@@ -49,7 +50,7 @@ u8*	DecompressAsh( const u8 *stuff, u32 &len )
 	r[5] = r[5] & 0x00FFFFFF;
 
 	u32 size = r[5];
-	//gprintf("Decompressed size: %d\n", size);
+	// gprintf("Decompressed size: %d\n", size);
 	u8* buf1 = (u8*)MEM2_lo_alloc(size);
 	if( !buf1 )
 	{
@@ -58,9 +59,9 @@ u8*	DecompressAsh( const u8 *stuff, u32 &len )
 	}
 	r[3] = (u32)buf1;   //out
 	memset( (void*)buf1, 0, size );
-	//printf("r[3] :%08X\n", r[3]);
+	// printf("r[3] :%08X\n", r[3]);
 
-	//printf("\n\n");
+	// printf("\n\n");
 
 	r[24] = 0x10;
 	r[28] = s32(*(unsigned int *)(r[4]+8));
@@ -69,8 +70,8 @@ u8*	DecompressAsh( const u8 *stuff, u32 &len )
 	r[26] = s32(*(unsigned int *)(r[4]+0xC));
 	r[30] = s32(*(unsigned int *)(r[4]+r[28]));
 	r[28] = r[28] + 4;
-	//r[8]  = 0x8108<<16;
-	//HACK, pointer to RAM
+	// r[8]  = 0x8108<<16;
+	// HACK, pointer to RAM
 	u8* workingBuffer = (u8*)MEM2_lo_alloc(0x100000);
 	if( !workingBuffer )
 	{
@@ -80,7 +81,7 @@ u8*	DecompressAsh( const u8 *stuff, u32 &len )
 	}
 	r[8]  = (u32)workingBuffer;
 	memset( (void*)workingBuffer, 0, 0x100000 );
-	//printf("r[8] :%08X\n", r[8]);
+	// printf("r[8] :%08X\n", r[8]);
 
 	r[8]  = r[8];
 	r[9]  = r[8]  + 0x07FE;
@@ -447,7 +448,7 @@ loc_81332434:
 	r[3] = r[0];
 	len = r[3];
 
-	//gprintf("Decompressed %d bytes\n", r[3]);
+	// gprintf("Decompressed %d bytes\n", r[3]);
 	MEM2_lo_free(workingBuffer);
 	return buf1;
 }

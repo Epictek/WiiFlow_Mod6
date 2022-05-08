@@ -118,7 +118,6 @@ public:
 	void setRowAngles(bool selected, const Vector3D &top, const Vector3D &bottom);
 	void setCoverFlipping(const Vector3D &pos, const Vector3D &angle, const Vector3D &scale);
 	void setCoverFlipPos(const Vector3D &pos);
-	// void setBlur(u32 blurResolution, u32 blurRadius, float blurFactor);
 	void setBlur(unsigned int blurResolution, unsigned int blurRadius, float blurFactor);
 	void setSorting(Sorting sorting);
 	// 
@@ -274,7 +273,6 @@ private:
 	std::string m_pngLoadCoverFlat;
 	std::string m_pngNoCover;
 	std::string m_pngNoCoverFlat;
-	// u32 m_numBufCovers;
 	unsigned int m_numBufCovers;
 	SFont m_font;
 	CColor m_fontColor;
@@ -284,8 +282,6 @@ private:
 	bool m_dvdskin_loaded;
 	bool m_defcovers_loaded;
 	u32 m_range;
-	// u32 m_rows;
-	// u32 m_columns;
 	unsigned int m_rows;
 	unsigned int m_columns;
 	SLayout m_loNormal;

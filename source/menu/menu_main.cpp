@@ -569,7 +569,7 @@ int CMenu::main(void)
 			}
 			wchar_t c[2] = {0, 0};
 			(m_btnMgr.selected(m_mainBtnPrev)) ? CoverFlow.prevLetter(c) : CoverFlow.nextLetter(c);
-			wstringEx curLetter; //
+			wstringEx curLetter;
 			curLetter = wstringEx(c);
 			if(sorting != SORT_ALPHA)
 			{

@@ -66,7 +66,6 @@ public:
 	bool vid_50hz(void) const { return m_50hz; }
 	u8 getAA(void) const { return m_aa; }
 	bool showingWaitMessage() { return m_WaitThreadRunning; }
-	// void set2DViewport(u32 w, u32 h, int x, int y);
 	void set2DViewport(unsigned int w, unsigned int h, int x, int y);
 	void prepareStencil(void);
 	void renderStencil(void);

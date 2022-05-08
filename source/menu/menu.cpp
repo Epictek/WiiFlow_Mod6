@@ -181,7 +181,7 @@ bool CMenu::init(bool usb_mounted)
 	ftp_server_port = min(65535u, m_cfg.getUInt("FTP", "server_port", 21));
 	set_ftp_password(m_cfg.getString("FTP", "password", "").c_str());	
 	
-	/* Init Network (only if wifi gecko debug true), slows down boot a little */
+	/* Init Network (only if wifi gecko debug or FTP on start true), slows down boot a little */
 	_netInit();
 	if(neek2o()) // retry (only works on 2nd try for some reason)
 		_netInit();

@@ -570,7 +570,6 @@ void CCoverFlow::setCoverFlipPos(const Vector3D &pos)
 	m_covers[m_range / 2].targetPos = m_loSelected.centerPos + pos;
 }
 
-// void CCoverFlow::setBlur(u32 blurResolution, u32 blurRadius, float blurFactor)
 void CCoverFlow::setBlur(unsigned int blurResolution, unsigned int blurRadius, float blurFactor)
 {
 	static const struct { u32 x; u32 y; } blurRes[] = {
@@ -2948,7 +2947,6 @@ void * CCoverFlow::_coverLoader(void *obj)
 	u32 i, j;
 	bool hq_req = cf->m_useHQcover;
 	bool cur_pos_hq = false;
-	// u32 bufferSize = min(cf->m_numBufCovers * max(2ul, cf->m_rows), 80ul);
 	u32 bufferSize = min(cf->m_numBufCovers * max(2u, cf->m_rows), 80u);
 
 	/** 3 passes alternative method (slower) **/

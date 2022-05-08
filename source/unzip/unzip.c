@@ -1,38 +1,38 @@
-/* unzip.c -- IO for uncompress .zip files using zlib
+/** unzip.c -- IO for uncompress .zip files using zlib
    Version 1.01e, February 12th, 2005
 
    Copyright (C) 1998-2005 Gilles Vollant
 
    Read unzip.h for more info
-*/
+**/
 
-/* Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of
+/** Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of
 compatibility with older software. The following is from the original crypt.c. Code
 woven in by Terry Thorsen 1/2003.
-*/
-/*
+**/
+/**
   Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
 
   See the accompanying file LICENSE, version 2000-Apr-09 or later
   (the contents of which are also included in zip.h) for terms of use.
   If, for some reason, all these files are missing, the Info-ZIP license
   also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
-*/
-/*
+**/
+/**
   crypt.c (full version) by Info-ZIP.      Last revised:  [see crypt.h]
 
   The encryption/decryption parts of this source code (as opposed to the
   non-echoing password parts) were originally written in Europe.  The
   whole source package can be freely distributed, including from the USA.
   (Prior to January 2000, re-export from the US was a violation of US law.)
- */
+ **/
 
-/*
+/**
   This encryption code is a direct transcription of the algorithm from
   Roger Schlafly, described by Phil Katz in the file appnote.txt.  This
   file (appnote.txt) is distributed with the PKZIP program (even in the
   version without encryption capabilities).
- */
+ **/
 
 
 #include <stdio.h>

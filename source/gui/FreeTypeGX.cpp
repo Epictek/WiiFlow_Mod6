@@ -191,7 +191,7 @@ void FreeTypeGX::loadGlyphData(FT_Bitmap *bmp, ftgxCharData *charData)
 
     uint8_t *src = (uint8_t *)bmp->buffer;
     uint8_t *dst = glyphData;
-    uint32_t pos, x1, y1, x, y; // not int32_t
+    uint32_t pos, x1, y1, x, y;
 
     for(y1 = 0; y1 < (uint32_t)bmp->rows; y1 += 8)
     {
