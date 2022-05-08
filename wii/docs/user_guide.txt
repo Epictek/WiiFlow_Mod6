@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update April 16, 2022.
+Update May 8, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -49,7 +49,7 @@ Dump your discs using:
 > Wii (or GameCube) settings > Manage Wii (or GameCube) game list > Install game
 Or put your already dumped WBFS / ISO folders and files in Wii (or Gamecube) games directory.
 
-To organize your game coverflows, read "readme.txt" in source_menu folder to know more about source menu setup.
+To organize your game coverflows, read "source_menu_readme.txt" to know more about source menu setup.
 
 If you add games to your drive outside of Wiiflow, refresh coverflow list each time you add a new game:
 > Wii (or GameCube) settings > Manage Wii (or GameCube) game list > Refresh coverflow list
@@ -112,10 +112,10 @@ If only "Full" is working, your real Wii settings are not well configured (maybe
 Emulators must be installed on your drive. Some emulators have specific Wiiflow plugin versions, that can be stored in dev:/wiiflow/plugins.
 
 Each plugin must have a [plugin name].ini file in dev:/wiiflow/plugins.
-Read "readme.txt" in plugins folder to know more about plugins setup.
+Read "plugins_readme.txt" to know more about plugins setup.
 
 To see your games in coverflow, select "[plugin name]" plugin or create a source menu entry for each source (source=plugin + magic=[magic#]).
-Read "readme.txt" in source_menu folder to know more about source menu setup.
+Read "source_menu_readme.txt" to know more about source menu setup.
 
 Refresh coverflow list each time a new game is added outside of Wiiflow:
 > Plugin settings > Manage Plugin game list > Refresh coverflow list
@@ -264,30 +264,30 @@ Gamecube games
 Gamecube game saves are handled by Nintendont, but Wiiflow can pass some arguments to manage saves, options are as follow:
 
 - Use a real GC memory card:
-> GameCube settings > Global emulation settings > Emulated Memory Card mode > Disabled
+> GameCube settings > Global emulation settings > Virtual MemCard mode > Disabled
 
 - Create a virtual 256-block memory card for each game (recommended):
-> GameCube settings > Global emulation settings > Emulated Memory Card mode > 256 blocks
+> GameCube settings > Global emulation settings > Virtual MemCard mode > 256 blocks
 
 - Create a virtual 1019-block memory card for each game (may be useful for some sports games but may be unstable):
-> GameCube settings > Global emulation settings > Emulated Memory Card mode > 1019 blocks
+> GameCube settings > Global emulation settings > Virtual MemCard mode > 1019 blocks
 
 - Create only one virtual memory card for all saves:
-> GameCube settings > Global emulation settings > Emulated Memory Card mode > Multi saves
+> GameCube settings > Global emulation settings > Virtual MemCard mode > Multi saves
 
 All options can be modified on a per-game basis, go to game settings and select:
-> Manage Memory Card
+> Manage virtual MemCard
 
 Virtual memory cards are stored on the same device as Gamecube games in dev:/saves (this path cannot be modified).
 
 You can copy those saves if you want a backup on another device, go to game settings and select:
-> Manage Memory Card > Backup emulated MemCard
+> Manage virtual MemCard > Backup save file
 
 Save backups are stored in dev:/wiiflow/backups, you can modify this path:
 > Settings > Path manager > Game save backup path
 
 You can also delete a virtual memory card (can be useful if the 256-block one was not enough and you want to recreate a 1019 blocks one), go to game settings and select:
-> Manage Memory Card > Delete emulated MemCard
+> Manage virtual MemCard > Delete save file
 
 
 Emulator plugins
@@ -320,7 +320,7 @@ To manually add a new category, go to:
 Wii, Wii Channels, Virtual console and Gamecube games can be launched with Gecko cheat codes.
 
 To download, then activate one or more codes, go to game settings and select:
-> Cheat codes > Select codes
+> Cheat codes > Cheat codes
 
 To deactivate all codes, go to game settings and select:
 > Cheat codes > Enable ocarina (cheats) > Off
