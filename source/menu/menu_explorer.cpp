@@ -311,9 +311,8 @@ void CMenu::_Explorer(void)
 							m_thrdProgress = 0.f;
 							m_thrdMessageAdded = true;
 							m_thrdWorking = true;
-							lwp_t thread = 0; // LWP_THREAD_NULL
+							lwp_t thread = 0;
 							LWP_CreateThread(&thread, _ImportFolder, this, 0, 32768, 40);
-							// LWP_CreateThread(&thread, _ImportFolder, this, 0, 8 * 1024, 64);
 							while(!m_exit)
 							{
 								_mainLoopCommon();

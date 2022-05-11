@@ -94,7 +94,7 @@ void CMenu::_hideAbout(bool instant)
 void CMenu::_showAbout(void)
 {
 	m_btnMgr.show(m_configLblTitle);
-	if(m_txt_view == false && !showHelp)
+	if(m_txt_view == false)
 		m_btnMgr.show(m_aboutLblIOS);
 	m_btnMgr.show(m_aboutLblInfo,false);
 	for(u8 i = 0; i < ARRAY_SIZE(m_aboutLblUser); ++i)
@@ -165,6 +165,13 @@ void CMenu::_textAbout(void)
 		else
 			m_btnMgr.setText(m_aboutLblInfo, ENGLISH_TXT_W);
 		txt_mem = NULL;
+		//! Display current video mode for PAL Wii
+		if(!IsOnWiiU() && CONF_GetVideo() == CONF_VIDEO_PAL)
+		{
+			string s = sfmt("PAL %c0Hz", CONF_GetEuRGB60() ? '6' : '5');
+			m_btnMgr.setText(m_aboutLblIOS, s);
+			m_btnMgr.show(m_aboutLblIOS);
+		}
 		return; 
 	}
 

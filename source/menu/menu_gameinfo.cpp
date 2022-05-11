@@ -948,52 +948,10 @@ void CMenu::_textGameInfo(void)
 	m_btnMgr.setText(m_gameinfoLblSynopsis, gameinfo_Synopsis_w);
 
 	/* Create Rom / ISO Info */
-	// wstringEx rom_info;
-	// rom_info = wfmt(_fmt("gameinfo7",L"GameID: %s"), GameID);
 	rom_info.append(wfmt(_fmt("gameinfo7",L"GameID: %s"), GameID));
 		
 	if(gametdb.GetRegion(GameID, TMP_Char))
-	{
 		rom_info.append(wfmt(_fmt("gameinfo3",L" (%s)"), TMP_Char));
-	}
-
-	// int wiiRegion = CONF_GetRegion(); // reused later for release date
-	// u32 playCount = 0;
-	// time_t lastPlayed;
-	
-	// if(GameHdr->type != TYPE_HOMEBREW)
-	// {
-		// char id[74];
-		// id[73] = '\0';
-		// if(GameHdr->type == TYPE_PLUGIN)
-			// strncpy(id, getPluginID(GameHdr), sizeof(id)-1);
-		// else
-			// strcpy(id, GameHdr->id);
-		// playCount = m_gcfg1.getInt("PLAYCOUNT", id, 0);
-		// lastPlayed = m_gcfg1.getUInt("LASTPLAYED", id, 0);
-	// }
-	// if(playCount > 0)
-	// {
-		// struct tm *timeinfo;
-		// char buffer[20];
-		// timeinfo = localtime(&lastPlayed);
-		// switch(wiiRegion)
-		// {
-			// case 1: // US
-				// strftime(buffer, 20, "%m-%d-%y", timeinfo);
-				// break;
-			// case 2: // EUR
-				// strftime(buffer, 20, "%d/%m/%Y", timeinfo);
-				// break;
-			// default:
-				// strftime(buffer, 20, "%Y-%m-%d", timeinfo);
-				// break;
-		// }
-		// rom_info.append(L"\n\n");
-		// rom_info.append(wfmt(_fmt("gameinfo98",L"Play count: %i"), playCount));
-		// rom_info.append(L"\n\n");
-		// rom_info.append(wfmt(_fmt("gameinfo99", L"Last on: %s"), buffer));
-	// }
 
 	if(gametdb.GetGenres(GameID, TMP_Char, GameHdr->type))
 	{

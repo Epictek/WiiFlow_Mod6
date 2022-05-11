@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 			cur_load = mainIOS == 58 ? false : true;
 			cur_ios = mainIOS == 58 ? 0 : mainIOS;
 		}
-		NandHandle.DeInit_ISFS();
+		NandHandle.DeInit_ISFS();		
 		
 		NandHandle.Patch_AHB();
 		if(useMainIOS && CustomIOS(IOS_GetType(mainIOS)))

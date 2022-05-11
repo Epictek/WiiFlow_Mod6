@@ -753,7 +753,7 @@ void CVideo::loadListImage(void)
 s32 CVideo::TakeScreenshot(const char *path)
 {
 	IMGCTX ctx = PNGU_SelectImageFromDevice(path);
-	s32 ret = PNGU_EncodeFromYCbYCr(ctx, m_rmode->fbWidth, m_rmode->efbHeight, m_frameBuf[m_curFB], 1);
+	s32 ret = PNGU_EncodeFromYCbYCr(ctx, m_rmode->fbWidth, m_rmode->xfbHeight, m_frameBuf[m_curFB], 1);
 	PNGU_ReleaseImageContext (ctx);
 	return ret;
 }
