@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update May 8, 2022.
+Update May 13, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -55,7 +55,6 @@ If you add games to your drive outside of Wiiflow, refresh coverflow list each t
 > Wii (or GameCube) settings > Manage Wii (or GameCube) game list > Refresh coverflow list
 
 NB: Gamecube games are dumped by default in 1:1 ISO files but Nintendont accepts compressed games (including CISO).
-Some games won't work correctly if compressed, especially on SD card.
 
 
 ==================================================================================
@@ -78,7 +77,7 @@ Select your emunand folder:
 Extract your NAND:
 > Wii channels settings > Manage Wii channel list > Extract nand to emunand
 
-Your NAND is now dumped on your drive, in dev:/(vwii)nands/[default], with all the Wii channels and forwarders and saves it contains.
+Your NAND is now dumped on your drive, in dev:/(vwii)nands/[default], with all the Wii channels, forwarders and saves it contains.
 
 To add games to it, you must have them packed in WAD files in a folder on your drive, then go to:
 > Wii channels settings > Manage Wii channel list > Install Wii channel (Wad file) > (select wad file)
@@ -114,7 +113,10 @@ Emulators must be installed on your drive. Some emulators have specific Wiiflow 
 Each plugin must have a [plugin name].ini file in dev:/wiiflow/plugins.
 Read "plugins_readme.txt" to know more about plugins setup.
 
-To see your games in coverflow, select "[plugin name]" plugin or create a source menu entry for each source (source=plugin + magic=[magic#]).
+To see your games in coverflow, select "[plugin name]" in Plugin settings:
+> Plugin settings > Select plugins > (choose plugin)
+ 
+Or create a source menu entry for each source (source=plugin + magic=[magic#]).
 Read "source_menu_readme.txt" to know more about source menu setup.
 
 Refresh coverflow list each time a new game is added outside of Wiiflow:
@@ -192,7 +194,7 @@ Update your dev:/wiiflow/plugins/[plugin name].ini files "coverfolder" field:
 coverfolder=[folder name]
 
 Once in Wiiflow, you may need to cache your new images by refreshing coverflow list:
-> Plugins settings > Manage Plugin game list > Refresh coverflow list
+> Plugin settings > Manage Plugin game list > Refresh coverflow list
 
 Once cached, PNG files can be removed from your drive.
 
@@ -300,7 +302,7 @@ Saves are handled by emulators and cannot be managed within Wiiflow.
 			6. Managing game categories
 ==================================================================================
 
-A set of 20 default categories is created on the first Wiiflow boot if no former categories INI file is found.
+A set of 20 default categories is created on the first Wiiflow boot if no former categories_lite.ini file is found.
 
 You can choose to update those categories automatically using GameTDB and Wiimpathy's databases:
 > Settings > User interface > Fetch categories from GameTDB > On
@@ -350,7 +352,7 @@ Up to 4 image layers can be added to these menus:
 - Home menu using [HOME/USER1] to [HOME/USER4]
 - Exit to screen using [EXIT_TO/USER1] to [EXIT_TO/USER4]
 
-Sourceflow attributes can be forced in theme INI file:
+Sourceflow attributes can be forced in [theme].ini file:
 
 [_SOURCEFLOW]
 box_mode=yes/no
@@ -590,29 +592,29 @@ Channel settings under [CHANNELS] domain
 ----------------------------------------
 
 - Force launching of Neek2o system menu even if more than 48 channels are installed on emunand (default no)
-force_neek2o_sm=yes/no
+force_neek2o_sm=no
 - Use "vwiinands" folder for emunand on WiiU instead of nands (default yes)
-use_vwiinands=yes/no
+use_vwiinands=yes
 
 
 Gamecube settings under [GAMECUBE] domain
 -----------------------------------------
 
-- Skip errors during game installation:
-skip_on_error=yes/no
-- Dump extracted files during game installation (no ISO):
-write_ex_files=yes/no
-- Force 32k alignment during game installation:
-force_32k_align_files=yes/no
-- Number of retries after errors during game installation:
-num_retries=5 (default)
+- Skip errors during game installation (default no):
+skip_on_error=no
+- Dump DiscEx files during game installation (default no):
+write_ex_files=no
+- Force 32k alignment during game installation (default no):
+force_32k_align_files=no
+- Number of retries after errors during game installation (default 5):
+num_retries=5
 
 
 Gamercard settings under [GAMERCARD] domain
 -------------------------------------------
 
-- Gamercard server names (separated by "|"):
-gamercards=riitag (default)
+- Gamercard server names separated by "|" (default "riitag"):
+gamercards=riitag
 - Gamercard key:
 [server_name]_key=[your key]
 - Gamercard server URL:

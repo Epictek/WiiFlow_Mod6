@@ -74,7 +74,7 @@ void CMenu::GC_Messenger(int message, int info, char *cinfo)
 			m_thrdMessage = wfmt(_fmt("wbfsop16", L"Installing %s"), cinfo);
 			break;
 		case 4:
-			m_thrdMessage = wfmt(_fmt("wbfsop17", L"Installing %s disc %d/2"), cinfo, info);
+			m_thrdMessage = wfmt(_fmt("wbfsop17", L"Installing %s disc %d"), cinfo, info);
 			break;
 		case 5:
 		case 6:
@@ -90,6 +90,21 @@ void CMenu::GC_Messenger(int message, int info, char *cinfo)
 			break;
 		case 11:
 			m_thrdMessage = _t("wbfsop26", L"Disc ejected!! Please insert disc again.");
+			break;
+	}
+
+	switch(message)
+	{
+		case 1:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+			WDVD_Eject();
+			break;
+		default:
 			break;
 	}
 	m_thrdMessageAdded = true;
@@ -189,7 +204,7 @@ int CMenu::_GCgameInstaller()
 	{
 		// gprintf("Free space available: %d Mb (%d blocks)\n", m_gcdump.GetFreeSpace(partition, MB), m_gcdump.GetFreeSpace(partition, BL));
 		_setThrdMsg(L"", 0);
-
+		
 		ret = m_gcdump.DumpGame();
 
 		if(ret == 0)

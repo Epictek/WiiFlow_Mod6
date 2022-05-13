@@ -23,6 +23,8 @@
  *
  * gc_disc_dump.cpp
  *
+ * Modified by Iamerror80
+ *
  ***************************************************************************/
 #include <stdio.h>
 #include <unistd.h>
@@ -130,7 +132,7 @@ s32 GCDump::__DiscReadRaw(void *outbuf, u64 offset, u32 length)
 
 s32 GCDump::__DiscWrite(char * path, u64 offset, u32 length, u8 *ReadBuffer)
 {
-	gprintf("__DiscWrite(%s, 0x%08x, %x)\n", path, offset, length);
+	// gprintf("__DiscWrite(%s, 0x%08x, %x)\n", path, offset, length);
 	u32 wrote = 0;
 	FILE *f = fopen(path, "wb");
 
@@ -148,7 +150,7 @@ s32 GCDump::__DiscWriteFile(FILE *f, u64 offset, u32 length, u8 *ReadBuffer)
 	while(length)
 	{
 		toread = min(length, gc_readsize);
-		mainMenu.update_pThread(toread);
+		mainMenu.update_pThread(toread/0x400);
 		s32 ret = __DiscReadRaw(ReadBuffer, offset, toread);
 		if (ret == 1)
 			memset(ReadBuffer, 0, gc_readsize);
@@ -263,6 +265,29 @@ bool GCDump::__CheckMDHack(u32 ID)
 		case 0x473341: /*** The Lord of the Rings: The Third Age ***/
 		case 0x473554: /*** Tiger Woods PGA Tour 2005 ***/
 		case 0x473442: /*** Resident Evil 4 ***/
+		/* Adding all other two-disc games just in case they need it */
+		case 0x474b34: /*** Baten Kaitos Origins ***/
+		case 0x474339: /*** Conan: The Dark Axe ***/
+		case 0x474d58: /*** Enter the Matrix ***/
+		case 0x474646: /*** Freaky Flyers ***/
+		case 0x474f59: /*** GoldenEye: Rogue Agent ***/
+		case 0x474749: /*** GoldenEye: Dark Agent (NTSC-J) ***/
+		case 0x474845: /*** Homeland ***/
+		case 0x474b37: /*** Killer7 ***/
+		case 0x474c33: /*** Lupin III: Umi ni Kieta Hihou ***/
+		case 0x475238: /*** Medal of Honor: Rising Sun ***/
+		case 0x47525a: /*** Medal of Honor: Rising Sun (NTSC-J) ***/
+		case 0x474753: /*** Metal Gear Solid: The Twin Snakes ***/
+		case 0x474336: /*** Pokémon Colosseum ***/
+		case 0x474249: /*** Resident Evil ***/
+		case 0x474344: /*** Resident Evil: Code Veronica X ***/
+		case 0x47425a: /*** Resident Evil Zero ***/
+		case 0x47544f: /*** Tales of Symphonia (NTSC-J) ***/
+		case 0x474e49: /*** Teenage Mutant Ninja Turtles 2: Battle Nexus ***/
+		case 0x473351: /*** Teenage Mutant Ninja Turtles 3: Mutant Nightmare ***/
+		case 0x475734: /*** Tiger Woods PGA Tour 2004 ***/
+		case 0x47434a: /*** Tom Clancy's Splinter Cell: Chaos Theory ***/
+		case 0x475759: /*** Tom Clancy's Splinter Cell: Double Agent ***/
 			return true;
 		break;
 		default:
@@ -286,7 +311,7 @@ s32 GCDump::DumpGame()
 	NextOffset = 0;
 	Disc = 0;
 
-	char *FSTNameOff = NULL;
+	// char *FSTNameOff = NULL;
 
 	char folder[MAX_FAT_PATH + 76];
 	memset(folder, 0, sizeof(folder));
@@ -362,7 +387,7 @@ s32 GCDump::DumpGame()
 
 		FSTEnt = *(u32*)(FSTable+0x08);
 
-		FSTNameOff = (char*)(FSTable + FSTEnt * 0x0C);
+		// FSTNameOff = (char*)(FSTable + FSTEnt * 0x0C);
 		FST *fst = (FST *)(FSTable);
 
 		snprintf(minfo, sizeof(minfo), "%s [%.06s]", gc_hdr.title, gc_hdr.id);
@@ -402,14 +427,8 @@ s32 GCDump::DumpGame()
 			gc_done += __DiscWrite(gamepath, 0x2440+NextOffset, ApploaderSize, ReadBuffer);
 		}
 
-		snprintf(gamepath, sizeof(gamepath), "%s/%s [%.06s]/game.iso", basedir, gc_hdr.title, gc_hdr.id);
-		if(Disc)
-		{
-			char *ptz = strstr(gamepath, "game.iso");
-			if(ptz != NULL)
-				memcpy(ptz, "gam1.iso", 8);
-		}
-		// gprintf("Writing %s\n", gamepath);
+		snprintf(gamepath, sizeof(gamepath), "%s/%s [%.06s]/%s.iso", basedir, gc_hdr.title, gc_hdr.id, Disc ? "disc2" : "game");
+		gprintf("Writing %s\n", gamepath);
 		if(compressed)
 		{
 			u32 align;
@@ -450,7 +469,7 @@ s32 GCDump::DumpGame()
 						}
 					}
 					ret = __DiscWriteFile(f, fst[i].FileOffset+NextOffset, fst[i].FileLength, ReadBuffer);
-					gprintf("Writing: %d/%d: %s from 0x%08x to 0x%08x(%i)\n", i, FSTEnt, FSTNameOff + fst[i].NameOffset, fst[i].FileOffset, wrote, align);
+					// gprintf("Writing: %d/%d: %s from 0x%08x to 0x%08x(%i)\n", i, FSTEnt, FSTNameOff + fst[i].NameOffset, fst[i].FileOffset, wrote, align);
 					if( ret >= 0 )
 					{
 						fst[i].FileOffset = wrote;
@@ -568,7 +587,7 @@ s32 GCDump::CheckSpace(u32 *needed, bool comp)
 		DataSize = *(vu32*)(ReadBuffer+0x438);
 		DiscSize =  DataSize + GamePartOffset;
 
-		snprintf(minfo, sizeof(minfo), "[%.06s] %s", gc_hdr.id, gc_hdr.title);
+		snprintf(minfo, sizeof(minfo), "%s [%.06s]", gc_hdr.title, gc_hdr.id);
 
 		mainMenu.GC_Messenger(2, 0, minfo);
 
@@ -625,7 +644,7 @@ s32 GCDump::CheckSpace(u32 *needed, bool comp)
 			}
 			MEM2_free(FSTBuffer);
 		}
-		size += multisize;
+		size += multisize/0x400;
 		Gamesize[MultiGameDump] = multisize;
 
 		if((FSTTotal > FSTSize || __CheckMDHack(ID)) && !multigamedisc)
@@ -662,9 +681,9 @@ s32 GCDump::CheckSpace(u32 *needed, bool comp)
 	}
 	MEM2_free(ReadBuffer);
 	mainMenu.m_thrdTotal = size;
-	DiscSizeCalculated = size/0x400;
-	*needed = (size/0x8000) >> 2;
-	gprintf("Free space needed: %d Mb (%d blocks)\n", size/0x100000, (size/0x8000) >> 2);
+	// DiscSizeCalculated = size; // not used
+	*needed = ((size*0x400)/0x8000) >> 2;
+	// gprintf("Free space needed: %d Mb (%d blocks)\n", (size*0x400)/0x100000, ((size*0x400)/0x8000) >> 2);
 	return 0;
 }
 

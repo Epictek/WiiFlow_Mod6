@@ -423,15 +423,15 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 		strcpy(path, hdr->path);
 	path[255] = '\0';
 
-	if(!disc) // check if game has multi Discs
+	/* Check if game has multi Discs */
+	if(!disc)
 	{
 		bool multiDiscs = false;
 		char disc2Path[256];
 		strcpy(disc2Path, path);
 		disc2Path[255] = '\0';
 		*strrchr(disc2Path, '/') = '\0';
-		strcat(disc2Path, "/disc2.iso");
-		/* note fst extracted /boot.bin paths will not have disc2.iso */
+		strcat(disc2Path, "/disc2.iso"); // note fst extracted /boot.bin paths will not have disc2.iso
 		if(!fsop_FileExist(disc2Path)) // if .iso does not exist, try .ciso
 		{
 			*strrchr(disc2Path, '/') = '\0';
@@ -446,10 +446,14 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 			SetupInput();
 			_setBg(m_configBg, m_configBg);
 			
-			m_btnMgr.setText(m_configBtn[0], _t("disc1", L"Disc 1"));
-			m_btnMgr.setText(m_configBtn[1], _t("disc2", L"Disc 2"));
-			m_btnMgr.show(m_configBtn[0]);
-			m_btnMgr.show(m_configBtn[1]);
+			m_btnMgr.setText(m_configLbl[4], _t("disc1", L"Disc 1"));
+			m_btnMgr.setText(m_configBtn[5], _t("cfgne6", L"Start"));
+			m_btnMgr.setText(m_configLbl[5], _t("disc2", L"Disc 2"));
+			m_btnMgr.setText(m_configBtn[4], _t("cfgne6", L"Start"));
+			m_btnMgr.show(m_configLbl[4]);
+			m_btnMgr.show(m_configBtn[4]);
+			m_btnMgr.show(m_configLbl[5]);
+			m_btnMgr.show(m_configBtn[5]);
 
 			int choice = -1;
 			while(!m_exit)
@@ -461,20 +465,19 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 					m_btnMgr.down();
 				else if(BTN_A_OR_2_PRESSED)
 				{
-					if(m_btnMgr.selected(m_configBtn[0]))
+					if(m_btnMgr.selected(m_configBtn[4]))
 					{
 						choice = 0;
 						break;
 					}
-					else if(m_btnMgr.selected(m_configBtn[1]))
+					else if(m_btnMgr.selected(m_configBtn[5]))
 					{
 						choice = 1;
 						break;
 					}
 				}
 			}
-			m_btnMgr.hide(m_configBtn[0]);
-			m_btnMgr.hide(m_configBtn[1]);
+			_hideConfig();
 			if(choice < 0)
 				return;
 			if(choice == 1)

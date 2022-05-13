@@ -1,0 +1,3 @@
+This dol has been compiled using DevKitPPC r39 and libogc 2.3.1, whereas the dol in the release pack is still compiled using DevKitPPC r30 and libogc 1.8.19.
+
+Replace the dol in the release pack with this one if for whatever reason you want to have wiiflow compiled using DevKitPPC r39 and libogc 2.3.1. It also contains latest commits with updates and bug fixes.
