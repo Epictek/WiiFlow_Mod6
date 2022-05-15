@@ -1,15 +1,16 @@
- Update May 7, 2022
+ 
+ Update May 15, 2022
 
  PLUGIN SETUP:
  =============
 
  WiiFlow can display and launch games from plugin apps (other homebrew apps that launches other type of games).
- Each plugin must have its own ini file declared in this folder. This file describes how to set up those files.
+ Each plugin must have its own [plugin].ini file declared in wiiflow/plugins folder. This file describes how to set up those files.
  
  Wii, Wii channels, Gamecube and Homebrew games may also be declared as plugins, in order to have them mixed
  with other game types in coverflow, refer to wiiflow/plugins_data/platform.ini to get their proper magic #.
 
- Each plugin can have its own "controller input guide", which is simply an image displayed in game menu if guidename= is defined in ini file (see below). PNG or JPG must be placed in wiiflow/plugins/inputs/
+ Each plugin can have its own "controller input guide", which is simply an image taken from wiiflow/plugins/inputs and displayed in game menu.
 
  Also note a plugin pack has been created by Tetsuo Shima :
 	https://gbatemp.net/threads/the-great-quest-for-wiiflow-plugins-tm-a-call-for-adventurers.563575/
@@ -24,21 +25,25 @@ displayname=
 
 magic=
 # plugin magic number (8 digit ASCII to HEX name - refer to wiiflow/plugins_data/platform.ini)
+# You can use multiple "homebrew" plugins each with its own romdir=.
+# First six characters of magic number must be 484252. The last two can be random.
 
 dolfile=
 # homebrew DOL app to boot (can be [plugin].dol in plugin folder or apps/[Homebrew folder]/boot.dol)
 # use the keyword "music" to make WiiFlow act as a music player (files read are .pls, .m3u, .mp3, .ogg)
+# ignored if wii, gamecube, nand, emunand or homebrew plugins
 
 romdir=
 # rom directory (without device)
 # for ScummVM plugin: full path of scummvm.ini file with device and extensions if not in plugin folder
 # (can be scummvm.ini in plugin folder or sd:/apps/scummvm/scummvm.ini)
+# ignored if wii, gamecube, nand, emunand, (main) homebrew or scummvm plugins
 
 arguments=
 # arguments sent to the plugin app (use: {device}:/{path}|{name}|{loader} for most plugins)
 
 filetypes=
-# file extensions to look for, separated by pipes (e.g: .nes|.fds)
+# file extensions to filter, separated by pipes (e.g: .nes|.fds)
 # use .cue for CD based games
 
 coverfolder=
@@ -60,16 +65,14 @@ consolecoverid=
 # optional - for access to web cover database - currently not used
 
 explorerpath=
-# optional - rom directory to explore in file explorer view (device must be specified: "sd:/" or "usb1:/"), default to "romdir" value
+# optional - rom directory to explore in file explorer view (device must be specified: "sd:/" or "usb1:/"), default to "rompartition" and "romdir" values
+# ignored if nand, emunand, (main) homebrew or scummvm plugins
 
 filenamesastitles=
 # optional (emulators only) - force WiiFlow to use rom file names as titles instead of Wiimpathy's database (yes/no - default to no)
 
 guidename=
 # optional - background image (e.g. "atari_guide.png") to use for the plugin controller input guide (PNG or JPG must be placed in wiiflow/plugins/inputs/), default to "[platform_name].png" (platform_name from platform.ini)
-
-
- You can use multiple "homebrew" plugins each with its own romdir=. First six characters of magic number must be 484252. The last two can be random.
 
 
  EXAMPLES:
