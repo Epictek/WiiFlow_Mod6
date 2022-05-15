@@ -10,6 +10,7 @@ static u8 GCBtn;
 static u8 ChanBtn;
 static u8 HBBtn;
 static u8 PlBtn;
+static u8 PlBtn2;
 
 template <class T> static inline T loopNum(T i, T s)
 {
@@ -33,6 +34,7 @@ void CMenu::_showConfigPlugin(bool instant)
 	ChanBtn = 0;
 	HBBtn = 0;
 	PlBtn = 0;
+	PlBtn2 = 0;
 	
 	if(m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))) // plugin wii
 	{
@@ -61,9 +63,9 @@ void CMenu::_showConfigPlugin(bool instant)
 		while(m_plugin.PluginExist(pos) && !m_plugin.GetEnabledStatus(pos)) { ++pos; }
 		u32 magic = m_plugin.GetPluginMagic(pos);
 		//! if magic is not wii, gc, emunand, realnand, scumm or hb
-		if(magic != 0x4E574949 && magic != 0x4E47434D && magic != 0x454E414E && magic != 0x4E414E44 && magic != 0x5343564D && strncasecmp(fmt("%06x", magic), "484252", 6) != 0)
+		if(magic != 0x4E574949 && magic != 0x4E47434D && magic != 0x454E414E && magic != 0x4E414E44 && magic != 0x5343564D && magic != 0x48425257)
 		{
-			++max_line;
+			max_line = max_line + 2;
 			pl_enabled = true;
 		}
 	}
@@ -78,7 +80,10 @@ void CMenu::_showConfigPlugin(bool instant)
 	if(hb_enabled)
 		HBBtn = start_pos + NB_BUTTONS + wii_enabled + chan_enabled + gc_enabled;
 	if(pl_enabled)
+	{
 		PlBtn = start_pos + NB_BUTTONS + wii_enabled + chan_enabled + gc_enabled + hb_enabled;
+		PlBtn2 = PlBtn + 1;
+	}
 
 	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
 		if(m_configLblUser[i] != -1)
@@ -94,16 +99,16 @@ void CMenu::_showConfigPlugin(bool instant)
 		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
 		m_btnMgr.show(m_configBtnCenter);
 
-		m_btnMgr.setText(m_configLbl[start_pos], _t("cfgpl1", L"Select plugins"));		
-		m_btnMgr.setText(m_configLbl[start_pos+1], _t("cfg816", L"Manage Plugin game list"));
-		m_btnMgr.setText(m_configLbl[start_pos+2], _t("cfg727", L"Use plugin database titles"));
-		m_checkboxBtn[start_pos+2] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[start_pos+2] : m_configChkOn[start_pos+2]; // default true
-		m_btnMgr.show(m_checkboxBtn[start_pos+2], instant);
+		m_btnMgr.setText(m_configLbl[start_pos], _t("cfg727", L"Use plugin database titles"));
+		m_checkboxBtn[start_pos] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[start_pos] : m_configChkOn[start_pos]; // default true
+		m_btnMgr.show(m_checkboxBtn[start_pos], instant);
+		m_btnMgr.setText(m_configLbl[start_pos+1], _t("cfgpl1", L"Select plugins"));		
+		m_btnMgr.setText(m_configLbl[start_pos+2], _t("cfg816", L"Manage Plugin game list"));
 
 		for(u8 i = start_pos; i < start_pos+3; ++i)
 			m_btnMgr.show(m_configLbl[i], instant);
 		
-		for(u8 i = start_pos; i < start_pos+2; ++i)
+		for(u8 i = start_pos+1; i < start_pos+3; ++i)
 			m_btnMgr.show(m_configBtnGo[i], instant);
 
 		//! The following buttons will only show up if their corresponding plugin is selected
@@ -137,6 +142,10 @@ void CMenu::_showConfigPlugin(bool instant)
 			m_btnMgr.setText(m_configLbl[PlBtn], wfmt(_fmt("cfg823", L"%s rom path"), pluginName.toUTF8().c_str()));
 			m_btnMgr.show(m_configLbl[PlBtn], instant);
 			m_btnMgr.show(m_configBtnGo[PlBtn], instant);
+			
+			m_btnMgr.setText(m_configLbl[PlBtn2], _t("cfg826", L"Custom explorer path"));
+			m_btnMgr.show(m_configLbl[PlBtn2], instant);
+			m_btnMgr.show(m_configBtnGo[PlBtn2], instant);
 		}
 	}
 	/** PLUGIN GAME LOCATION **/
@@ -145,26 +154,30 @@ void CMenu::_showConfigPlugin(bool instant)
 		m_btnMgr.setText(m_configLblTitle, _t("cfg816", L"Manage Plugin game list"));
 		m_btnMgr.show(m_configLblTitle);
 		//! Plugin default partition
-		m_btnMgr.setText(m_configLbl[3], _t("part4", L"Plugins default partition"));
+		m_btnMgr.setText(m_configLbl[2], _t("part4", L"Plugins default partition"));
 		const char *partitionname = DeviceName[m_cfg.getInt(plugin_domain, "partition", 0)];
-		m_btnMgr.setText(m_configLblVal[3], upperCase(partitionname));
-		m_btnMgr.show(m_configLblVal[3], instant);
-		m_btnMgr.show(m_configBtnM[3], instant);
-		m_btnMgr.show(m_configBtnP[3], instant);		
+		m_btnMgr.setText(m_configLblVal[2], upperCase(partitionname));
+		m_btnMgr.show(m_configLblVal[2], instant);
+		m_btnMgr.show(m_configBtnM[2], instant);
+		m_btnMgr.show(m_configBtnP[2], instant);		
 		//! Plugin rom paths
-		m_btnMgr.setText(m_configLbl[4], _t("smedit7", L"Custom rom paths"));
-		m_btnMgr.show(m_configBtnGo[4], instant);
+		m_btnMgr.setText(m_configLbl[3], _t("smedit7", L"Custom rom paths"));
+		//! Plugin explorer paths
+		m_btnMgr.setText(m_configLbl[4], _t("cfg827", L"Custom explorer paths"));
 		//! Dump plugin game coverflow list
 		m_btnMgr.setText(m_configLbl[5], _t("cfg783", L"Dump coverflow list"));
-		m_btnMgr.setText(m_configBtn[5], _t("cfgne6", L"Start"));
 		//! Refresh coverflow list and cover cache
 		m_btnMgr.setText(m_configLbl[6], _t("home2", L"Refresh coverflow list"));
-		m_btnMgr.setText(m_configBtn[6], _t("cfgne6", L"Start"));
 
-		for(u8 i = 3; i < 7; ++i)
+		for(u8 i = 2; i < 7; ++i)
 			m_btnMgr.show(m_configLbl[i], instant);
+		for(u8 i = 3; i < 5; ++i)
+			m_btnMgr.show(m_configBtnGo[i], instant);
 		for(u8 i = 5; i < 7; ++i)
+		{
+			m_btnMgr.setText(m_configBtn[i], _t("cfgne6", L"Start"));
 			m_btnMgr.show(m_configBtn[i], instant);
+		}
 	}
 }
 
@@ -231,24 +244,24 @@ void CMenu::_configPlugin(u8 startPage)
 				}
 				else
 				{
-					if(m_btnMgr.selected(m_configBtnGo[start_pos])) // select plugins
-					{
-						_hideConfig(true);
-						_PluginSettings();
-						_showConfigPlugin();
-					}
-					else if(m_btnMgr.selected(m_configBtnGo[start_pos+1])) //  game location
-					{
-						_hideConfig(true);
-						curPage = GAME_LIST;
-						_showConfigPlugin();
-					}
-					else if(m_btnMgr.selected(m_checkboxBtn[start_pos+2])) // plugin database titles
+					if(m_btnMgr.selected(m_checkboxBtn[start_pos])) // plugin database titles
 					{
 						cur_db_titles = !cur_db_titles;
 						m_cfg.setBool(plugin_domain, "database_titles", cur_db_titles);
 						_showConfigPlugin(true);
 						m_btnMgr.setSelected(m_checkboxBtn[start_pos+2]);
+					}
+					else if(m_btnMgr.selected(m_configBtnGo[start_pos+1])) // select plugins
+					{
+						_hideConfig(true);
+						_PluginSettings();
+						_showConfigPlugin();
+					}
+					else if(m_btnMgr.selected(m_configBtnGo[start_pos+2])) //  game location
+					{
+						_hideConfig(true);
+						curPage = GAME_LIST;
+						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[WiiBtn])) // wii settings
 					{
@@ -274,12 +287,13 @@ void CMenu::_configPlugin(u8 startPage)
 						_configHB();
 						_showConfigPlugin();
 					}
-					else if(m_btnMgr.selected(m_configBtnGo[PlBtn])) // current plugin path
+					else if(m_btnMgr.selected(m_configBtnGo[PlBtn]) || m_btnMgr.selected(m_configBtnGo[PlBtn2])) // current plugin rom path or explorer path
 					{
+						bool ep = m_btnMgr.selected(m_configBtnGo[PlBtn2]);
 						_hideConfig(true);
 						u8 pos = 0;
 						while(m_plugin.PluginExist(pos) && !m_plugin.GetEnabledStatus(pos)) { ++pos; }
-						_setPluginPath(pos);
+						_setPluginPath(pos, 4 + ep); // 4 = EDIT_PLUGIN_PATH, 5 = EDIT_EXPLORER_PATH
 						_showConfigPlugin();
 					}
 				}
@@ -287,11 +301,11 @@ void CMenu::_configPlugin(u8 startPage)
 			/** PLUGIN GAME LOCATION **/
 			else if(curPage == GAME_LIST)
 			{
-				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])) // plugin partition
+				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])) // plugin partition
 				{
 					m_prev_view = m_current_view;
 					u8 prevPartition = currentPartition;
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 					currentPartition = m_cfg.getInt(plugin_domain, "partition");
 					m_current_view = COVERFLOW_PLUGIN;
 					_setPartition(direction);
@@ -301,10 +315,16 @@ void CMenu::_configPlugin(u8 startPage)
 					m_current_view = m_prev_view;
 					currentPartition = prevPartition;
 				}
-				else if(m_btnMgr.selected(m_configBtnGo[4])) // custom path
+				else if(m_btnMgr.selected(m_configBtnGo[3])) // custom rom paths
 				{
 					_hideConfig(true);
-					_checkboxesMenu(3); // SM editor mode 3 (EDIT_PLUGIN_PATH)
+					_checkboxesMenu(4); // SM editor mode 4 (EDIT_PLUGIN_PATH)
+					_showConfigPlugin();
+				}
+				else if(m_btnMgr.selected(m_configBtnGo[4])) // explorer paths
+				{
+					_hideConfig(true);
+					_checkboxesMenu(5); // SM editor mode 5 (EDIT_EXPLORER_PATH)
 					_showConfigPlugin();
 				}
 				else if(m_btnMgr.selected(m_configBtn[5])) // dump list

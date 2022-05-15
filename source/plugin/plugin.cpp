@@ -201,6 +201,11 @@ const char *Plugin::GetExplorerPath(u32 magic) //
 	return NULL;
 }
 
+void Plugin::SetExplorerPath(u8 pos, const string &ep) //
+{
+	Plugins[pos].explorerPath = ep;
+}
+
 bool Plugin::GetFileNamesAsTitles(u32 magic) // 
 {
 	if((Plugin_Pos = GetPluginPosition(magic)) < 255)

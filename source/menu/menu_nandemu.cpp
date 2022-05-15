@@ -37,7 +37,6 @@ static inline int loopNum(int i, int s)
 void CMenu::_showNandEmu(bool instant)
 {
 	int i;
-	bool n = neek2o();
 	
 	_hideCheckboxes(true); // reset checkboxes
 	m_btnMgr.show(m_configBtnBack);
@@ -59,38 +58,37 @@ void CMenu::_showNandEmu(bool instant)
 		m_btnMgr.show(m_configLblVal[2], instant);
 		m_btnMgr.show(m_configBtnM[2], instant);
 		m_btnMgr.show(m_configBtnP[2], instant);
-		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
-		//! Global video settings
-		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
-		
-		for(u8 i = 2; i < 5; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 3; i < 5; ++i)
-			m_btnMgr.show(m_configBtnGo[i], instant);
-		
+		//! Return to Wiiflow channel
 		if(!isWiiVC)
 		{
-			if(!n)
-			{
-				//! Global nand emulation
-				m_btnMgr.setText(m_configLbl[5], _t("cfg802", L"Global nand emulation"));
-				//! Game location
-				m_btnMgr.setText(m_configLbl[6], _t("cfg814", L"Manage Wii channel list"));
-				
-				for(u8 i = 5; i < 7; ++i)
-				{
-					m_btnMgr.show(m_configLbl[i], instant);
-					m_btnMgr.show(m_configBtnGo[i], instant);
-				}
-			}
-
-			//! Return to Wiiflow channel
-			m_btnMgr.setText(m_configLbl[7-(2*n)], _t("cfgg21", L"Return to WiiFlow channel"));
-			m_checkboxBtn[7-(2*n)] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[7-(2*n)] : m_configChkOff[7-(2*n)];
-			m_btnMgr.show(m_configLbl[7-(2*n)], instant);
-			m_btnMgr.show(m_checkboxBtn[7-(2*n)], instant);
+			m_btnMgr.setText(m_configLbl[3], _t("cfgg21", L"Return to WiiFlow channel"));
+			m_checkboxBtn[3] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[3] : m_configChkOff[3];
+			m_btnMgr.show(m_configLbl[3], instant);
+			m_btnMgr.show(m_checkboxBtn[3], instant);
 		}
+		//! Download covers and info
+		m_btnMgr.setText(m_configLbl[4-isWiiVC], _t("cfg3", L"Download covers and info"));
+		//! Global video settings
+		m_btnMgr.setText(m_configLbl[5-isWiiVC], _t("cfg803", L"Global video settings"));
+	
+		for(u8 i = 2; i < 6-isWiiVC; ++i)
+			m_btnMgr.show(m_configLbl[i], instant);
+		for(u8 i = 4-isWiiVC; i < 6-isWiiVC; ++i)
+			m_btnMgr.show(m_configBtnGo[i], instant);
+
+		if(!neek2o() && !isWiiVC)
+		{
+			//! Global nand emulation
+			m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Global nand emulation"));
+			//! Game location
+			m_btnMgr.setText(m_configLbl[7], _t("cfg814", L"Manage Wii channel list"));
+			
+			for(u8 i = 6; i < 8; ++i)
+			{
+				m_btnMgr.show(m_configLbl[i], instant);
+				m_btnMgr.show(m_configBtnGo[i], instant);
+			}
+		}	
 	}
 
 	/** GLOBAL VIDEO SETTINGS **/
@@ -275,7 +273,6 @@ bool CMenu::_configNandEmu(u8 startPage)
 					break;
 				else
 				{
-					bool n = neek2o();
 					//! Default game language
 					if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
 					{
@@ -283,58 +280,64 @@ bool CMenu::_configNandEmu(u8 startPage)
 						m_cfg.setInt(channel_domain, "game_language", (int)loopNum(m_cfg.getUInt(channel_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
 						_showNandEmu(true);
 					}
+					//! Return to WiiFlow channel
+					else if(m_btnMgr.selected(m_checkboxBtn[3]))
+					{
+						if(m_cfg.getString(channel_domain, "returnto") == WFID4)
+							m_cfg.remove(channel_domain, "returnto");
+						else // check if channel exists
+						{
+							bool found = true;
+							if(!neek2o()) // channel exists if neek2o
+							{
+								found = false;
+								bool curNANDemuView = NANDemuView;
+								NANDemuView = false;
+								ChannelHandle.Init("EN");
+								int amountOfChannels = ChannelHandle.Count();
+								for(int i = 0; i < amountOfChannels; i++)
+								{
+									if(strncmp(WFID4, ChannelHandle.GetId(i), 4) == 0)
+									{
+										found = true;
+										break;
+									}
+								}
+								NANDemuView = curNANDemuView;
+							}
+							if(found)
+								m_cfg.setString(channel_domain, "returnto", WFID4);
+						}
+						_showNandEmu(true);
+						m_btnMgr.setSelected(m_checkboxBtn[3]);
+					}
 					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[3]))
+					else if(m_btnMgr.selected(m_configBtnGo[4-isWiiVC]))
 					{
 						_hideConfig(true);
 						_download();
 						_showNandEmu();
 					}
 					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[4]))
+					else if(m_btnMgr.selected(m_configBtnGo[5-isWiiVC]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
 						_showNandEmu();
 					}
 					//! Global nand emulation
-					else if(m_btnMgr.selected(m_configBtnGo[5]))
+					else if(m_btnMgr.selected(m_configBtnGo[6]))
 					{
 						_hideConfig(true);
 						curPage = NANDEMU_SETTINGS;
 						_showNandEmu();
 					}
 					//! Game location
-					else if(m_btnMgr.selected(m_configBtnGo[6]))
+					else if(m_btnMgr.selected(m_configBtnGo[7]))
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
 						_showNandEmu();
-					}
-					//! Return to WiiFlow channel
-					else if(m_btnMgr.selected(m_checkboxBtn[7-(2*n)]))
-					{
-						if(m_cfg.getString(channel_domain, "returnto") == WFID4)
-							m_cfg.remove(channel_domain, "returnto");
-						else
-						{
-							bool curNANDemuView = NANDemuView;
-							NANDemuView = false;
-							ChannelHandle.Init("EN");
-							int amountOfChannels = ChannelHandle.Count();
-							for(int i = 0; i < amountOfChannels; i++)
-							{
-								const char *WFchannel = WFID4;
-								if(strncmp(WFchannel, ChannelHandle.GetId(i), 4) == 0)
-								{
-									m_cfg.setString(channel_domain, "returnto", WFchannel);
-									break;
-								}
-							}
-							NANDemuView = curNANDemuView;
-						}
-						_showNandEmu(true);
-						m_btnMgr.setSelected(m_checkboxBtn[7-(2*n)]);
 					}
 				}
 			}
@@ -540,7 +543,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 /** Used in main() and _configWii() **/
 string CMenu::_SetEmuNand(s8 direction)
 {
-	if(isWiiVC)
+	if(isWiiVC || neek2o())
 		return "";
 	//! if wii games currently displayed in coverflow set savesnand
 	if(m_current_view & COVERFLOW_WII ||
@@ -560,7 +563,7 @@ string CMenu::_SetEmuNand(s8 direction)
 		curEmuNand = loopNum(curEmuNand + direction, emuNands.size());
 		m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
 		m_refreshGameList = true;
-		_FullNandCheck(EMU_NAND);
+		_FullNandCheck(EMU_NAND);		
 		return emuNands[curEmuNand];
 	}
 	return "";
@@ -1135,103 +1138,102 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 
 	int emupart = _FindEmuPart(nand_type, true);
 
-	if(emupart != SD && emupart != USB1) // required
+	/* if exit to neek2o SM, make sure there's not too many channels to launch
+	otherwise it would take ages to boot and even fail */
+	if(ExitTo == EXIT_TO_SMNK2O)
 	{
-		error(_t("errneek4", L"Emunand must be on SD or USB1!"));
-		return false;
-	}
-	else
-	{
-		/* if exit to neek2o SM, make sure there's not too many channels to launch
-		otherwise it would take ages to boot and even fail */
-		if(ExitTo == EXIT_TO_SMNK2O)
+		if(emupart != SD && emupart != USB1) // required
 		{
-			if(!m_cfg.getBool(channel_domain, "force_neek2o_sm", false))
-			{
-				m_prev_view = m_current_view;
-				channelsType = m_cfg.getInt(channel_domain, "channels_type", CHANNELS_REAL);
-				int prev_emupart = m_cfg.getInt(channel_domain, "partition", SD);
+			error(_t("errneek4", L"Emunand must be on SD or USB1!"));
+			return false;
+		}
+		if(!m_cfg.getBool(channel_domain, "force_neek2o_sm", false))
+		{
+			m_prev_view = m_current_view;
+			channelsType = m_cfg.getInt(channel_domain, "channels_type", CHANNELS_REAL);
+			int prev_emupart = m_cfg.getInt(channel_domain, "partition", SD);
 
-				//! _loadList() gets channels_type in config, we can't use NANDemuView
-				if(channelsType != CHANNELS_EMU)
-					m_cfg.setInt(channel_domain, "channels_type", CHANNELS_EMU);
-				if(m_current_view != COVERFLOW_CHANNEL) // it might be COVERFLOW_PLUGIN or COVERFLOW_WII
+			//! _loadList() gets channels_type in config, we can't use NANDemuView
+			if(channelsType != CHANNELS_EMU)
+				m_cfg.setInt(channel_domain, "channels_type", CHANNELS_EMU);
+			if(m_current_view != COVERFLOW_CHANNEL) // it might be COVERFLOW_PLUGIN or COVERFLOW_WII
+			{
+				m_current_view = COVERFLOW_CHANNEL;
+				if(nand_type == SAVES_NAND)
 				{
-					m_current_view = COVERFLOW_CHANNEL;
-					if(nand_type == SAVES_NAND)
-					{
-						m_cfg.setInt(channel_domain, "partition", emupart);
-						m_cfg.setString(channel_domain, "current_emunand", savesNands[curSavesNand]);
-					}
-				}
-				
-				_loadList(); // to get actual emunand m_gameList.size()
-				
-				if(channelsType != CHANNELS_EMU)
-					m_cfg.setInt(channel_domain, "channels_type", channelsType);
-				if(m_prev_view != COVERFLOW_CHANNEL)
-				{
-					m_current_view = m_prev_view;
-					if(nand_type == SAVES_NAND)
-					{
-						m_cfg.setInt(channel_domain, "partition", prev_emupart);
-						m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
-					}
-				}
-				m_refreshGameList = true;
-				
-				if(m_gameList.size() > 48) // max number of channels displayed in system menu
-				{
-					error(_t("errneek6", L"Too many channels to launch Neek2o system menu!"));
-					if(nand_type == SAVES_NAND)
-						_loadList();
-					return false;
+					m_cfg.setInt(channel_domain, "partition", emupart);
+					m_cfg.setString(channel_domain, "current_emunand", savesNands[curSavesNand]);
 				}
 			}
-		}
-		/* if exit to neek2o WF channel, make sure the channel exists */
-		else if(ExitTo == EXIT_TO_WFNK2O)
-		{
-			if(emupart != USB1)
+			
+			_loadList(); // to get actual emunand m_gameList.size()
+			
+			if(channelsType != CHANNELS_EMU)
+				m_cfg.setInt(channel_domain, "channels_type", channelsType);
+			if(m_prev_view != COVERFLOW_CHANNEL)
 			{
-				error(_t("errneek3", L"Emunand must be on USB1!"));
+				m_current_view = m_prev_view;
+				if(nand_type == SAVES_NAND)
+				{
+					m_cfg.setInt(channel_domain, "partition", prev_emupart);
+					m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
+				}
+			}
+			m_refreshGameList = true;
+			
+			if(m_gameList.size() > 48) // max number of channels displayed in system menu
+			{
+				error(_t("errneek6", L"Too many channels to launch Neek2o system menu!"));
+				if(nand_type == SAVES_NAND)
+					_loadList();
 				return false;
 			}
-			else
-			{
-				bool curNANDemuView = NANDemuView;
-				NANDemuView = true;
-				u32 size = 0;
-#ifdef APP_WIIFLOW_LITE
-				if(!NandHandle.GetTMD(TITLE_ID(0x00010001, 0x57464C41), &size)) // WFLA
-#else
-				if(!NandHandle.GetTMD(TITLE_ID(0x00010001, 0x44574641), &size)) // DWFA
-#endif
-				{
-					error(_t("errneek2", L"Channel not found on emunand!"));
-					NANDemuView = curNANDemuView;
-					return false;
-				}
-			}
 		}
-
-		/* make sure neek2o kernel exists */
-		if(!Load_Neek2o_Kernel(emupart))
+	}
+	/* if exit to neek2o WF channel, make sure the channel exists */
+	else if(ExitTo == EXIT_TO_WFNK2O)
+	{
+		if(emupart != USB1)
 		{
-			error(_t("errneek1", L"Neek2o kernel not found!"));
+			error(_t("errneek3", L"Emunand must be on USB1!"));
 			return false;
 		}
 		else
 		{
-			//! build nandcfg.bin twice if needed
-			for(u8 i = 0; i < 2; ++i)
-				if(neek2oSetNAND(NandHandle.Get_NandPath(), emupart) > -1)
-					break;
-
-			//! finally boot it
-			Sys_SetNeekPath(NandHandle.Get_NandPath());
-			exitHandler(ExitTo);
-			return true;
+			bool curNANDemuView = NANDemuView;
+			NANDemuView = true;
+			u32 size = 0;
+#ifdef APP_WIIFLOW_LITE
+			if(!NandHandle.GetTMD(TITLE_ID(0x00010001, 0x57464C41), &size)) // WFLA
+#else
+			if(!NandHandle.GetTMD(TITLE_ID(0x00010001, 0x44574641), &size)) // DWFA
+#endif
+			{
+				error(_t("errneek2", L"Channel not found on emunand!"));
+				NANDemuView = curNANDemuView;
+				return false;
+			}
 		}
+	}
+	else
+		return false;
+
+	/* make sure neek2o kernel exists */
+	if(!Load_Neek2o_Kernel(emupart))
+	{
+		error(_t("errneek1", L"Neek2o kernel not found!"));
+		return false;
+	}
+	else
+	{
+		//! build nandcfg.bin twice if needed
+		for(u8 i = 0; i < 2; ++i)
+			if(neek2oSetNAND(NandHandle.Get_NandPath(), emupart) > -1)
+				break;
+
+		//! finally boot it
+		Sys_SetNeekPath(NandHandle.Get_NandPath());
+		exitHandler(ExitTo);
+		return true;
 	}
 }

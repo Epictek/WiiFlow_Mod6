@@ -447,9 +447,9 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 			_setBg(m_configBg, m_configBg);
 			
 			m_btnMgr.setText(m_configLbl[4], _t("disc1", L"Disc 1"));
-			m_btnMgr.setText(m_configBtn[5], _t("cfgne6", L"Start"));
-			m_btnMgr.setText(m_configLbl[5], _t("disc2", L"Disc 2"));
 			m_btnMgr.setText(m_configBtn[4], _t("cfgne6", L"Start"));
+			m_btnMgr.setText(m_configLbl[5], _t("disc2", L"Disc 2"));
+			m_btnMgr.setText(m_configBtn[5], _t("cfgne6", L"Start"));
 			m_btnMgr.show(m_configLbl[4]);
 			m_btnMgr.show(m_configBtn[4]);
 			m_btnMgr.show(m_configLbl[5]);

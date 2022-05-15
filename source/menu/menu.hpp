@@ -672,7 +672,7 @@ private:
 	void _checkboxesMenu(u8 md);
 	bool _launchNeek2oChannel(int ExitTo, int nand_type);
 	char *_keyboard(bool search = false); //
-	void _setPluginPath(u8 pos); //
+	void _setPluginPath(u8 pos, u8 mode); //
 	
 	void _config(void);
 	void _configGui(void);

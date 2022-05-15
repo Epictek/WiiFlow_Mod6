@@ -43,22 +43,22 @@ void CMenu::_showConfigWii(bool instant)
 		m_btnMgr.show(m_configLblVal[2], instant);
 		m_btnMgr.show(m_configBtnM[2], instant);
 		m_btnMgr.show(m_configBtnP[2], instant);
-		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
-		//! Global video settings
-		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
-		//! Global nand emulation
-		m_btnMgr.setText(m_configLbl[5], _t("cfg802", L"Global nand emulation"));
-		//! Game location
-		m_btnMgr.setText(m_configLbl[6], _t("cfg813", L"Manage Wii game list"));
 		//! Return to WiiFlow channel
-		m_btnMgr.setText(m_configLbl[7], _t("cfgg21", L"Return to WiiFlow channel"));
-		m_checkboxBtn[7] = m_cfg.getString(wii_domain, "returnto") == WFID4 ? m_configChkOn[7] : m_configChkOff[7];
-		m_btnMgr.show(m_checkboxBtn[7], instant);
+		m_btnMgr.setText(m_configLbl[3], _t("cfgg21", L"Return to WiiFlow channel"));
+		m_checkboxBtn[3] = m_cfg.getString(wii_domain, "returnto") == WFID4 ? m_configChkOn[3] : m_configChkOff[3];
+		m_btnMgr.show(m_checkboxBtn[3], instant);
+		//! Download covers and info
+		m_btnMgr.setText(m_configLbl[4], _t("cfg3", L"Download covers and info"));
+		//! Global video settings
+		m_btnMgr.setText(m_configLbl[5], _t("cfg803", L"Global video settings"));
+		//! Global nand emulation
+		m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Global nand emulation"));
+		//! Game location
+		m_btnMgr.setText(m_configLbl[7], _t("cfg813", L"Manage Wii game list"));
 
 		for(i = 2; i < 8; ++i)
 			m_btnMgr.show(m_configLbl[i], instant);
-		for(i = 3; i < 7; ++i)
+		for(i = 4; i < 8; ++i)
 			m_btnMgr.show(m_configBtnGo[i], instant);
 
 	}
@@ -237,40 +237,12 @@ void CMenu::_configWii(u8 startPage)
 						m_cfg.setInt(wii_domain, "game_language", (int)loopNum(m_cfg.getUInt(wii_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
 						_showConfigWii(true);
 					}
-					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[3]))
-					{
-						_hideConfig(true);
-						_download();
-						_showConfigWii();
-					}
-					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[4]))
-					{
-						_hideConfig(true);
-						curPage = VIDEO_SETTINGS;
-						_showConfigWii();
-					}
-					//! Global nand emulation
-					else if(m_btnMgr.selected(m_configBtnGo[5]))
-					{
-						_hideConfig(true);
-						curPage = NANDEMU_SETTINGS;
-						_showConfigWii();
-					}
-					//! Game location
-					else if(m_btnMgr.selected(m_configBtnGo[6]))
-					{
-						_hideConfig(true);
-						curPage = GAME_LIST;
-						_showConfigWii();
-					}
 					//! Return to WiiFlow channel
-					else if(m_btnMgr.selected(m_checkboxBtn[7]))
+					else if(m_btnMgr.selected(m_checkboxBtn[3]))
 					{
 						if(m_cfg.getString(wii_domain, "returnto") == WFID4)
 							m_cfg.remove(wii_domain, "returnto");
-						else
+						else // check if channel exists
 						{
 							bool curNANDemuView = NANDemuView;
 							NANDemuView = false;
@@ -288,7 +260,35 @@ void CMenu::_configWii(u8 startPage)
 							NANDemuView = curNANDemuView;
 						}
 						_showConfigWii(true);
-						m_btnMgr.setSelected(m_checkboxBtn[7]);
+						m_btnMgr.setSelected(m_checkboxBtn[3]);
+					}
+					//! Download covers and info
+					else if(m_btnMgr.selected(m_configBtnGo[4]))
+					{
+						_hideConfig(true);
+						_download();
+						_showConfigWii();
+					}
+					//! Global video settings
+					else if(m_btnMgr.selected(m_configBtnGo[5]))
+					{
+						_hideConfig(true);
+						curPage = VIDEO_SETTINGS;
+						_showConfigWii();
+					}
+					//! Global nand emulation
+					else if(m_btnMgr.selected(m_configBtnGo[6]))
+					{
+						_hideConfig(true);
+						curPage = NANDEMU_SETTINGS;
+						_showConfigWii();
+					}
+					//! Game location
+					else if(m_btnMgr.selected(m_configBtnGo[7]))
+					{
+						_hideConfig(true);
+						curPage = GAME_LIST;
+						_showConfigWii();
 					}
 				}
 			}

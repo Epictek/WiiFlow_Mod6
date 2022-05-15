@@ -2321,7 +2321,17 @@ bool CMenu::_loadHomebrewList(const char *HB_Dir)
 		return false;
 	// gprintf("Adding homebrew list\n");
 	string gameDir(fmt("%s:/%s", DeviceName[currentPartition], HB_Dir));
-	string cacheDir(fmt("%s/%s_%s.db", m_listCacheDir.c_str(), DeviceName[currentPartition], HB_Dir));
+	//! small fix if HB_Dir is a subfolder replace '/' with '_' in the cache list name
+	int i = 0;
+	char hb_dir[64];
+	strncpy(hb_dir, HB_Dir, sizeof(hb_dir)-1);
+	while(hb_dir[i] != '\0')
+	{
+		if(hb_dir[i] == '/')
+			hb_dir[i] = '_';
+		i++;
+	}
+	string cacheDir(fmt("%s/%s_%s.db", m_listCacheDir.c_str(), DeviceName[currentPartition], hb_dir));
 	bool updateCache = m_cfg.getBool(homebrew_domain, "update_cache");
 	if(updateCache || !fsop_FileExist(cacheDir.c_str()))
 	{

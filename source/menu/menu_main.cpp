@@ -98,7 +98,11 @@ void CMenu::_getCustomBgTex()
 				case COVERFLOW_PLUGIN:
 					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
 					if(m_plugin.PluginExist(i))
+					{
 						strncpy(m_plugin.PluginMagicWord, fmt("%08x", m_plugin.GetPluginMagic(i)), 8);
+						if(strncmp(m_plugin.PluginMagicWord, "484252", 6) == 0) // custom hb plugin
+							strncpy(m_plugin.PluginMagicWord, "48425257", 9);
+					}
 					break;
 				default: // wii
 					strncpy(m_plugin.PluginMagicWord, "4E574949", 9);
@@ -622,18 +626,13 @@ int CMenu::main(void)
 			/** Change view **/
 			if(m_btnMgr.selected(m_mainBtnHome))
 			{
-				//! change emunand if neek2o
+				//! shortcut to home menu if neek2o
 				if(neek)
 				{
-					string new_nand = _SetEmuNand(1);
-					if(new_nand != "")
-					{
-						if(m_refreshGameList)
-							_showCF(true);
-						m_showtimer = 240;
-						m_btnMgr.setText(m_mainLblLetter, new_nand);
-						m_btnMgr.show(m_mainLblLetter);
-					}
+					_hideMain();
+					if(_Home())
+						break; // exit wiiflow
+					_showMain();
 				}
 				//! sourceflow or source menu if they exist
 				else if(m_use_source && !BTN_B_OR_1_HELD)

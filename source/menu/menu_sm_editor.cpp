@@ -17,8 +17,9 @@ enum
 {
 	HIDE_SOURCES = 1,
 	SELECT_BUTTON = 2,
-	EDIT_PLUGIN_PATH = 3,
-	ASSIGN_PLUGIN = 4
+	ASSIGN_PLUGIN = 3,
+	EDIT_ROMDIR_PATH = 4,
+	EDIT_EXPLORER_PATH = 5
 };
 
 void CMenu::_showCheckboxesMenu(void)
@@ -27,10 +28,10 @@ void CMenu::_showCheckboxesMenu(void)
 		m_btnMgr.setText(m_configLblTitle, _t("smedit1", L"Hide Sources"));
 	else if(mode == SELECT_BUTTON)
 		m_btnMgr.setText(m_configLblTitle, _t("smedit2", L"Choose Source"));
-	else if(mode == EDIT_PLUGIN_PATH)
+	else if (mode == ASSIGN_PLUGIN)
+		m_btnMgr.setText(m_configLblTitle, _t("cfgpl1", L"Select Plugins"));
+	else // mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
 		m_btnMgr.setText(m_configLblTitle, _t("smedit3", L"Choose Plugin"));
-	else
-		m_btnMgr.setText(m_configLblTitle, _t("smedit4", L"Choose Plugins"));
 
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
@@ -50,7 +51,7 @@ void CMenu::_updateCheckboxesText(void)
 			string button = sfmt("button_%i", firstCheckbox + i);
 			m_btnMgr.setText(m_configLbl[i], m_source.getWString(button, "title", button));
 		}
-		else if(mode == EDIT_PLUGIN_PATH || mode == ASSIGN_PLUGIN)
+		else // mode == ASSIGN_PLUGIN || mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
 		{
 			m_btnMgr.setText(m_configLbl[i], m_plugin.GetPluginName(firstCheckbox + i));
 		}
@@ -66,7 +67,7 @@ void CMenu::_updateCheckboxes(bool instant)
 		m_btnMgr.show(m_configBtnPageM);
 		m_btnMgr.show(m_configBtnPageP);
 	}
-	for(u8 i = 0; i < 10; ++i) // instead of 1-11
+	for(u8 i = 0; i < 10; ++i)
 	{
 		m_btnMgr.hide(m_checkboxBtn[i], true);
 		m_btnMgr.hide(m_configLbl[i], true);
@@ -97,9 +98,7 @@ void CMenu::_updateCheckboxes(bool instant)
 			else
 				m_checkboxBtn[i] = m_configChkHid[i];
 		}
-		else if(mode == EDIT_PLUGIN_PATH)
-			m_checkboxBtn[i] = m_configBtnGo[i];
-		else
+		else if(mode == ASSIGN_PLUGIN)
 		{
 			bool found = false;
 			string pluginMagic = sfmt("%08x", m_plugin.GetPluginMagic(firstCheckbox + i));
@@ -120,6 +119,8 @@ void CMenu::_updateCheckboxes(bool instant)
 					m_checkboxBtn[i] = m_configChkOff[i];
 			}
 		}
+		else // mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
+			m_checkboxBtn[i] = m_configBtnGo[i];
 		m_btnMgr.show(m_checkboxBtn[i], instant);
 		m_btnMgr.show(m_configLbl[i], instant);
 	}
@@ -206,7 +207,7 @@ void CMenu::_checkboxesMenu(u8 md)
 						{
 							bool val = !m_source.getBool(button, "hidden", false);						
 							m_source.setBool(button, "hidden", val);
-							_updateCheckboxes(true); // added true
+							_updateCheckboxes(true);
 							m_btnMgr.setSelected(m_checkboxBtn[i]);
 							break;
 						}
@@ -288,36 +289,40 @@ void CMenu::_checkboxesMenu(u8 md)
 						}
 						if(!newMagics.empty()) // to make sure at least one plugin is selected
 							m_source.setString(button, "magic", newMagics);
-						_updateCheckboxes(true); // added true
+						_updateCheckboxes(true);
 						m_btnMgr.setSelected(m_checkboxBtn[i]);
 					}
-					else if(mode == EDIT_PLUGIN_PATH)
+					else // mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
 					{
 						_hideConfig(true);
 						u8 pos = firstCheckbox + i;
 						u32 magic = m_plugin.GetPluginMagic(pos);
-						//! if magic is not wii, gc, emunand, realnand, scumm or hb
-						if(magic == 0x4E574949 || magic == 0x4E47434D || magic == 0x454E414E || magic == 0x4E414E44 || magic == 0x5343564D || strncasecmp(fmt("%06x", magic), "484252", 6) == 0)
+						//! no explorer edit if emunand, realnand, scumm or hb
+						bool not_allowed = magic == 0x454E414E || magic == 0x4E414E44 || magic == 0x5343564D || magic == 0x48425257;
+						if(mode == EDIT_ROMDIR_PATH)
+							//! no wii or gc either for romdir
+							not_allowed = not_allowed || magic == 0x4E574949 || magic == 0x4E47434D;
+						if(not_allowed)
 							error(_t("smediterr", L"Not allowed!"));
 						else
-							_setPluginPath(pos); //
+							_setPluginPath(pos, mode);
 						_showCheckboxesMenu();
 					}
 				}
 			}
 		}
 	}
-	if(mode != EDIT_PLUGIN_PATH)
+	if(mode < EDIT_ROMDIR_PATH) // mode != EDIT_ROMDIR_PATH && mode != EDIT_EXPLORER_PATH
 		m_source.save();
 	_hideConfig(true);
 }
 
-void CMenu::_setPluginPath(u8 pos)
+void CMenu::_setPluginPath(u8 pos, u8 mode)
 {
 	int romsPartition = m_plugin.GetRomPartition(pos);
 	if(romsPartition < 0)
 		romsPartition = m_cfg.getInt(plugin_domain, "partition", 0);
-	const char *currentPath = fmt("%s:/%s", DeviceName[romsPartition], m_plugin.GetRomDir(pos));
+	const char *currentPath = mode == EDIT_ROMDIR_PATH ? fmt("%s:/%s", DeviceName[romsPartition], m_plugin.GetRomDir(pos)) : m_plugin.GetExplorerPath(m_plugin.GetPluginMagic(pos));
 	const char *path = _FolderExplorer(currentPath);
 	if(strlen(path) > 0)
 	{
@@ -325,18 +330,26 @@ void CMenu::_setPluginPath(u8 pos)
 		m_plugin_cfg.load(m_plugin.GetPluginPath(pos).c_str());
 		if(m_plugin_cfg.loaded())
 		{
-			romsPartition = DeviceHandle.PathToDriveType(path);
-			m_plugin_cfg.setInt(PLUGIN, "rompartition", romsPartition);
-			m_plugin.SetRomPartition(pos, romsPartition);
-			string rd = sfmt("%s", strchr(path, '/') + 1);
-			m_plugin_cfg.setString(PLUGIN, "romdir", rd);
-			m_plugin.SetRomDir(pos, rd);
+			if(mode == EDIT_ROMDIR_PATH)
+			{
+				romsPartition = DeviceHandle.PathToDriveType(path);
+				m_plugin_cfg.setInt(PLUGIN, "rompartition", romsPartition);
+				m_plugin.SetRomPartition(pos, romsPartition);
+				string rd = sfmt("%s", strchr(path, '/') + 1);
+				m_plugin_cfg.setString(PLUGIN, "romdir", rd);
+				m_plugin.SetRomDir(pos, rd);
+				strncpy(m_plugin.PluginMagicWord, fmt("%08x", m_plugin.GetPluginMagic(pos)), 8); //
+				string cachedListFile(fmt("%s/%s_%s.db", m_listCacheDir.c_str(), DeviceName[romsPartition], m_plugin.PluginMagicWord));
+				fsop_deleteFile(cachedListFile.c_str());
+				if(m_current_view & COVERFLOW_PLUGIN)
+					m_refreshGameList = true;
+			}
+			else // mode == EDIT_EXPLORER_PATH
+			{
+				m_plugin_cfg.setString(PLUGIN, "explorerpath", path);
+				m_plugin.SetExplorerPath(pos, path);
+			}
 			m_plugin_cfg.save(true);
-			strncpy(m_plugin.PluginMagicWord, fmt("%08x", m_plugin.GetPluginMagic(pos)), 8); //
-			string cachedListFile(fmt("%s/%s_%s.db", m_listCacheDir.c_str(), DeviceName[romsPartition], m_plugin.PluginMagicWord));
-			fsop_deleteFile(cachedListFile.c_str());
-			if(m_current_view & COVERFLOW_PLUGIN)
-				m_refreshGameList = true;
 		}
 	}
 }

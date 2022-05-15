@@ -35,23 +35,23 @@ void CMenu::_showConfigGC(bool instant)
 		m_btnMgr.setText(m_configLblVal[2], _t(CMenu::_GClanguages[i + 1].id, CMenu::_GClanguages[i + 1].text), true);
 		m_btnMgr.show(m_configLblVal[2], instant);
 		m_btnMgr.show(m_configBtnM[2], instant);
-		m_btnMgr.show(m_configBtnP[2], instant);		
-		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
-		//! Global video settings
-		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
-		//! Global emulation settings
-		m_btnMgr.setText(m_configLbl[5], _t("cfg804", L"Global emulation settings"));
-		//! Game location
-		m_btnMgr.setText(m_configLbl[6], _t("cfg815", L"Manage GameCube game list"));
+		m_btnMgr.show(m_configBtnP[2], instant);
 		//! Gamecube banner sound
-		m_btnMgr.setText(m_configLbl[7], _t("cfg720", L"GameCube banner sounds"));
-		m_checkboxBtn[7] = m_cfg.getOptBool(gc_domain, "play_banner_sound", 1) == 0 ? m_configChkOff[7] : m_configChkOn[7];
-		m_btnMgr.show(m_checkboxBtn[7], instant);
+		m_btnMgr.setText(m_configLbl[3], _t("cfg720", L"GameCube banner sounds"));
+		m_checkboxBtn[3] = m_cfg.getOptBool(gc_domain, "play_banner_sound", 1) == 0 ? m_configChkOff[3] : m_configChkOn[3];
+		m_btnMgr.show(m_checkboxBtn[3], instant);
+		//! Download covers and info
+		m_btnMgr.setText(m_configLbl[4], _t("cfg3", L"Download covers and info"));
+		//! Global video settings
+		m_btnMgr.setText(m_configLbl[5], _t("cfg803", L"Global video settings"));
+		//! Global emulation settings
+		m_btnMgr.setText(m_configLbl[6], _t("cfg804", L"Global emulation settings"));
+		//! Game location
+		m_btnMgr.setText(m_configLbl[7], _t("cfg815", L"Manage GameCube game list"));
 
 		for(i = 2; i < 8; ++i)
 			m_btnMgr.show(m_configLbl[i]);		
-		for(i = 3; i < 7; ++i)
+		for(i = 4; i < 8; ++i)
 			m_btnMgr.show(m_configBtnGo[i], instant);
 	}
 
@@ -240,41 +240,41 @@ void CMenu::_configGC(u8 startPage)
 						m_cfg.setInt(gc_domain, "game_language", i);
 						_showConfigGC(true);
 					}
+					//! GC banner (& default) sound
+					else if(m_btnMgr.selected(m_checkboxBtn[3]))
+					{
+						m_gc_play_banner_sound = !m_gc_play_banner_sound;
+						m_cfg.setBool(gc_domain, "play_banner_sound", m_gc_play_banner_sound);
+						_showConfigGC(true);
+						m_btnMgr.setSelected(m_checkboxBtn[3]);
+					}
 					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[3]))
+					else if(m_btnMgr.selected(m_configBtnGo[4]))
 					{
 						_hideConfig(true);
 						_download();
 						_showConfigGC();
 					}
 					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[4]))
+					else if(m_btnMgr.selected(m_configBtnGo[5]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
 						_showConfigGC();
 					}
 					//! Global emulation settings
-					else if(m_btnMgr.selected(m_configBtnGo[5]))
+					else if(m_btnMgr.selected(m_configBtnGo[6]))
 					{
 						_hideConfig(true);
 						curPage = COMPAT_SETTINGS;
 						_showConfigGC();
 					}
 					//! Game location
-					else if(m_btnMgr.selected(m_configBtnGo[6]))
+					else if(m_btnMgr.selected(m_configBtnGo[7]))
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
 						_showConfigGC();
-					}
-					//! GC banner (& default) sound
-					else if(m_btnMgr.selected(m_checkboxBtn[7]))
-					{
-						m_gc_play_banner_sound = !m_gc_play_banner_sound;
-						m_cfg.setBool(gc_domain, "play_banner_sound", m_gc_play_banner_sound);
-						_showConfigGC(true);
-						m_btnMgr.setSelected(m_checkboxBtn[7]);
 					}
 				}
 			}
