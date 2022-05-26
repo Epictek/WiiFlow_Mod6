@@ -299,18 +299,14 @@ private:
 	enum Regions
 	{
 		EN = 1,
-		JA,
 		FR,
 		DE,		
 		ES,
 		IT,
 		NL,
 		PT,
-		RU,
-		KO,
-		ZHCN,
 		AU,
-		US,
+		US
 	};
 
 	/* Config game menu */
@@ -621,7 +617,7 @@ private:
 	void _showProgress(void);
 	void _showGame(bool fanart = false, bool anim = false);
 	void _showDownload(void);
-	void _showConfigDownload(bool instant = false);
+	void _showConfigDownload(bool instant = false, bool fromGameSet = false);
 	void _showAbout(void);
 	void _showSource(void);
 	void _showPluginSettings(void);
@@ -686,7 +682,7 @@ private:
 	void _configGC(u8 startPage = MAIN_SETTINGS);
 	void _configHB(u8 startPage = MAIN_SETTINGS);
 	void _configPlugin(u8 startPage = MAIN_SETTINGS);
-	void _configDownload(void);
+	void _configDownload(bool fromGameSet = false);
 	void _configSource(void);
 	void _configBoot(void);
 	
@@ -873,7 +869,7 @@ private:
 	static const SOption _debugger[3];
 	static const SOption _hooktype[8];
 	static const SOption _exitTo[4];
-	static const SOption _AddRegionCover[14];
+	static const SOption _AddRegionCover[10];
 	static const SOption _privateServer[3];
 	static const SOption _DeflickerOptions[7];
 	

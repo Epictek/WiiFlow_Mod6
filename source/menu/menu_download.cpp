@@ -29,10 +29,11 @@ static const char FMT_BPIC_URL[] = "https://art.gametdb.com/{console}/coverfullH
 static const char FMT_PIC_URL[] = "https://art.gametdb.com/{console}/cover/{loc}/{gameid}.png";
 static const char FMT_CBPIC_URL[] = "https://art.gametdb.com/{console}/coverfullHQ2/{loc}/{gameid}.png";
 static const char FMT_CPIC_URL[] = "https://art.gametdb.com/{console}/cover2/{loc}/{gameid}.png";
-static const char FMT_DPIC_URL[] = "https://art.gametdb.com/{console}/disc/{loc}/{gameid}.png"; // disk
+static const char FMT_DPIC_URL[] = "https://art.gametdb.com/{console}/disc/{loc}/{gameid}.png"\
+"|https://art.gametdb.com/{console}/disccustom/{loc}/{gameid}.png";
 
 static string dl_gameID;
-int count, countFlat;
+int count;
 u32 n;
 
 void CMenu::_showDownload(void)
@@ -51,13 +52,14 @@ void CMenu::_showDownload(void)
 
 	m_btnMgr.setText(m_configLbl[3], _t("dl12", L"GameTDB game info"));
 	m_btnMgr.setText(m_configLbl[4], _t("dl8", L"Current coverflow covers"));
-	m_btnMgr.setText(m_configLbl[5], _t("dl92", L"Current coverflow disc labels"));
-	m_btnMgr.setText(m_configLbl[6], _t("dl26", L"GameCube custom banners"));
+	m_btnMgr.setText(m_configLbl[5], _t("dl26", L"Custom banners"));
+	m_btnMgr.setText(m_configLbl[6], _t("dl92", L"Disc labels"));
 
-	bool gc = false;
-	if((m_current_view & COVERFLOW_GAMECUBE) || ((m_current_view & COVERFLOW_PLUGIN) && (m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E47434D))))) // plugin gamecube
-		gc = true;
-	for(u8 i = 3; i < 6 + gc; ++i)
+	bool chan = false;
+	if((m_current_view & COVERFLOW_CHANNEL) || ((m_current_view & COVERFLOW_PLUGIN) && (m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E)) ||
+	m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E414E44))))) // plugin channels (emunand + realnand)
+		chan = true;
+	for(u8 i = 3; i < 7 - chan; ++i)
 	{
 		m_btnMgr.show(m_configLbl[i]);
 		m_btnMgr.setText(m_configBtn[i], _t("cfg4", L"Download"));
@@ -134,7 +136,7 @@ void CMenu::_download(string gameId, int dl_type)
 				dl_finished = true;
 				m_btnMgr.show(m_configBtnBack);
 			}
-			else if(m_btnMgr.selected(m_configBtn[4]) || dl_type == 1) // dl covers
+			else if(m_btnMgr.selected(m_configBtn[4]) || dl_type == 1) // download covers
 			{
 				m_refreshGameList = true;
 				_hideConfig();
@@ -145,16 +147,8 @@ void CMenu::_download(string gameId, int dl_type)
 				_stop_pThread();
 				if(ret == 0)
 				{
-					if(countFlat == 0)
-					{
-						m_thrdMessage = wfmt(_fmt("dlmsg5", L"%i/%i files downloaded."), count, n);
-						m_btnMgr.setText(m_configLblDialog, m_thrdMessage);
-					}
-					else
-					{
-						m_thrdMessage = wfmt(_fmt("dlmsg9", L"%i/%i front covers downloaded."), countFlat, n);
-						m_btnMgr.setText(m_configLblDialog, m_thrdMessage);
-					}
+					m_thrdMessage = wfmt(_fmt("dlmsg5", L"%i/%i files downloaded."), count, n);
+					m_btnMgr.setText(m_configLblDialog, m_thrdMessage);
 				}
 				else if(ret == -1)
 					m_btnMgr.setText(m_configLblDialog, _t("dlmsg27", L"Not enough memory!"));
@@ -167,7 +161,36 @@ void CMenu::_download(string gameId, int dl_type)
 
 				m_btnMgr.show(m_configBtnBack);
 			}
-			else if(m_btnMgr.selected(m_configBtn[5])) // disk dl
+			else if(m_btnMgr.selected(m_configBtn[5]) || dl_type == 2) // download banners
+			{
+				_hideConfig();
+				_showProgress();
+
+				_start_pThread();
+				int ret = _bannerDownloader();
+				_stop_pThread();
+				if(ret == 0)
+				{
+					if(dl_gameID.empty())
+					{
+						m_thrdMessage = wfmt(_fmt("dlmsg5", L"%i/%i files downloaded."), count, n);
+						m_btnMgr.setText(m_configLblDialog, m_thrdMessage);
+					}
+					else
+						m_btnMgr.setText(m_configLblDialog, _t("dlmsg14", L"Done."));
+				}
+				else if(ret == -1)
+					m_btnMgr.setText(m_configLblDialog, _t("dlmsg34", L"Banner URL not set properly!"));
+				else if(ret == -2)
+					m_btnMgr.setText(m_configLblDialog, _t("dlmsg2", L"Network initialization failed!"));
+				else if(ret == -3)
+					m_btnMgr.setText(m_configLblDialog, _t("dlmsg33", L"No banners missing."));
+				dl_finished = true;
+				dl_type = 0;
+
+				m_btnMgr.show(m_configBtnBack);
+			}
+			else if(m_btnMgr.selected(m_configBtn[6]) || dl_type == 3) // download disc labels
 			{
 				_hideConfig();
 				_showProgress();
@@ -191,36 +214,7 @@ void CMenu::_download(string gameId, int dl_type)
 
 				m_btnMgr.show(m_configBtnBack);
 			}
-			else if(m_btnMgr.selected(m_configBtn[6]) || dl_type == 2) // download bnr
-			{
-				_hideConfig();
-				_showProgress();
-
-				_start_pThread();
-				int ret = _bannerDownloader();
-				_stop_pThread();
-				if(ret == 0)
-				{
-					if(dl_gameID.empty())
-					{
-						m_thrdMessage = wfmt(_fmt("dlmsg5", L"%i/%i files downloaded."), count, n);
-						m_btnMgr.setText(m_configLblDialog, m_thrdMessage);
-					}
-					else
-						m_btnMgr.setText(m_configLblDialog, _t("dlmsg14", L"Done."));
-				}
-				else if(ret == -1)
-					m_btnMgr.setText(m_configLblDialog, _t("dlmsg34", L"Banner URL not set properly!")); // banner url not set
-				else if(ret == -2)
-					m_btnMgr.setText(m_configLblDialog, _t("dlmsg2", L"Network initialization failed!"));
-				else if(ret == -3)
-					m_btnMgr.setText(m_configLblDialog, _t("dlmsg33", L"No banners missing.")); // no banners missing
-				dl_finished = true;
-				dl_type = 0;
-
-				m_btnMgr.show(m_configBtnBack);
-			}
-			else if(m_btnMgr.selected(m_configBtnCenter)) // dl settings
+			else if(m_btnMgr.selected(m_configBtnCenter)) // download settings
 			{
 				_hideConfig(true);
 				_configDownload();
@@ -316,30 +310,48 @@ s32 CMenu::_networkComplete(s32 ok, void *usrData)
 **/
 
 /***************************************** Cover downloading *********************************************/
-
+bool allowReplace;
 static string countryCode(const string &gameId)
 {
+	allowReplace = false;
 	switch (gameId[3])
 	{
-		case 'E':
-			return "US";
-		case 'J':
+		case 'J': // Japan
 			return "JA";
-		case 'W':
+		case 'W': // Taiwan and Hong-Kong
 			return "ZH";
-		case 'K':
+		case 'K': // Korea
+		case 'T': // Korea with English language
+		case 'Q': // Korea with Japanese language
 			return "KO";
-		case 'R':
+		case 'R': // Russia
+			allowReplace = true;
 			return "RU";
-		case 'P':
-		case 'D':
-		case 'F':
-		case 'I':
-		case 'S':
-		case 'H':
-		case 'X':
-		case 'Y':
-		case 'Z':
+		case 'D': // Germany
+			allowReplace = true;
+			return "DE";
+		case 'F': // France
+			allowReplace = true;
+			return "FR";
+		case 'S': // Spain
+			allowReplace = true;
+			return "ES";
+		case 'I': // Italy
+			allowReplace = true;
+			return "IT";
+		case 'H': // Netherlands
+			allowReplace = true;
+			return "NL";
+		case 'U': // Australia
+			allowReplace = true;
+			return "AU";
+		case 'P': // PAL regions
+		case 'L': // japanese import to PAL regions
+		case 'M': // american import to PAL regions
+		case 'X': // PAL regions
+		case 'Y': // PAL regions
+		case 'Z': // might be PAL or NTSC...
+			allowReplace = true;
 			switch (CONF_GetArea())
 			{
 				case CONF_AREA_BRA:
@@ -363,7 +375,8 @@ static string countryCode(const string &gameId)
 					return "NL";
 			}
 			return "other";
-		case 'A':
+		case 'A': // Region free
+			allowReplace = true;
 			switch (CONF_GetArea())
 			{
 				case CONF_AREA_USA:
@@ -397,7 +410,7 @@ static string countryCode(const string &gameId)
 					return "NL";
 			}
 	}
-	return "other";
+	return "US";
 }
 
 static string makeURL(const string format, const string gameId, const string country)
@@ -500,10 +513,13 @@ void CMenu::update_pThread(u64 amount, bool add)
 	}
 }
 
-int CMenu::_coverDownloader(bool disc) // added disc for disc labels
+int CMenu::_coverDownloader(bool disc)
 {
 	count = 0;
-	countFlat = 0;
+	bool fullCover = m_cfg.getBool(general_domain, "dl_box_cover", true);
+	bool originalCase = m_cfg.getBool(general_domain, "dl_normal_cover", true);
+	vector<string> coverIDList;
+	vector<string> fmtURL;
 
 	GameTDB c_gameTDB;
 	if(m_settingsDir.size() > 0)
@@ -511,8 +527,7 @@ int CMenu::_coverDownloader(bool disc) // added disc for disc labels
 		c_gameTDB.OpenFile(fmt("%s/wiitdb.xml", m_settingsDir.c_str()));
 		c_gameTDB.SetLanguageCode(m_curLanguage.c_str());
 	}
-	vector<string> coverIDList;
-		
+
 	/* Create list of cover ID's that need downloading */
 	if(dl_gameID.empty())
 	{
@@ -520,24 +535,21 @@ int CMenu::_coverDownloader(bool disc) // added disc for disc labels
 		{
 			if(m_gameList[i].type == TYPE_PLUGIN || m_gameList[i].type == TYPE_HOMEBREW)
 				continue;
-			if(!disc)
-			{
-				if(!fsop_FileExist(fmt("%s/%s.png", m_boxPicDir.c_str(), m_gameList[i].id)))
-					coverIDList.push_back(m_gameList[i].id);
-			}
-			else // disc dl
-			{
-				if(!fsop_FileExist(fmt("%s/%s.png", m_cartDir.c_str(), m_gameList[i].id)))
-					coverIDList.push_back(m_gameList[i].id);
-			}
+			
+			bool needBox = !fsop_FileExist(fmt("%s/%s.png", disc ? m_cartDir.c_str() : m_boxPicDir.c_str(), m_gameList[i].id));
+			bool needFlat = !fsop_FileExist(fmt("%s/%s.png", m_picDir.c_str(), m_gameList[i].id));
+			bool isReplaced = m_gcfg2.getBool(m_gameList[i].id, disc ? "alt_disc" : "alt_cover", 0);
+			bool skipReplaced = m_cfg.getBool(general_domain, "dl_skip_replaced", 1);
+			
+			if((needBox && (needFlat || fullCover || disc)) || (isReplaced && !skipReplaced))
+				coverIDList.push_back(m_gameList[i].id);
 		}
 	}
 	else
 		coverIDList.push_back(dl_gameID);
-
+	
 	n = coverIDList.size();
 	m_thrdTotal = n * 3; // 3 = download cover, save png, and make wfc
-
 	if(m_thrdTotal == 0)
 	{
 		if(c_gameTDB.IsLoaded())
@@ -557,6 +569,17 @@ int CMenu::_coverDownloader(bool disc) // added disc for disc labels
 		return -2;
 	}
 
+	/* Format base URLs */
+	if(!disc)
+	{
+		if(originalCase)
+			fmtURL = stringToVector(m_cfg.getString(general_domain, fullCover ? "url_full_covers" : "url_flat_covers", fullCover ? FMT_BPIC_URL : FMT_PIC_URL), '|');
+		else
+			fmtURL = stringToVector(m_cfg.getString(general_domain, fullCover ? "url_custom_full_covers" : "url_custom_flat_covers", fullCover ? FMT_CBPIC_URL : FMT_CPIC_URL), '|');
+	}
+	else // disc
+		fmtURL = stringToVector(m_cfg.getString(general_domain, "url_discs", FMT_DPIC_URL), '|');
+
 	/* Download covers in the list */
 	for(u32 i = 0; i < coverIDList.size(); ++i)
 	{
@@ -564,198 +587,84 @@ int CMenu::_coverDownloader(bool disc) // added disc for disc labels
 		char path[256];
 		path[255] = '\0';
 		string coverID = coverIDList[i];
-		vector<string> fmtURL;
 		bool success = false;
-		bool fullCover = true;
+		struct download file = {};
+		// gprintf("\ncoverID = %s - '%c'\n", coverID.c_str(), coverID[3]);
 		
-		if(!disc)
-		{
-			//! case BOX
-			if((m_cfg.getBool(general_domain, "dl_box_cover", true)) && (m_cfg.getBool(general_domain, "dl_normal_cover", true)))
-				fmtURL = stringToVector(m_cfg.getString(general_domain, "url_full_covers", FMT_BPIC_URL), '|');
-			//! case FLAT
-			else if((!m_cfg.getBool(general_domain, "dl_box_cover", true)) && (m_cfg.getBool(general_domain, "dl_normal_cover", true)))
-			{
-				fmtURL = stringToVector(m_cfg.getString(general_domain, "url_flat_covers", FMT_PIC_URL), '|');
-				fullCover = false;
-			}
-			//! case ALT
-			else if(!m_cfg.getBool(general_domain, "dl_normal_cover", true))
-			{
-				if(c_gameTDB.IsLoaded() && c_gameTDB.GetCaseVersions(coverID.c_str()) < 2) // < 2 means there's no alt case
-					continue; // don't try to download if no alt case found in gameTDB
-				//! case BOX ALT
-				if(m_cfg.getBool(general_domain, "dl_box_cover", true))
-					fmtURL = stringToVector(m_cfg.getString(general_domain, "url_custom_full_covers", FMT_CBPIC_URL), '|');
-				//! case FLAT ALT
-				else
-				{
-					fmtURL = stringToVector(m_cfg.getString(general_domain, "url_custom_flat_covers", FMT_CPIC_URL), '|');
-					fullCover = false;
-				}
-			}
-		}
-		else // disc downloader
-		{
-			fmtURL = stringToVector(m_cfg.getString(general_domain, "url_discs", FMT_DPIC_URL), '|');
-		}
-
-		/* Each fmtURL may have more than one URL */
-		for(u8 j = 0; !success && j < fmtURL.size(); ++j)
+		/* No download if no alt case found in gameTDB */
+		if(!originalCase && c_gameTDB.IsLoaded() && c_gameTDB.GetCaseVersions(coverID.c_str()) < 2) // < 2 means there's no alt case
+			continue;
+		
+		/* First try the most likely artwork version according to game id and console area/language */
+		gprintf("Trying game id or console area/language country code\n");
+		for(u8 j = 0; !success && j < fmtURL.size(); ++j) // each fmtURL may have more than one URL
 		{
 			url = makeURL(fmtURL[j], coverID, countryCode(coverID));
-			
-			m_thrdMessage = wfmt(_fmt("dlmsg3", L"Downloading %s.png (%i/%i)"), coverID.c_str(), i + 1, n);
+			m_thrdMessage = wfmt(_fmt("dlmsg3", L"Fetching [%s] artwork (%i/%i)"), coverID.c_str(), i + 1, n);
 			// gprintf("Downloading from %s\n", url.c_str());
 			m_thrdMessageAdded = true;
-			struct download file = {};
 			downloadfile(url.c_str(), &file);
-
-			for(int o = 0; o < 14; ++o)
+			if(file.size > 0)
 			{
-				bool tdl = false; // tdl = try download
-				// if(file.size > 0) && checkPNGBuf(file.data))
-				if(file.size > 0)
-					break;
-				int addRegion = m_cfg.getInt(general_domain, "dl_add_region", 0);
-				switch( o )
-				{
-					case EN: //! force EN if disc for PAL games because PAL disc labels are -all- EN
-						// if(((coverID[3] == 'E' || coverID[3] == 'X' || coverID[3] == 'Y' || coverID[3] == 'P') && addRegion == EN)
-						if((coverID[3] != 'J' && addRegion == EN) || ((coverID[3] == 'X' || coverID[3] == 'Y' || coverID[3] == 'P' || coverID[3] == 'F' || coverID[3] == 'D' || coverID[3] == 'S' || coverID[3] == 'I') && disc)) 
-						{
-							url = makeURL(fmtURL[j], coverID, "EN");
-							tdl = true;
-						}
-						break;
-					case JA:
-						if(coverID[3] == 'J' && addRegion == JA)
-						{
-							url = makeURL(fmtURL[j], coverID, "JA");
-							tdl = true;
-						}
-						break;
-					case FR:
-						if((coverID[3] == 'F' || coverID[3] == 'P') && addRegion == FR)
-						{
-							url = makeURL(fmtURL[j], coverID, "FR");
-							tdl = true;
-						}
-						break;
-					case DE:
-						if((coverID[3] == 'D' || coverID[3] == 'P') && addRegion == DE)
-						{
-							url = makeURL(fmtURL[j], coverID, "DE");
-							tdl = true;
-						}
-						break;
-					case ES:
-						if((coverID[3] == 'S' || coverID[3] == 'P') && addRegion == ES)
-						{
-							url = makeURL(fmtURL[j], coverID, "ES");
-							tdl = true;
-						}
-						break;
-					case IT:
-						if((coverID[3] == 'I' || coverID[3] == 'P') && addRegion == IT)
-						{
-							url = makeURL(fmtURL[j], coverID, "IT");
-							tdl = true;
-						}
-						break;
-					case NL:
-						if(coverID[3] == 'P' && addRegion == NL)
-						{
-							url = makeURL(fmtURL[j], coverID, "NL");
-							tdl = true;
-						}
-						break;
-					case PT:
-						if(coverID[3] == 'P' && addRegion == PT)
-						{
-							url = makeURL(fmtURL[j], coverID, "PT");
-							tdl = true;
-						}
-						break;
-					case RU:
-						if((coverID[3] == 'R' || coverID[3] == 'P') && addRegion == RU)
-						{
-							url = makeURL(fmtURL[j], coverID, "RU");
-							tdl = true;
-						}
-						break;
-					case KO:
-						if(coverID[3] == 'K' && addRegion == KO)
-						{
-							url = makeURL(fmtURL[j], coverID, "KO");
-							tdl = true;
-						}
-						break;
-					case ZHCN:
-						if(coverID[3] == 'W' && addRegion == ZHCN)
-						{
-							url = makeURL(fmtURL[j], coverID, "ZH");
-							tdl = true;
-						}
-						break;
-					case AU:
-						break;
-					case US: // added
-						if(coverID[3] != 'J' && addRegion == US)
-						{
-							string coverIDtmp = coverID;
-							coverIDtmp[3] = 'E';
-							url = makeURL(fmtURL[j], coverIDtmp, "US");
-							tdl = true;
-						}
-						break;
-				}
-				if(tdl) // try another download
-				{
-					m_thrdMessage = wfmt(_fmt("dlmsg3", L"Downloading %s.png (%i/%i)"), coverID.c_str(), i + 1, n);
-					// gprintf("Try downloading from %s\n", url.c_str());
-					m_thrdMessageAdded = true;
-					downloadfile(url.c_str(), &file);
-				}
+				success = true;
+				m_gcfg2.setBool(coverID, disc ? "alt_disc" : "alt_cover", false);
 			}
-			/* If none of the downloads succeeded */
-			if(file.size == 0)// || !checkPNGBuf(file.data))
-				continue;
-			
-			/* A download succeeded */
-			
-			/* Save cover or disc png */
-			if(!disc)
-			{
-				if(fullCover)
-					strncpy(path, fmt("%s/%s.png", m_boxPicDir.c_str(), coverID.c_str()), 255);
-				else
-					strncpy(path, fmt("%s/%s.png", m_picDir.c_str(), coverID.c_str()), 255);
-			}
-			else
-				strncpy(path, fmt("%s/%s.png", m_cartDir.c_str(), coverID.c_str()), 255);				
-			update_pThread(1);
-			m_thrdMessage = wfmt(_fmt("dlmsg4", L"Saving %s"), path);
-			m_thrdMessageAdded = true;
-			fsop_WriteFile(path, file.data, file.size);
-			MEM2_free(file.data);
-			if(!disc)
-			{
-				/* Make cover cache file (wfc) */
-				update_pThread(1);
-				m_thrdMessage = wfmt(_fmt("dlmsg10", L"Making %s.wfc"), coverID.c_str());
-				m_thrdMessageAdded = true;
-				CoverFlow.cacheCoverFile(fmt("%s/%s.wfc", m_cacheDir.c_str(), coverID.c_str()), path, fullCover); // it may fail
-			}
-			if(fullCover) // fullCover is always true if disc is true
-				++count;
-			else
-				++countFlat;
-			update_pThread(1);
-			success = true;
+			// gprintf("%s\n", success ? "Success" : "Failed");
 		}
+
+		/* Additional region check for PAL and homebrew games */
+		if(!success && allowReplace) // allowReplace set in countryCode()
+		{
+			int addRegion = m_cfg.getInt(general_domain, "dl_add_region", EN);
+			if(addRegion > 0)
+			{
+				// gprintf("Trying %s artwork version\n", CMenu::_AddRegionCover[addRegion].id);
+				string coverIDtmp = coverID;
+				if(addRegion == US && coverID[3] != 'A') // temp change of ID except for homebrew
+					coverIDtmp[3] = 'E';
+				for(u8 j = 0; !success && j < fmtURL.size(); ++j)
+				{
+					url = makeURL(fmtURL[j], coverIDtmp, CMenu::_AddRegionCover[addRegion].id);
+					// gprintf("Downloading from %s\n", url.c_str());
+					downloadfile(url.c_str(), &file);
+					if(file.size > 0)
+					{
+						success = true;
+						if(!(disc && coverID[3] == 'P' && addRegion == EN)) // EN is usually the only possible disc label image for PAL "P" games
+							m_gcfg2.setBool(coverID, disc ? "alt_disc" : "alt_cover", true);
+					}
+					// gprintf("%s\n", success ? "Success" : "Failed");
+				}
+			}
+		}
+		
+		/* If none of the downloads succeeded skip to next game */
 		if(!success)
+		{
+			// gprintf("Giving up for this game\n");
 			update_pThread(3);
+			continue;
+		}
+		
+		/* A download succeeded */
+		// gprintf("Download OK!\n");
+		update_pThread(1);
+		
+		/* Save cover or disc png */
+		if(!disc)
+			strncpy(path, fmt("%s/%s.png", fullCover ? m_boxPicDir.c_str() : m_picDir.c_str(), coverID.c_str()), 255);
+		else
+			strncpy(path, fmt("%s/%s.png", m_cartDir.c_str(), coverID.c_str()), 255);				
+		fsop_WriteFile(path, file.data, file.size);
+		MEM2_free(file.data);
+		update_pThread(1);
+		
+		/* Make cover cache file (wfc) */
+		if(!disc)
+			CoverFlow.cacheCoverFile(fmt("%s/%s.wfc", m_cacheDir.c_str(), coverID.c_str()), path, fullCover); // it may fail
+		update_pThread(1);
+		
+		++count;
 	}
 
 	/* Cover list done and downloading complete */
@@ -798,11 +707,9 @@ int CMenu::_gametdbDownloaderAsync()
 			{
 				// gprintf("Writing file to '%s'\n", zippath);
 				fsop_deleteFile(zippath);
-				m_thrdMessage = wfmt(_fmt("dlmsg4", L"Saving %s"), "wiitdb.zip");
+				m_thrdMessage = _t("dlmsg13", L"Saving...");
 				m_thrdMessageAdded = true;	
 				res = fsop_WriteFile(zippath, file.data, file.size);
-				// if(file.size > 0)
-					// free(file.data);
 				MEM2_free(file.data);
 			}
 			if(res == false)
@@ -853,23 +760,19 @@ int CMenu::_bannerDownloader()
 
 	if(dl_gameID.empty())
 	{
-		currentPartition = m_cfg.getInt(gc_domain, "partition", USB1);
-		string gameDir(fmt(gc_games_dir, DeviceName[currentPartition]));
-		string cacheDir(fmt("%s/%s_gamecube.db", m_listCacheDir.c_str(), DeviceName[currentPartition]));
-		m_cacheList.CreateList(COVERFLOW_GAMECUBE, currentPartition, gameDir, stringToVector(".iso|.ciso|root", '|'), cacheDir, false);
-		
-		for(u32 i = 0; i < m_cacheList.size(); ++i)
+		for(u32 i = 0; i < m_gameList.size(); ++i)
 		{
-			if(!fsop_FileExist(fmt("%s/%s.bnr", m_customBnrDir.c_str(), m_cacheList[i].id)))
-				BnrIDList.push_back(m_cacheList[i].id);
+			if(m_gameList[i].type == TYPE_PLUGIN || m_gameList[i].type == TYPE_HOMEBREW)
+				continue;
+			if(!fsop_FileExist(fmt("%s/%s.bnr", m_customBnrDir.c_str(), m_gameList[i].id)))
+				BnrIDList.push_back(m_gameList[i].id);
 		}
-		m_cacheList.clear();
 	}
 	else
 		BnrIDList.push_back(dl_gameID);
 	
 	n = BnrIDList.size();
-	m_thrdTotal = n;
+	m_thrdTotal = n * 2; // download and save banner
 	
 	if(n == 0)
 	{
@@ -905,10 +808,7 @@ int CMenu::_bannerDownloader()
 		base_url_id3.replace(base_url_id3.find(GAME_BNR_ID), strlen(GAME_BNR_ID), BnrIDList[i].c_str(), 3);
 		banner_url_id3 = base_url_id3.c_str();
 
-		if(dl_gameID.empty())
-			m_thrdMessage = wfmt(_fmt("dlmsg32", L"Downloading banner %i/%i"), i + 1, n);
-		else
-			m_thrdMessage = _t("cfgbnr7", L"Downloading banner...");
+		m_thrdMessage = wfmt(_fmt("dlmsg32", L"Downloading [%s] banner (%i/%i)"),  BnrIDList[i].c_str(), i + 1, n);
 		m_thrdMessageAdded = true;
 
 		struct download file = {};
@@ -919,7 +819,7 @@ int CMenu::_bannerDownloader()
 				MEM2_free(file.data); // more than 0 bytes and less than 50kb			
 			downloadfile(banner_url_id3, &file);
 		}
-
+		update_pThread(1);
 		/* Minimum 50kb */
 		if(file.size > 51200 && file.data[0] != '<')
 		{

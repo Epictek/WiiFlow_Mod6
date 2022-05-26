@@ -51,7 +51,6 @@ struct PluginOptions
 	string explorerPath; //
 	bool fileNamesAsTitles; //
 	string guideName; //
-	string guideTitle; //
 	string fileTypes;	
 	string DolName;
 	string coverFolder;

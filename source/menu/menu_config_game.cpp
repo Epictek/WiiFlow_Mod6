@@ -180,12 +180,13 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 	{
 		if(!dvd)
 		{
+			bool d = (GameHdr->type == TYPE_PLUGIN || GameHdr->type == TYPE_HOMEBREW);
 			//! DELETE GAME
-			m_btnMgr.setText(m_configLbl[1], _t("wbfsop2", L"Delete game"));
-			m_btnMgr.show(m_configLbl[1], instant);
-			m_btnMgr.show(m_configBtnGo[1], instant);
+			m_btnMgr.setText(m_configLbl[1+3*d], _t("wbfsop2", L"Delete game"));
+			m_btnMgr.show(m_configLbl[1+3*d], instant);
+			m_btnMgr.show(m_configBtnGo[1+3*d], instant);
 			
-			if(GameHdr->type == TYPE_PLUGIN || GameHdr->type == TYPE_HOMEBREW)
+			if(d)
 				return;
 			
 			//! COVER AND BANNER
@@ -649,6 +650,7 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 				//! position game language button line correctly
 				bool b = (GameHdr->type == TYPE_CHANNEL && isWiiVC);
 				bool c = (GameHdr->type == TYPE_CHANNEL || (dvd && GameHdr->type != TYPE_GC_GAME));
+				bool d = (GameHdr->type == TYPE_PLUGIN || GameHdr->type == TYPE_HOMEBREW);
 				u8 j = 8 - (2 * dvd) - (2 * neek2o()) - b - c;
 				
 				if(m_btnMgr.selected(m_configBtnBack) || m_btnMgr.selected(m_configBtnCenter)) // center because of dvd
@@ -656,7 +658,7 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 				else
 				{
 					//! DELETE GAME
-					if(m_btnMgr.selected(m_configBtnGo[1]) && !dvd)
+					if(m_btnMgr.selected(m_configBtnGo[1+3*d]) && !dvd)
 					{
 						_hideConfig(true);
 						if(GameHdr->type == TYPE_CHANNEL)

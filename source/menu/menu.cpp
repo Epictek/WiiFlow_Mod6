@@ -1814,9 +1814,9 @@ const wstringEx CMenu::_fmt(const char *key, const wchar_t *def)
 }
 
 /** Full set of game settings to be cleared if their value is default **/
-static const char gameSetting[32][18] =
+static const char gameSetting[34][18] =
 {
-	//! [0] to [12] - default to "false" game settings:
+	//! [0] to [14] - default to "false" game settings:
 	"useneek", // not used anymore, using emulate_save=3 instead
 	"apploader", 
 	"cheat", 
@@ -1830,13 +1830,15 @@ static const char gameSetting[32][18] =
 	"vipatch", 
 	"bba_emu", 
 	"tempregionrn",
-	//! [13] to [17] - default to "2" game settings:
+	"alt_cover",
+	"alt_disc",
+	//! [15] to [19] - default to "2" game settings:
 	"wiiu_widescreen",
 	"widescreen", 
 	"cc_rumble",
 	"native_ctl", 
 	"fix480p",
-	//! [18] to [28] - default to "0" game settings:
+	//! [20] to [31] - default to "0" game settings:
 	"aspect_ratio", 
 	"debugger", 
 	"hooktype", 
@@ -1849,7 +1851,7 @@ static const char gameSetting[32][18] =
 	"net_profile", 
 	"emulate_save", 
 	"deflicker_wii", 
-	//! [30] to [31] - default to "127" game settings:
+	//! [32] to [33] - default to "127" game settings:
 	"nin_pos", 
 	"nin_width"
 };
@@ -2076,31 +2078,31 @@ void CMenu::_initCF(bool dumpGameList)
 		u8 i = 0;
 		bool emptyDom = true;
 		//! "yes/no" settings: remove if "no"
-		for(i = 0; i < 13; i++)
+		for(i = 0; i < 15; i++)
 		{
 			if(!m_gcfg2.getBool(id, gameSetting[i]))
 				m_gcfg2.remove(id, gameSetting[i]);
 		}
 		//! "0/1/2" (off/on/default) settings: remove if 2
-		for(i = 13; i < 18; i++)
+		for(i = 15; i < 20; i++)
 		{
 			if(m_gcfg2.getOptBool(id, gameSetting[i]) == 2)
 				m_gcfg2.remove(id, gameSetting[i]);
 		}
 		//! integer value settings: remove if 0
-		for(i = 18; i < 30; i++)
+		for(i = 20; i < 32; i++)
 		{
 			if(m_gcfg2.getInt(id, gameSetting[i]) == 0)
 				m_gcfg2.remove(id, gameSetting[i]);
 		}
 		//! nin_pos & nin_width settings: remove if 127
-		for(i = 30; i < 32; i++)
+		for(i = 32; i < 34; i++)
 		{
 			if(m_gcfg2.getInt(id, gameSetting[i], 127) == 127) // (0 is "auto" for nin_width)
 				m_gcfg2.remove(id, gameSetting[i]);
 		}
 		//! look for empty domains
-		for(i = 0; i < 32; i++)
+		for(i = 0; i < 34; i++)
 		{
 			if(m_gcfg2.has(id, gameSetting[i]))
 				emptyDom = false;
@@ -2733,6 +2735,7 @@ void CMenu::RemoveCover(const char *id)
 	fsop_deleteFile(CoverPath);
 	CoverPath = fmt("%s/%s.wfc", m_cacheDir.c_str(), id);
 	fsop_deleteFile(CoverPath);
+	m_gcfg2.remove(id, "alt_cover");
 }
 /* If wiiflow using IOS58 this switches to cIOS for certain functions and back to IOS58 when done */
 /* If wiiflow using cIOS no need to temp switch */

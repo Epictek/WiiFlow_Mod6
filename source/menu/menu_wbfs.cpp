@@ -21,7 +21,7 @@ void CMenu::_showWBFS(u8 op)
 			break;
 	};
 	m_btnMgr.show(m_configLblTitle);
-	m_btnMgr.setText(m_configBtnCenter, _t("cfgne6", L"Start"));
+	m_btnMgr.setText(m_configBtnCenter, (op == WO_REMOVE_GAME || op == WO_REMOVE_EMUSAVE) ? _t("cfgbnr6", L"Delete") : _t("cfgne6", L"Start"));
 	m_btnMgr.show(m_configBtnCenter);
 	m_btnMgr.show(m_configLblDialog);
 	m_btnMgr.show(m_configBtnBack);
