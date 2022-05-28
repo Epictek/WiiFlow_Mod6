@@ -55,10 +55,7 @@ void CMenu::_showDownload(void)
 	m_btnMgr.setText(m_configLbl[5], _t("dl26", L"Custom banners"));
 	m_btnMgr.setText(m_configLbl[6], _t("dl92", L"Disc labels"));
 
-	bool chan = false;
-	if((m_current_view & COVERFLOW_CHANNEL) || ((m_current_view & COVERFLOW_PLUGIN) && (m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E)) ||
-	m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E414E44))))) // plugin channels (emunand + realnand)
-		chan = true;
+	bool chan = (m_current_view & COVERFLOW_CHANNEL) ? true : false;
 	for(u8 i = 3; i < 7 - chan; ++i)
 	{
 		m_btnMgr.show(m_configLbl[i]);

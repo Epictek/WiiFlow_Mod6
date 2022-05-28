@@ -164,7 +164,7 @@ void CMenu::_PluginSettings()
 	}
 	m_cfg.setString(plugin_domain, "enabled_plugins", enabledMagics);
 	
-	if(m_refreshGameList && enabledPluginsCount > 0)
+	if(m_refreshGameList)
 	{
 		_srcTierBack(true);
 		_getCustomBgTex();

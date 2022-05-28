@@ -5,7 +5,7 @@
 vector<char> m_categories;
 static u8 curPage;
 char id[64];
-const char *catDomain = NULL;
+char catDomain[16];
 bool gameSet = false;
 
 void CMenu::_showCategorySettings(void)
@@ -68,27 +68,28 @@ void CMenu::_updateCatCheckboxes(void)
 
 void CMenu::_getGameCategories(const dir_discHdr *hdr)
 {	
+	memset(catDomain, 0, 16);
 	switch(hdr->type)
 	{
 		case TYPE_CHANNEL:
-			catDomain = "NAND";
+			sprintf(catDomain, "NAND");
 			break;
 		case TYPE_EMUCHANNEL:
-			catDomain = "CHANNELS";
+			sprintf(catDomain, "CHANNELS");
 			break;
 		case TYPE_HOMEBREW:
-			catDomain = "HOMEBREW";
+			sprintf(catDomain, "HOMEBREW");
 			break;
 		case TYPE_GC_GAME:
-			catDomain = "GAMECUBE";
+			sprintf(catDomain, "GAMECUBE");
 			break;
 		case TYPE_WII_GAME:
-			catDomain = "WII";
+			sprintf(catDomain, "GAMECUBE");
 			break;
 		default:
 			//! fix PluginMagicWord when multiple plugins are selected
 			strncpy(m_plugin.PluginMagicWord, fmt("%08x", hdr->settings[0]), 8); 
-			catDomain = m_plugin.PluginMagicWord;
+			sprintf(catDomain, m_plugin.PluginMagicWord);
 	}
 
 	memset(id, 0, 64);
@@ -276,20 +277,24 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		{
 			if(m_btnMgr.selected(m_configBtnCenter))
 			{
-				m_refreshGameList = true;
-				bool hiddenCat = false;
-				for(int j = 1; j < m_max_categories; ++j)
+				if(!fromGameSet || error(_t("errcfg5", L"Are you sure?"), true))
 				{
-					if(m_categories.at(j) == '2')
-					{	
-						hiddenCat = true;
-						continue;
+					m_refreshGameList = true;
+					bool hiddenCat = false;
+					for(int j = 1; j < m_max_categories; ++j)
+					{
+						if(m_categories.at(j) == '2')
+						{	
+							hiddenCat = true;
+							continue;
+						}
+						m_categories.at(j) = '0';
 					}
-					m_categories.at(j) = '0';
+					if(!hiddenCat)
+						m_categories.at(0) = '1';
+					_updateCatCheckboxes();
 				}
-				if(!hiddenCat)
-					m_categories.at(0) = '1';
-				_updateCatCheckboxes();
+				_showCategorySettings();
 			}
 			
 			for(u8 i = 0; i < 10; ++i)

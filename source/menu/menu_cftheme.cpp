@@ -359,14 +359,18 @@ bool CMenu::_cfTheme(void)
 	while(!m_exit)
 	{
 		_mainLoopCommon(true);
-		if(BTN_HOME_PRESSED)
+		if(BTN_HOME_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_cfThemeBtnCancel)))
 		{
-			m_coverflow.clear();
-			m_coverflow.unload();
-			m_coverflow.load(fmt("%s/%s.ini", m_coverflowsDir.c_str(), m_themeName.c_str()));
-			if(!m_coverflow.loaded())
-				m_coverflow.load(fmt("%s/default.ini", m_coverflowsDir.c_str()));
-			break;
+			if(error(_t("errcfg9", L"Quit without saving?"), true))
+			{
+				m_coverflow.clear();
+				m_coverflow.unload();
+				m_coverflow.load(fmt("%s/%s.ini", m_coverflowsDir.c_str(), m_themeName.c_str()));
+				if(!m_coverflow.loaded())
+					m_coverflow.load(fmt("%s/default.ini", m_coverflowsDir.c_str()));
+				break;
+			}
+			_showCFTheme(curParam, cfVersion, wide);
 		}
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 		{
@@ -408,21 +412,17 @@ bool CMenu::_cfTheme(void)
 		{
 			if(m_btnMgr.selected(m_cfThemeBtnSave))
 			{
-				CoverFlow.stopCoverLoader();
-				m_coverflow.save();
-				error(_t("errboot8", L"Wiiflow needs rebooting to apply changes."));
-				m_exit = true;
-				m_reload = true;
-				return true;
-			}
-			else if(m_btnMgr.selected(m_cfThemeBtnCancel))
-			{
-				m_coverflow.clear();
-				m_coverflow.unload();
-				m_coverflow.load(fmt("%s/%s.ini", m_coverflowsDir.c_str(), m_themeName.c_str()));
-				if(!m_coverflow.loaded())
-					m_coverflow.load(fmt("%s/default.ini", m_coverflowsDir.c_str()));
-				break;
+				const char *cfCfgFile = fmt("%s/%s.ini", m_coverflowsDir.c_str(), m_themeName.c_str());
+				if(error(wfmt(_fmt("errcfg8", L"Save changes to %s?"), cfCfgFile), true))
+				{
+					CoverFlow.stopCoverLoader();
+					m_coverflow.save();
+					error(_t("errboot8", L"Wiiflow needs rebooting to apply changes."));
+					m_exit = true;
+					m_reload = true;
+					return true;
+				}
+				_showCFTheme(curParam, cfVersion, wide);
 			}
 			else if(m_btnMgr.selected(m_cfThemeBtnAlt))
 			{

@@ -140,13 +140,18 @@ void CMenu::_configGui(void)
 			}
 			else if(m_btnMgr.selected(m_configBtnGo[1])) // adjust CF
 			{
-				m_refreshGameList = true;
-				_hideConfig();
-				_setMainBg();
-				if(_cfTheme())
-					break; // reboot if CF was modified due to possible memory leak with cf_theme
-				_setBg(m_configBg, m_configBg); // reset background after adjusting CF
-				_showConfigGui();
+				if(prevTheme != m_themeName)
+					break;
+				else
+				{
+					m_refreshGameList = true;
+					_hideConfig();
+					_setMainBg();
+					if(_cfTheme())
+						break; // reboot if CF was modified due to possible memory leak with cf_theme
+					_setBg(m_configBg, m_configBg); // reset background after adjusting CF
+					_showConfigGui();
+				}
 			}
 			else if(m_btnMgr.selected(m_checkboxBtn[2])) // import TDB categories
 			{

@@ -1,7 +1,8 @@
 
 #include "menu.hpp"
 
-void CMenu::error(const wstringEx &msg)
+// void CMenu::error(const wstringEx &msg)
+bool CMenu::error(const wstringEx &msg, bool dialog)
 {
 	_setBg(m_configBg, m_configBg);
 	SetupInput();
@@ -17,18 +18,32 @@ void CMenu::error(const wstringEx &msg)
 	
 	m_btnMgr.setText(m_configLblDialog, msg); // false = wrap
 	_showError();
+	if(dialog)
+		m_btnMgr.show(m_configBtnBack);
 
 	gprintf("Error msg: %s\n", msg.toUTF8().c_str());
 
 	m_btnMgr.down(); // btn OK selected
 
+	bool choice = false;
 	while(!m_exit)
 	{
 		_mainLoopCommon();
-		if((BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED) || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnCenter)))
+		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 			break;
+		else if(BTN_A_OR_2_PRESSED)
+		{
+			if(m_btnMgr.selected(m_configBtnBack))
+				break;
+			else if(m_btnMgr.selected(m_configBtnCenter))
+			{
+				choice = true;
+				break;
+			}
+		}
 	}
 	_hideConfigFull(true);
+	return choice;
 }
 
 void CMenu::_showError(void)

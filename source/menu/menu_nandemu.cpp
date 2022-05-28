@@ -468,9 +468,14 @@ bool CMenu::_configNandEmu(u8 startPage)
 					if(strlen(c) > 0)
 					{
 						const char *newNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(channel_domain, "partition")], emu_nands_dir, lowerCase(c).c_str());
-						if(fsop_MakeFolder(newNand))
-							error(wfmt(_fmt("errcfg1", L"%s created."), newNand));
-						_checkEmuNandSettings(EMU_NAND);
+						if(error(wfmt(_fmt("errcfg3", L"Create %s?"), newNand), true))
+						{
+							if(fsop_MakeFolder(newNand))
+							{
+								error(wfmt(_fmt("errcfg1", L"%s created."), newNand));
+								_checkEmuNandSettings(EMU_NAND);
+							}
+						}
 					}
 					_showNandEmu();
 				}
@@ -494,9 +499,12 @@ bool CMenu::_configNandEmu(u8 startPage)
 				//! Extract nand to emunand
 				else if(m_btnMgr.selected(m_configBtn[7]))
 				{
-					_hideConfig(true);
-					if(_NandDump(0)) // 0 = Full nand dump
-						ExtNand = true;
+					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(channel_domain, "partition")], emu_nands_dir, emuNands[curEmuNand].c_str());
+					if(error(wfmt(_fmt("errcfg4", L"Extract nand to %s?"), currentNand), true))
+					{
+						if(_NandDump(0)) // 0 = Full nand dump
+							ExtNand = true;
+					}
 					_showNandEmu();
 				}
 				//! Dump Wii channel coverflow list
@@ -1147,43 +1155,43 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 			error(_t("errneek4", L"Emunand must be on SD or USB1!"));
 			return false;
 		}
-		if(!m_cfg.getBool(channel_domain, "force_neek2o_sm", false))
-		{
-			m_prev_view = m_current_view;
-			channelsType = m_cfg.getInt(channel_domain, "channels_type", CHANNELS_REAL);
-			int prev_emupart = m_cfg.getInt(channel_domain, "partition", SD);
+		
+		m_prev_view = m_current_view;
+		channelsType = m_cfg.getInt(channel_domain, "channels_type", CHANNELS_REAL);
+		int prev_emupart = m_cfg.getInt(channel_domain, "partition", SD);
 
-			//! _loadList() gets channels_type in config, we can't use NANDemuView
-			if(channelsType != CHANNELS_EMU)
-				m_cfg.setInt(channel_domain, "channels_type", CHANNELS_EMU);
-			if(m_current_view != COVERFLOW_CHANNEL) // it might be COVERFLOW_PLUGIN or COVERFLOW_WII
+		//! _loadList() gets channels_type in config, we can't use NANDemuView
+		if(channelsType != CHANNELS_EMU)
+			m_cfg.setInt(channel_domain, "channels_type", CHANNELS_EMU);
+		if(m_current_view != COVERFLOW_CHANNEL) // it might be COVERFLOW_PLUGIN or COVERFLOW_WII
+		{
+			m_current_view = COVERFLOW_CHANNEL;
+			if(nand_type == SAVES_NAND)
 			{
-				m_current_view = COVERFLOW_CHANNEL;
-				if(nand_type == SAVES_NAND)
-				{
-					m_cfg.setInt(channel_domain, "partition", emupart);
-					m_cfg.setString(channel_domain, "current_emunand", savesNands[curSavesNand]);
-				}
+				m_cfg.setInt(channel_domain, "partition", emupart);
+				m_cfg.setString(channel_domain, "current_emunand", savesNands[curSavesNand]);
 			}
-			
-			_loadList(); // to get actual emunand m_gameList.size()
-			
-			if(channelsType != CHANNELS_EMU)
-				m_cfg.setInt(channel_domain, "channels_type", channelsType);
-			if(m_prev_view != COVERFLOW_CHANNEL)
+		}
+		
+		_loadList(); // to get actual emunand m_gameList.size()
+		
+		if(channelsType != CHANNELS_EMU)
+			m_cfg.setInt(channel_domain, "channels_type", channelsType);
+		if(m_prev_view != COVERFLOW_CHANNEL)
+		{
+			m_current_view = m_prev_view;
+			if(nand_type == SAVES_NAND)
 			{
-				m_current_view = m_prev_view;
-				if(nand_type == SAVES_NAND)
-				{
-					m_cfg.setInt(channel_domain, "partition", prev_emupart);
-					m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
-				}
+				m_cfg.setInt(channel_domain, "partition", prev_emupart);
+				m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
 			}
-			m_refreshGameList = true;
-			
-			if(m_gameList.size() > 48) // max number of channels displayed in system menu
+		}
+		m_refreshGameList = true;
+		
+		if(m_gameList.size() > 48) // max number of channels displayed in system menu
+		{
+			if(!error(wfmt(_fmt("errneek6", L"Neek2o will fail to launch %i channels, try anyway?"), m_gameList.size()), true))
 			{
-				error(_t("errneek6", L"Too many channels to launch Neek2o system menu!"));
 				if(nand_type == SAVES_NAND)
 					_loadList();
 				return false;

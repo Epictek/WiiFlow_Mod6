@@ -146,12 +146,17 @@ void CMenu::_CheatSettings(const char *id)
 			
 			if(m_btnMgr.selected(m_configBtnCenter) && txtavailable && !m_locked) // delete
 			{
-				fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id));
-				fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
-				m_gcfg2.remove(id, "cheat");
-				m_gcfg2.remove(id, "hooktype");
-				error(_t("cheat99", L"Cheat codes deleted"));
-				break;
+				if(error(_t("errcfg5", L"Are you sure?"), true))
+				{
+					fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id));
+					fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
+					m_gcfg2.remove(id, "cheat");
+					m_gcfg2.remove(id, "hooktype");
+					error(_t("cheat99", L"Cheat codes deleted"));
+					break;
+				}
+				else
+					_showCheatSettings();
 			}
 			else if(m_btnMgr.selected(m_configBtnCenter) && !txtavailable) // download
 			{

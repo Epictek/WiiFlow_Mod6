@@ -20,16 +20,12 @@ void CMenu::_showCoverBanner(void)
 	m_btnMgr.setText(m_configLbl[6], _t("cfgbnr99", L"Download disc label"));
 	m_btnMgr.setText(m_configLbl[7], _t("cfgbnr98", L"Delete disc label"));
 
-	bool chan = false;
-	if((m_current_view & COVERFLOW_CHANNEL) || ((m_current_view & COVERFLOW_PLUGIN) && (m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E)) ||
-	m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E414E44))))) // plugin channels (emunand + realnand)
-		chan = true;
-	
 	for(u8 i = 2; i < 7; i = i + 2)
 		m_btnMgr.setText(m_configBtn[i], _t("cfg4", L"Download"));
 	for(u8 i = 3; i < 8; i = i + 2)
 		m_btnMgr.setText(m_configBtn[i], _t("cfgbnr6", L"Delete"));
 	
+	bool chan = (m_current_view & COVERFLOW_CHANNEL) ? true : false;
 	for(u8 i = 2; i < 8 - (chan*2); ++i)
 	{
 		m_btnMgr.show(m_configLbl[i]);
@@ -71,23 +67,31 @@ void CMenu::_CoverBanner(void)
 			}
 			else if(m_btnMgr.selected(m_configBtn[3])) // delete cover
 			{
-				RemoveCover(id);
-				error(_t("dlmsg14", L"Done."));
+				if(error(_t("errcfg5", L"Are you sure?"), true))
+				{
+					RemoveCover(id);
+					error(_t("dlmsg14", L"Done."));
+				}
 				_showCoverBanner();
 			}
-			else if(m_btnMgr.selected(m_configBtn[4]) || m_btnMgr.selected(m_configBtn[5])) // delete + download custom banner
+			else if(m_btnMgr.selected(m_configBtn[4])) // download custom banner
 			{
-				bool download = m_btnMgr.selected(m_configBtn[4]);
 				_hideConfig(true);
-				fsop_deleteFile(fmt("%s/%s.bnr", m_bnrCacheDir.c_str(), id));
-				fsop_deleteFile(fmt("%s/%s.bnr", m_customBnrDir.c_str(), id));
-				fsop_deleteFile(fmt("%s/%.3s.bnr", m_bnrCacheDir.c_str(), id));
-				fsop_deleteFile(fmt("%s/%.3s.bnr", m_customBnrDir.c_str(), id));
-				if(download)
-					_download(id, 2);
-				else
-					error(_t("dlmsg14", L"Done."));
+				_download(id, 2);
 				m_newGame = true;
+				_showCoverBanner();
+			}
+			else if(m_btnMgr.selected(m_configBtn[5])) // delete custom banner
+			{
+				if(error(_t("errcfg5", L"Are you sure?"), true))
+				{
+					fsop_deleteFile(fmt("%s/%s.bnr", m_bnrCacheDir.c_str(), id));
+					fsop_deleteFile(fmt("%s/%s.bnr", m_customBnrDir.c_str(), id));
+					fsop_deleteFile(fmt("%s/%.3s.bnr", m_bnrCacheDir.c_str(), id));
+					fsop_deleteFile(fmt("%s/%.3s.bnr", m_customBnrDir.c_str(), id));
+					error(_t("dlmsg14", L"Done."));
+					m_newGame = true;
+				}
 				_showCoverBanner();
 			}
 			else if(m_btnMgr.selected(m_configBtn[6])) // download disc label
@@ -98,10 +102,11 @@ void CMenu::_CoverBanner(void)
 			}
 			else if(m_btnMgr.selected(m_configBtn[7])) // delete disc label
 			{
-				_hideConfig(true);
-				fsop_deleteFile(fmt("%s/%s.png", m_cartDir.c_str(), id));
-				m_gcfg2.remove(id, "alt_disc");
-				error(_t("dlmsg14", L"Done."));
+				if(error(_t("errcfg5", L"Are you sure?"), true))
+				{
+					fsop_deleteFile(fmt("%s/%s.png", m_cartDir.c_str(), id));
+					error(_t("dlmsg14", L"Done."));
+				}
 				_showCoverBanner();
 			}
 		}

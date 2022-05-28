@@ -103,33 +103,7 @@ void CMenu::_configMisc(void)
 				if(strlen(c) > 0)
 				{
 					string s = capitalize(lowerCase(c));
-					m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfg824", L"This cannot be undone. Are you sure you want to add category: %s?"), s.c_str()));
-					m_btnMgr.show(m_configLblDialog);
-					m_btnMgr.show(m_configBtnCenter);
-					m_btnMgr.show(m_configBtnBack);
-					bool choice = false;
-					while(!m_exit)
-					{
-						_mainLoopCommon();
-						if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
-							break;
-						else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
-							m_btnMgr.up();
-						else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)
-							m_btnMgr.down();
-						else if(BTN_A_OR_2_PRESSED)
-						{
-							if(m_btnMgr.selected(m_configBtnBack))
-								break;
-							else if(m_btnMgr.selected(m_configBtnCenter))
-							{
-								choice = true;
-								break;
-							}
-						}
-					}
-					_hideConfigFull(true);
-					if(choice)
+					if(error(wfmt(_fmt("cfg824", L"This cannot be undone. Are you sure you want to add category: %s?"), s.c_str()), true))
 					{
 						m_cat.setString(general_domain, fmt("cat%d", m_max_categories), s);
 						m_max_categories++;

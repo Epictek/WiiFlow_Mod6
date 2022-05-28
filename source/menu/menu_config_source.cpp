@@ -148,10 +148,13 @@ void CMenu::_configSource(void)
 			}
 			else if(m_btnMgr.selected(m_configBtn[8])) // clear sourceflow cache
 			{
-				m_vid.waitMessage(0.5f); //
-				fsop_deleteFolder(fmt("%s/sourceflow", m_cacheDir.c_str()));
-				clear_SF = true;
-				error(_t("dlmsg14", L"Done."));
+				if(error(_t("errcfg5", L"Are you sure?"), true))
+				{
+					m_vid.waitMessage(0.5f); //
+					fsop_deleteFolder(fmt("%s/sourceflow", m_cacheDir.c_str()));
+					clear_SF = true;
+					error(_t("dlmsg14", L"Done."));
+				}
 				_showConfigSource();
 			}
 

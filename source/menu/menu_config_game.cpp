@@ -1053,17 +1053,21 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 				//! EXTRACT SAVE
 				else if(m_btnMgr.selected(m_configBtn[6]))
 				{
-					_hideConfig(true);
-					if(!_AutoExtractSave(GameHdr->id))
-						error(_t("cfgg50", L"No save to extract!"));
+					if(error(_t("errcfg5", L"Are you sure?"), true))
+					{
+						if(!_AutoExtractSave(GameHdr->id))
+							error(_t("cfgg50", L"No save to extract!"));
+					}
 					_showGameSettings(false, dvd);
 				}
 				//! FLASH SAVE
 				else if(m_btnMgr.selected(m_configBtn[7]))
 				{
-					_hideConfig(true);
-					if(!_FlashSave(GameHdr->id))
-						error(_t("cfgg51", L"No save to flash!"));
+					if(error(_t("errcfg5", L"Are you sure?"), true))
+					{
+						if(!_FlashSave(GameHdr->id))
+							error(_t("cfgg51", L"No save to flash!"));
+					}
 					_showGameSettings(false, dvd);
 				}
 				//! BACKUP - REMOVE - RESTORE EMUNAND MEMCARD OR SAVE

@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update May 13, 2022.
+Update May 26, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -591,8 +591,6 @@ wifi_gecko_port=4405
 Channel settings under [CHANNELS] domain
 ----------------------------------------
 
-- Force launching of Neek2o system menu even if more than 48 channels are installed on emunand (default no)
-force_neek2o_sm=no
 - Use "vwiinands" folder for emunand on WiiU instead of nands (default yes)
 use_vwiinands=yes
 

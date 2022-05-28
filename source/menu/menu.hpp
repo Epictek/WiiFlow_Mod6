@@ -41,7 +41,7 @@ public:
 	CMenu();
 	int main(void);
 	bool init(bool usb_mounted);
-	void error(const wstringEx &msg);
+	bool error(const wstringEx &msg, bool dialog = false);
 	// void terror(const char *key, const wchar_t *msg) { error(_fmt(key, msg)); }
 	void cleanup(void);
 	void directlaunch(const char *GameID);
@@ -617,7 +617,7 @@ private:
 	void _showProgress(void);
 	void _showGame(bool fanart = false, bool anim = false);
 	void _showDownload(void);
-	void _showConfigDownload(bool instant = false, bool fromGameSet = false);
+	void _showConfigDownload(bool instant = false);
 	void _showAbout(void);
 	void _showSource(void);
 	void _showPluginSettings(void);

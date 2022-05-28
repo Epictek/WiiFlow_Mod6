@@ -81,13 +81,16 @@ void CMenu::_getCustomBgTex()
 		{
 			m_plugin.PluginMagicWord[0] = '\0';
 			u8 i = 0;
+			bool match = true;
+			vector<string> magics;
+			string first_pf = "";
 			switch(m_current_view)
 			{
 				case COVERFLOW_CHANNEL:
 					if(m_cfg.getInt(channel_domain, "channels_type") & CHANNELS_REAL)
 						strncpy(m_plugin.PluginMagicWord, "4E414E44", 9);
 					else
-						strncpy(m_plugin.PluginMagicWord, "454E414E", 9);					
+						strncpy(m_plugin.PluginMagicWord, "454E414E", 9);
 					break;
 				case COVERFLOW_HOMEBREW:
 					strncpy(m_plugin.PluginMagicWord, "48425257", 9);
@@ -96,21 +99,30 @@ void CMenu::_getCustomBgTex()
 					strncpy(m_plugin.PluginMagicWord, "4E47434D", 9);
 					break;
 				case COVERFLOW_PLUGIN:
-					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
-					if(m_plugin.PluginExist(i))
+					magics = m_cfg.getStrings(plugin_domain, "enabled_plugins", ',');
+					if(magics.size() > 0)
 					{
-						strncpy(m_plugin.PluginMagicWord, fmt("%08x", m_plugin.GetPluginMagic(i)), 8);
-						if(strncmp(m_plugin.PluginMagicWord, "484252", 6) == 0) // custom hb plugin
-							strncpy(m_plugin.PluginMagicWord, "48425257", 9);
+						//! in case of multiple plugins check if all are for the same platform
+						first_pf = m_platform.getString("PLUGINS", magics[0]);
+						for(i = 1; i < magics.size(); i++)
+						{
+							if(first_pf != m_platform.getString("PLUGINS", magics[i]))
+							{
+								match = false;
+								break;
+							}
+						}
+						//! if multiple platforms default to HOMEBREW
+						strncpy(m_plugin.PluginMagicWord, match ? magics[0].c_str() : "48425257", match ? 8 : 9);
 					}
 					break;
-				default: // wii
+				default: // COVERFLOW_WII
 					strncpy(m_plugin.PluginMagicWord, "4E574949", 9);
 			}
 			if(strlen(m_plugin.PluginMagicWord) == 8)
 				fn = m_platform.getString("PLUGINS", m_plugin.PluginMagicWord, "");
-		}
-		if(fn.length() > 0 && !(m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount != 1)) // no custom background for multiple plugins
+		}	
+		if(fn.length() > 0)
 		{
 			if(TexHandle.fromImageFile(m_mainCustomBg[curCustBg], fmt("%s/%s/%s.png", m_bckgrndsDir.c_str(), m_themeName.c_str(), fn.c_str())) != TE_OK)
 			{	

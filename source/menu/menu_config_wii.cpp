@@ -359,45 +359,36 @@ void CMenu::_configWii(u8 startPage)
 					if(strlen(c) > 0)
 					{
 						const char *newNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, lowerCase(c).c_str());
-						if(fsop_MakeFolder(newNand))
-							error(wfmt(_fmt("errcfg1", L"%s created."), newNand));
-						_checkEmuNandSettings(SAVES_NAND);
+						if(error(wfmt(_fmt("errcfg3", L"Create %s?"), newNand), true))
+						{
+							if(fsop_MakeFolder(newNand))
+							{
+								error(wfmt(_fmt("errcfg1", L"%s created."), newNand));
+								_checkEmuNandSettings(SAVES_NAND);
+							}
+						}
 					}
 					_showConfigWii();
 				}
-				//! Extract all saves from nand
-				else if(m_btnMgr.selected(m_configBtn[6]))
+				//! Extract all or missing saves from nand
+				else if(m_btnMgr.selected(m_configBtn[6]) || m_btnMgr.selected(m_configBtn[7]))
 				{
-					_hideConfig(true);
-					m_prev_view = m_current_view;
-					if(m_prev_view != COVERFLOW_WII)
+					bool all = m_btnMgr.selected(m_configBtn[6]);
+					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, m_cfg.getString(wii_domain, "current_save_emunand").c_str());
+					if(error(wfmt(_fmt("errcfg6", L"Extract saves to %s?"), currentNand), true))
 					{
-						m_current_view = COVERFLOW_WII; // it might be COVERFLOW_PLUGIN
-						_loadList();
-					}
-					_NandDump(2); // 2 = ALL saves
-					if(m_prev_view != m_current_view)
-					{
-						m_current_view = m_prev_view;
-						m_refreshGameList = true;
-					}
-					_showConfigWii();
-				}
-				//! Extract missing saves from nand
-				else if(m_btnMgr.selected(m_configBtn[7]))
-				{
-					_hideConfig(true);
-					m_prev_view = m_current_view;
-					if(m_prev_view != COVERFLOW_WII)
-					{
-						m_current_view = COVERFLOW_WII; // it might be COVERFLOW_PLUGIN
-						_loadList();
-					}
-					_NandDump(1); // 1 = MISSING saves
-					if(m_prev_view != m_current_view)
-					{
-						m_current_view = m_prev_view;
-						m_refreshGameList = true;
+						m_prev_view = m_current_view;
+						if(m_prev_view != COVERFLOW_WII)
+						{
+							m_current_view = COVERFLOW_WII; // it might be COVERFLOW_PLUGIN
+							_loadList();
+						}
+						_NandDump(1 + all); // 1 = MISSING saves, 2 = ALL saves
+						if(m_prev_view != m_current_view)
+						{
+							m_current_view = m_prev_view;
+							m_refreshGameList = true;
+						}
 					}
 					_showConfigWii();
 				}
