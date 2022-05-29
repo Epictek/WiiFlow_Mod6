@@ -152,7 +152,6 @@ void CMenu::_CheatSettings(const char *id)
 					fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
 					m_gcfg2.remove(id, "cheat");
 					m_gcfg2.remove(id, "hooktype");
-					error(_t("cheat99", L"Cheat codes deleted"));
 					break;
 				}
 				else
@@ -239,7 +238,7 @@ void CMenu::_showCheatSettings(bool instant)
 	
 	_hideCheckboxes(true); // reset checkboxes
 	
-	m_btnMgr.setText(m_configLblTitle, _t("cfgg15", L"Cheat codes"));
+	m_btnMgr.setText(m_configLblTitle, CoverFlow.getTitle());
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
 	

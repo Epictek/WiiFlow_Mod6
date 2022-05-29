@@ -906,7 +906,7 @@ int CMenu::main(void)
 						break;
 					if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
 					_setMainBg();
-					if(m_refreshGameList) // if changes were made to favorites, parental lock, or categories
+					if(m_refreshGameList) // if changes were made to categories
 					{
 						_initCF();
 						m_refreshGameList = false;

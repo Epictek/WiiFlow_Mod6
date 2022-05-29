@@ -7,16 +7,21 @@ static u8 curPage;
 char id[64];
 char catDomain[16];
 bool gameSet = false;
+bool renameCat = false;
 
 void CMenu::_showCategorySettings(void)
 {
+	m_btnMgr.setText(m_configLblTitle, renameCat ? _t("cfg832", L"Rename category") : gameSet ? CoverFlow.getTitle() : _t("cat1", L"Select categories"));
 	m_btnMgr.show(m_configLblTitle);
-	if(gameSet)
-		m_btnMgr.setText(m_configBtnCenter, _t("cd2", L"Erase"));
-	else
-		m_btnMgr.setText(m_configBtnCenter, _t("none", L"None"));
-	m_btnMgr.show(m_configBtnCenter);
+	m_btnMgr.setText(m_configBtnCenter, gameSet ? _t("cfg1", L"Settings") : _t("none", L"None"));
+	if(!renameCat)
+		m_btnMgr.show(m_configBtnCenter);
 	m_btnMgr.show(m_configBtnBack);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+		if(m_configLblUser[i] != -1)
+			m_btnMgr.show(m_configLblUser[i]);
+		
 	_updateCatCheckboxes();
 }
 
@@ -26,6 +31,7 @@ void CMenu::_updateCatCheckboxes(void)
 	{
 		m_btnMgr.hide(m_configLbl[i], true);
 		m_btnMgr.hide(m_checkboxBtn[i], true);
+		m_btnMgr.hide(m_configBtnGo[i], true);
 	}
 	
 	if(m_max_categories > 11)
@@ -40,21 +46,26 @@ void CMenu::_updateCatCheckboxes(void)
 		int j = i + 1 + ((curPage - 1) * 10);
 		if(j == m_max_categories)
 			break;
-		switch(m_categories[j])
+		if(!renameCat)
 		{
-			case '0':
-				m_checkboxBtn[i] = m_configChkOff[i];
-				break;
-			case '1':
-				m_checkboxBtn[i] = m_configChkOn[i];
-				break;
-			case '2':
-				m_checkboxBtn[i] = m_configChkHid[i];
-				break;
-			default:
-				m_checkboxBtn[i] = m_configChkReq[i];
+			switch(m_categories[j])
+			{
+				case '0':
+					m_checkboxBtn[i] = m_configChkOff[i];
+					break;
+				case '1':
+					m_checkboxBtn[i] = m_configChkOn[i];
+					break;
+				case '2':
+					m_checkboxBtn[i] = m_configChkHid[i];
+					break;
+				default:
+					m_checkboxBtn[i] = m_configChkReq[i];
+			}
+			m_btnMgr.show(m_checkboxBtn[i]);
 		}
-		m_btnMgr.show(m_checkboxBtn[i]);
+		else
+			m_btnMgr.show(m_configBtnGo[i]);
 		
 		//! display translated category name if available
 		string keyCategName = m_cat.getString(general_domain, fmt("cat%d", j));
@@ -84,7 +95,7 @@ void CMenu::_getGameCategories(const dir_discHdr *hdr)
 			sprintf(catDomain, "GAMECUBE");
 			break;
 		case TYPE_WII_GAME:
-			sprintf(catDomain, "GAMECUBE");
+			sprintf(catDomain, "WII");
 			break;
 		default:
 			//! fix PluginMagicWord when multiple plugins are selected
@@ -114,8 +125,6 @@ void CMenu::_getGameCategories(const dir_discHdr *hdr)
 	}
 	else
 		m_cat.remove(catDomain, id);
-	if(gameSet)
-		m_btnMgr.setText(m_configLblTitle, CoverFlow.getTitle());
 }
 
 void CMenu::_setGameCategories(void)
@@ -134,7 +143,6 @@ void CMenu::_setGameCategories(void)
 
 void CMenu::_CategorySettings(bool fromGameSet)
 {
-	const dir_discHdr *hdr = CoverFlow.getHdr();
 	gameSet = fromGameSet;
 	
 	_setBg(m_configBg, m_configBg);
@@ -148,8 +156,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 	m_categories.assign(m_max_categories, '0');
 
 	if(fromGameSet)
-		_getGameCategories(hdr);
-
+		_getGameCategories(CoverFlow.getHdr());
 	else
 	{
 		string requiredCats = m_cat.getString(general_domain, "required_categories", "");
@@ -182,8 +189,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 				int k = (static_cast<int>(hiddenCats[j])) - 32;
 				m_categories.at(k) = '2';
 			}
-		}		
-		m_btnMgr.setText(m_configLblTitle, _t("cat1", L"Select categories"));
+		}
 	}
 	_showCategorySettings();
 	
@@ -221,7 +227,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 				m_cat.setString(general_domain, "hidden_categories", newHidCats);
 				m_cat.setString(general_domain, "required_categories", newReqCats);
 			}
-			else // not from game settings
+			else // from game settings
 			{
 				_setGameCategories();
 			}
@@ -277,7 +283,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		{
 			if(m_btnMgr.selected(m_configBtnCenter))
 			{
-				if(!fromGameSet || error(_t("errcfg5", L"Are you sure?"), true))
+				if(!fromGameSet)
 				{
 					m_refreshGameList = true;
 					bool hiddenCat = false;
@@ -294,14 +300,21 @@ void CMenu::_CategorySettings(bool fromGameSet)
 						m_categories.at(0) = '1';
 					_updateCatCheckboxes();
 				}
-				_showCategorySettings();
+				else
+				{
+					_setGameCategories();
+					_hideConfig(true);
+					_CategoryConfig();
+					_getGameCategories(CoverFlow.getHdr());
+					_showCategorySettings();
+				}
 			}
 			
 			for(u8 i = 0; i < 10; ++i)
 			{
-				m_refreshGameList = true;
 				if(m_btnMgr.selected(m_checkboxBtn[i]))
 				{
+					m_refreshGameList = true;
 					int j = i + 1 + ((curPage - 1) * 10);
 					if(fromGameSet)
 					{
@@ -337,11 +350,171 @@ void CMenu::_CategorySettings(bool fromGameSet)
 					m_btnMgr.setSelected(m_checkboxBtn[i]);
 					break;
 				}
+				
+				if(m_btnMgr.selected(m_configBtnGo[i]))
+				{
+					_hideConfig(true);
+					char *c = NULL;
+					c = _keyboard();
+					if(strlen(c) > 0)
+					{
+						string s = capitalize(lowerCase(c));
+						if(error(wfmt(_fmt("errcfg10", L"Categories used by GameTDB will be recreated if renamed. Rename category to: %s?"), s.c_str()), true))
+						{
+							int j = i + 1 + ((curPage - 1) * 10);
+							m_cat.setString(general_domain, fmt("cat%d", j), s);
+						}
+					}
+					_showCategorySettings();
+					break;
+				}
 			}
 		}
 	}
 	_hideConfig(true);
 }
+
+/*********************************************************************************************************/
+
+void CMenu::_showCategoryConfig(bool instant)
+{
+	_hideCheckboxes(true); // reset checkboxes
+	
+	m_btnMgr.setText(m_configLblTitle, _t("cfg828", L"Category settings"));
+	m_btnMgr.show(m_configLblTitle);
+	m_btnMgr.show(m_configBtnBack);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+		if(m_configLblUser[i] != -1)
+			m_btnMgr.show(m_configLblUser[i]);
+	
+	m_btnMgr.setText(m_configLbl[2], _t("cfg829", L"Erase categories for this game"));
+	m_btnMgr.setText(m_configBtn[2], _t("cd2", L"Erase"));
+	
+	m_btnMgr.setText(m_configLbl[3], _t("cfg830", L"GameTDB categories for this game"));
+	m_btnMgr.setText(m_configBtn[3], _t("set", L"Set"));
+	
+	m_btnMgr.setText(m_configLbl[4], _t("cfg831", L"GameTDB categories for all games"));
+	m_checkboxBtn[4] = m_cfg.getBool(general_domain, "tdb_genres", 0) == 0 ? m_configChkOff[4] : m_configChkOn[4];
+	m_btnMgr.show(m_checkboxBtn[4], instant);
+	
+	m_btnMgr.setText(m_configLbl[5], _t("cfg820", L"Add new category"));
+	
+	m_btnMgr.setText(m_configLbl[6], _t("cfg832", L"Rename category"));
+	
+	for(u8 i = 2; i < 7; ++i)
+	{
+		m_btnMgr.show(m_configLbl[i], instant);
+		if(i < 4)
+			m_btnMgr.show(m_configBtn[i], instant);
+		else if(i > 4)
+			m_btnMgr.show(m_configBtnGo[i], instant);
+	}
+}
+
+void CMenu::_CategoryConfig(void)
+{
+	bool prevGenres = tdb_genres;
+	
+	SetupInput();
+	
+	_showCategoryConfig();
+	
+	while(!m_exit)
+	{
+		_mainLoopCommon();
+		
+		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
+			break;
+		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
+			m_btnMgr.up();
+		else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)
+			m_btnMgr.down();
+		else if(BTN_A_OR_2_PRESSED)
+		{
+			if(m_btnMgr.selected(m_configBtnBack))
+				break;
+			else if(m_btnMgr.selected(m_configBtn[2])) // erase categories for this game
+			{
+				if(error(_t("errcfg5", L"Are you sure?"), true))
+				{
+					m_refreshGameList = true;
+					m_categories.assign(m_max_categories, '0');
+					_setGameCategories();
+				}
+				_showCategoryConfig();
+			}
+			else if(m_btnMgr.selected(m_configBtn[3])) // gameTDB categories for this game
+			{
+				if(error(_t("errcfg11", L"Categories that don't exist will be automatically added."), true))
+					_setTDBCategories(CoverFlow.getHdr());
+				_showCategoryConfig();
+			}
+			else if(m_btnMgr.selected(m_checkboxBtn[4])) // gameTDB categories for all games
+			{
+				if(!tdb_genres && !fsop_FileExist(fmt("%s/wiitdb.xml", m_settingsDir.c_str())))
+				{
+					error(_t("errtdb", L"Download GameTDB to use this feature."));
+					_download();
+					_showCategoryConfig();
+				}
+				else
+				{
+					if(!tdb_genres)
+						error(_t("errcfg11", L"Categories that don't exist will be automatically added."));
+					tdb_genres = !tdb_genres;
+					m_cfg.setBool(general_domain, "tdb_genres", tdb_genres);
+					_showCategoryConfig(true);
+				}
+				m_btnMgr.setSelected(m_checkboxBtn[4]);
+			}
+			else if(m_btnMgr.selected(m_configBtnGo[5])) // add new category
+			{
+				_hideConfig();
+				char *c = NULL;
+				c = _keyboard();
+				if(strlen(c) > 0)
+				{
+					string s = capitalize(lowerCase(c));
+					if(error(wfmt(_fmt("cfg824", L"This cannot be undone. Are you sure you want to add category: %s?"), s.c_str()), true))
+					{
+						m_cat.setString(general_domain, fmt("cat%d", m_max_categories), s);
+						m_max_categories++;
+						m_categories.resize(m_max_categories, '0');
+						m_cat.setInt(general_domain, "numcategories", m_max_categories);
+					}
+				}
+				_showCategoryConfig();
+			}
+			else if(m_btnMgr.selected(m_configBtnGo[6])) // rename category
+			{
+				_hideConfig(true);
+				renameCat = true;
+				_CategorySettings(true);
+				renameCat = false;
+				_showCategoryConfig();
+			}
+		}
+	}
+	
+	/* Import TDB categories */
+	if(prevGenres == false && tdb_genres == true) // if tdb_genres was false and now true
+	{
+		m_refreshGameList = true;
+		m_vid.waitMessage(0.5f);
+		for(vector<dir_discHdr>::iterator tmp_hdr = m_gameList.begin(); tmp_hdr != m_gameList.end(); ++tmp_hdr)
+			_setTDBCategories(&(*(tmp_hdr)));
+		_hideWaitMessage();
+		m_categories.assign(m_max_categories, '0');
+		const char *domains[] = {WII_DOMAIN, GC_DOMAIN, CHANNEL_DOMAIN, PLUGIN_DOMAIN};
+		for(u8 i = 0; i < 4; i++)
+			m_cfg.setBool(domains[i], "update_cache", true);
+	}	
+
+	_hideConfig(true);
+}
+
+/*********************************************************************************************************/
 
 /** Simple set of basic categories, don't modify order unless you modify _setTDBCategories() **/
 static const char TDBCategories[20][16] =

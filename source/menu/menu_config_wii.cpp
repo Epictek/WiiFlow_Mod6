@@ -361,11 +361,8 @@ void CMenu::_configWii(u8 startPage)
 						const char *newNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, lowerCase(c).c_str());
 						if(error(wfmt(_fmt("errcfg3", L"Create %s?"), newNand), true))
 						{
-							if(fsop_MakeFolder(newNand))
-							{
-								error(wfmt(_fmt("errcfg1", L"%s created."), newNand));
-								_checkEmuNandSettings(SAVES_NAND);
-							}
+							fsop_MakeFolder(newNand);
+							_checkEmuNandSettings(SAVES_NAND);
 						}
 					}
 					_showConfigWii();

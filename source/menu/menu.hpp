@@ -637,6 +637,7 @@ private:
 	void _showAddGame(void);
 	void _showCF(bool refreshList = false);
 	void _showKeyboard(void);
+	void _showCategoryConfig(bool instant = false);
 
 	void _updateSourceBtns(void);
 	void _updatePluginText(void);
@@ -669,6 +670,7 @@ private:
 	bool _launchNeek2oChannel(int ExitTo, int nand_type);
 	char *_keyboard(bool search = false); //
 	void _setPluginPath(u8 pos, u8 mode); //
+	void _CategoryConfig(void); //
 	
 	void _config(void);
 	void _configGui(void);

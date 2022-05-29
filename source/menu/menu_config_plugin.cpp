@@ -97,7 +97,8 @@ void CMenu::_showConfigPlugin(bool instant)
 		
 		//! File browser
 		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
-		m_btnMgr.show(m_configBtnCenter);
+		if(enabledPluginsCount == 1)
+			m_btnMgr.show(m_configBtnCenter);
 
 		m_btnMgr.setText(m_configLbl[start_pos], _t("cfg727", L"Use plugin database titles"));
 		m_checkboxBtn[start_pos] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[start_pos] : m_configChkOn[start_pos]; // default true
@@ -228,18 +229,10 @@ void CMenu::_configPlugin(u8 startPage)
 				else if(m_btnMgr.selected(m_configBtnCenter)) // file explorer
 				{
 					_hideConfig(true);
-					if(enabledPluginsCount == 1)
-					{
-						u8 i = 0;
-						while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
-						u32 plmagic =  m_plugin.GetPluginMagic(i);
-						_pluginExplorer(m_plugin.GetExplorerPath(plmagic), plmagic, false); // false = not from source
-					}
-					else
-					{
-						string gameDir(fmt("%s:/", DeviceName[m_cfg.getInt(plugin_domain, "partition", SD)]));
-						_FileExplorer(gameDir.c_str());
-					}
+					u8 i = 0;
+					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
+					u32 plmagic = m_plugin.GetPluginMagic(i);
+					_pluginExplorer(m_plugin.GetExplorerPath(plmagic), plmagic, false); // false = not from source
 					_showConfigPlugin();
 				}
 				else

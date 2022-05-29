@@ -25,35 +25,31 @@ void CMenu::_showConfigGui(bool instant)
 	//! Adjust CF
 	m_btnMgr.setText(m_configLbl[1], _t("cfgc4", L"Adjust coverflow"));
 	m_btnMgr.show(m_configBtnGo[1], instant);
-	//! Import TDB categories
-	m_btnMgr.setText(m_configLbl[2], _t("cfg780", L"Fetch categories from GameTDB"));
-	m_checkboxBtn[2] = m_cfg.getOptBool(general_domain, "tdb_genres", 0) == 0 ? m_configChkOff[2] : m_configChkOn[2];
 	//! Show game banner and plugin snapshot (turns on/off banner sound)
-	m_btnMgr.setText(m_configLbl[3], _t("cfg779", L"Show game banner"));
-	m_checkboxBtn[3] = m_bnrSndVol == 0 ? m_configChkOff[3] : m_configChkOn[3];
+	m_btnMgr.setText(m_configLbl[2], _t("cfg779", L"Show game banner"));
+	m_checkboxBtn[2] = m_bnrSndVol == 0 ? m_configChkOff[2] : m_configChkOn[2];
 	//! Show banner as background in game settings
-	m_btnMgr.setText(m_configLbl[4], _t("cfg705", L"Show banner in game settings"));
-	m_checkboxBtn[4] = m_cfg.getOptBool(general_domain, "banner_in_settings", 1) == 0 ? m_configChkOff[4] : m_configChkOn[4];
+	m_btnMgr.setText(m_configLbl[3], _t("cfg705", L"Show banner in game settings"));
+	m_checkboxBtn[3] = m_cfg.getOptBool(general_domain, "banner_in_settings", 1) == 0 ? m_configChkOff[3] : m_configChkOn[3];
 	//! CF covers box mode
-	m_btnMgr.setText(m_configLbl[5], _t("cfg726", L"Covers box mode"));
-	m_checkboxBtn[5] = m_cfg.getOptBool(general_domain, "box_mode", 1) == 0 ? m_configChkOff[5] : m_configChkOn[5];
+	m_btnMgr.setText(m_configLbl[4], _t("cfg726", L"Covers box mode"));
+	m_checkboxBtn[4] = m_cfg.getOptBool(general_domain, "box_mode", 1) == 0 ? m_configChkOff[4] : m_configChkOn[4];
 	//! Use HQ covers
-	m_btnMgr.setText(m_configLbl[6], _t("cfg713", L"Use HQ covers"));
-	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "cover_use_hq", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
+	m_btnMgr.setText(m_configLbl[5], _t("cfg713", L"Use HQ covers"));
+	m_checkboxBtn[5] = m_cfg.getOptBool(general_domain, "cover_use_hq", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
 	//! Memorize favorite mode state when returning to CF
-	m_btnMgr.setText(m_configLbl[7], _t("cfgd5", L"Save favorite mode state"));
-	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "save_favorites_mode", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
+	m_btnMgr.setText(m_configLbl[6], _t("cfgd5", L"Save favorite mode state"));
+	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "save_favorites_mode", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
 	//! Wiimote vibration
-	m_btnMgr.setText(m_configLbl[8], _t("cfg709", L"Rumble"));
-	m_checkboxBtn[8] = m_cfg.getOptBool(general_domain, "rumble", 1) == 0 ? m_configChkOff[8] : m_configChkOn[8];
+	m_btnMgr.setText(m_configLbl[7], _t("cfg709", L"Rumble"));
+	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "rumble", 1) == 0 ? m_configChkOff[7] : m_configChkOn[7];
 	//! Wiimote gestures (explore coverflow by moving Wiimote)
-	m_btnMgr.setText(m_configLbl[9], _t("cfg710", L"Wiimote gestures"));
-	m_checkboxBtn[9] = enable_wmote_roll ? m_configChkOn[9] : m_configChkOff[9];
+	m_btnMgr.setText(m_configLbl[8], _t("cfg710", L"Wiimote gestures"));
+	m_checkboxBtn[8] = enable_wmote_roll ? m_configChkOn[8] : m_configChkOff[8];
 
-	
-	for(u8 i = 0; i < 10; ++i)
+	for(u8 i = 0; i < 9; ++i)
 		m_btnMgr.show(m_configLbl[i], instant);
-	for(u8 i = 2; i < 10; ++i)
+	for(u8 i = 2; i < 9; ++i)
 		m_btnMgr.show(m_checkboxBtn[i], instant);
 }
 
@@ -111,9 +107,6 @@ void CMenu::_configGui(void)
 	bool cur_box_mode = m_cfg.getBool(general_domain, "box_mode", true);
 	bool prev_box_mode = cur_box_mode;
 
-	/* Import categories */
-	bool prevGenres = tdb_genres;
-
 	SetupInput();
 	_showConfigGui();
 
@@ -153,70 +146,54 @@ void CMenu::_configGui(void)
 					_showConfigGui();
 				}
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[2])) // import TDB categories
-			{
-				if(!fsop_FileExist(fmt("%s/wiitdb.xml", m_settingsDir.c_str())))
-				{
-					error(_t("errtdb", L"Download GameTDB to use this feature."));
-					_download();
-					_showConfigGui();
-				}
-				else
-				{
-					tdb_genres = !tdb_genres;
-					m_cfg.setBool(general_domain, "tdb_genres", tdb_genres);
-					_showConfigGui(true);
-				}
-				m_btnMgr.setSelected(m_checkboxBtn[2]);
-			}
-			else if(m_btnMgr.selected(m_checkboxBtn[3])) // show game banner
+			else if(m_btnMgr.selected(m_checkboxBtn[2])) // show game banner
 			{
 				m_bnrSndVol = m_bnrSndVol != 0 ? 0 : 255;
 				m_cfg.setInt(general_domain, "sound_volume_bnr", m_bnrSndVol);
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[3]);
+				m_btnMgr.setSelected(m_checkboxBtn[2]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[4])) // game banner in game settings
+			else if(m_btnMgr.selected(m_checkboxBtn[3])) // game banner in game settings
 			{
 				m_bnr_settings = !m_cfg.getBool(general_domain, "banner_in_settings");
 				m_cfg.setBool(general_domain, "banner_in_settings", m_bnr_settings);
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[4]);
+				m_btnMgr.setSelected(m_checkboxBtn[3]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[5])) // box mode
+			else if(m_btnMgr.selected(m_checkboxBtn[4])) // box mode
 			{
 				cur_box_mode = !cur_box_mode;
 				m_cfg.setBool(general_domain, "box_mode", cur_box_mode);
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[5]);
+				m_btnMgr.setSelected(m_checkboxBtn[4]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[6])) // use HQ cover
+			else if(m_btnMgr.selected(m_checkboxBtn[5])) // use HQ cover
 			{
 				cur_hq_covers = !cur_hq_covers;
 				m_cfg.setBool(general_domain, "cover_use_hq", cur_hq_covers);
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[6]);
+				m_btnMgr.setSelected(m_checkboxBtn[5]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[7])) // save favorites mode
+			else if(m_btnMgr.selected(m_checkboxBtn[6])) // save favorites mode
 			{
 				m_cfg.setBool(general_domain, "save_favorites_mode", !m_cfg.getBool(general_domain, "save_favorites_mode"));
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[7]);
+				m_btnMgr.setSelected(m_checkboxBtn[6]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[8])) // wiimote vibration
+			else if(m_btnMgr.selected(m_checkboxBtn[7])) // wiimote vibration
 			{
 				bool rumble = !m_cfg.getBool(general_domain, "rumble");
 				m_cfg.setBool(general_domain, "rumble", rumble);
 				m_btnMgr.setRumble(rumble);
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[8]);
+				m_btnMgr.setSelected(m_checkboxBtn[7]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[9])) // wiimote gestures
+			else if(m_btnMgr.selected(m_checkboxBtn[8])) // wiimote gestures
 			{
 				enable_wmote_roll = !enable_wmote_roll;
 				m_cfg.setBool(general_domain, "wiimote_gestures", enable_wmote_roll);
 				_showConfigGui(true);
-				m_btnMgr.setSelected(m_checkboxBtn[9]);
+				m_btnMgr.setSelected(m_checkboxBtn[8]);
 			}
 		}
 	}
@@ -225,16 +202,6 @@ void CMenu::_configGui(void)
 	/* HQ covers / box mode */
 	if(prev_hq_covers != cur_hq_covers || prev_box_mode != cur_box_mode)
 		_initCF();
-	
-	/* Import TDB categories */
-	if(prevGenres == false && tdb_genres == true) // if tdb_genres was false and now true
-	{
-		const char *domains[] = {WII_DOMAIN, GC_DOMAIN, CHANNEL_DOMAIN, PLUGIN_DOMAIN};
-		for(int i = 0; i < 4; i++)
-			m_cfg.setBool(domains[i], "update_cache", true);
-		// m_cfg.setBool(homebrew_domain, "update_cache", true);
-		m_refreshGameList = true;
-	}
 	
 	/* Theme */
 	if(prevTheme != m_themeName)

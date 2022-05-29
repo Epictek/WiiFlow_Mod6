@@ -470,11 +470,8 @@ bool CMenu::_configNandEmu(u8 startPage)
 						const char *newNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(channel_domain, "partition")], emu_nands_dir, lowerCase(c).c_str());
 						if(error(wfmt(_fmt("errcfg3", L"Create %s?"), newNand), true))
 						{
-							if(fsop_MakeFolder(newNand))
-							{
-								error(wfmt(_fmt("errcfg1", L"%s created."), newNand));
-								_checkEmuNandSettings(EMU_NAND);
-							}
+							fsop_MakeFolder(newNand);
+							_checkEmuNandSettings(EMU_NAND);
 						}
 					}
 					_showNandEmu();
