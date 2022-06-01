@@ -4,71 +4,84 @@
 s16 m_codeBtnKey[10];
 s16 m_codeLblUser[4];
 
-void CMenu::_hideCode(bool instant)
-{
-	for(u8 i = 0; i < 10; ++i)
-		m_btnMgr.hide(m_codeBtnKey[i], instant);
-	m_btnMgr.hide(m_configBtnBack, instant);
-	m_btnMgr.hide(m_configBtnCenter, instant);
-	m_btnMgr.hide(m_configLblTitle, instant);
-	for(u8 i = 0; i < ARRAY_SIZE(m_codeLblUser); ++i)
-		if(m_codeLblUser[i] != -1)
-			m_btnMgr.hide(m_codeLblUser[i], instant);
-}
-
-void CMenu::_showCode(void)
-{
-	for(u8 i = 0; i < 10; ++i)
-		m_btnMgr.show(m_codeBtnKey[i]);
-	m_btnMgr.show(m_configBtnBack);
-	m_btnMgr.show(m_configLblTitle);
-	for(u8 i = 0; i < ARRAY_SIZE(m_codeLblUser); ++i)
-		if(m_codeLblUser[i] != -1)
-			m_btnMgr.show(m_codeLblUser[i]);
-}
-
-bool CMenu::_code(char code[4], bool erase)
+bool CMenu::_code(char code[4])
 {
 	u8 n = 0;
 	wchar_t codeLbl[] = L"_ _ _ _";
 	memset(code, 0, 4);
-	m_btnMgr.setText(m_configLblTitle, codeLbl);
+	bool erase = false;
 	
 	SetupInput();
-	_showCode();
 	
-	if(erase) // only for setting code and erase btn clears the code so you no longer need to unlock wiiflow
+	m_btnMgr.show(m_configBtnBack);
+	m_btnMgr.setText(m_configLblTitle, codeLbl);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_codeLblUser); ++i)
+		if(m_codeLblUser[i] != -1)
+			m_btnMgr.show(m_codeLblUser[i]);
+	
+	if(m_locked)
+		m_btnMgr.setText(m_configBtnCenter, _t("cfg835", L"Disable"));
+	else
 	{
-		m_btnMgr.setText(m_configBtnCenter, _t("cd2", L"Erase"));
-		m_btnMgr.show(m_configBtnCenter);
+		if(m_cfg.getString(general_domain, "parent_code", "") == "")
+			m_btnMgr.setText(m_configBtnCenter, _t("cfg834", L"Enable"));
+		else
+		{
+			erase = true;
+			m_btnMgr.setText(m_configBtnCenter, _t("cd2", L"Erase"));
+			m_btnMgr.setText(m_configLblDialog, _t("cfg836", L"Remove child lock?"));
+			m_btnMgr.show(m_configLblDialog);
+		}
+	}
+	m_btnMgr.show(m_configBtnCenter);
+	
+	if(!erase)
+	{
+		m_btnMgr.show(m_configLblTitle);
+		for(u8 i = 0; i < 10; ++i)
+			m_btnMgr.show(m_codeBtnKey[i]);
 	}
 
 	while(!m_exit)
 	{
 		_mainLoopCommon();
 		if(BTN_HOME_PRESSED)
-			break;
-		else if(ShowPointer()) // wpad ir any or controller left stick to show pointer
 		{
-			if(BTN_B_OR_1_PRESSED)
-				break;
-			else if(BTN_UP_PRESSED)
+			n = 0;
+			break;
+		}
+		else if(ShowPointer() || erase || n == 4)
+		{
+			if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 				m_btnMgr.up();
-			else if(BTN_DOWN_PRESSED)
+			else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)
 				m_btnMgr.down();
+			else if(BTN_B_OR_1_PRESSED)
+			{
+				n = 0;
+				break;
+			}
 			if(BTN_A_OR_2_PRESSED)
 			{
-				if(!m_locked && m_btnMgr.selected(m_configBtnCenter))
+				if(m_btnMgr.selected(m_configBtnBack))
 				{
-					memset(code, 0, 4);
-					m_cfg.remove(general_domain, "parent_code");
 					n = 0;
-					m_locked = false;
 					break;
 				}
-				if(m_btnMgr.selected(m_configBtnBack))
-					break;
-				else
+				else if(m_btnMgr.selected(m_configBtnCenter))
+				{
+					if(erase)
+					{
+						memset(code, 0, 4);
+						m_cfg.remove(general_domain, "parent_code");
+						n = 0;
+						break;
+					}
+					else if(n == 4)
+						break;
+				}
+				else if(n < 4 && !erase)
 					for(int i = 0; i < 10; ++i)
 						if(m_btnMgr.selected(m_codeBtnKey[i]))
 						{
@@ -79,7 +92,7 @@ bool CMenu::_code(char code[4], bool erase)
 						}
 			}
 		}
-		else
+		else // (!ShowPointer() && !erase && n < 4)
 		{
 			// Map buttons to numbers
 			int c = -1;
@@ -102,7 +115,14 @@ bool CMenu::_code(char code[4], bool erase)
 			}
 		}
 	}
-	_hideCode(true);
+	
+	_hideConfigFull(true);
+	for(u8 i = 0; i < 10; ++i)
+		m_btnMgr.hide(m_codeBtnKey[i]);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_codeLblUser); ++i)
+		if(m_codeLblUser[i] != -1)
+			m_btnMgr.hide(m_codeLblUser[i]);
 
 	return n == 4;
 }

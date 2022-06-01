@@ -29,6 +29,10 @@ void CMenu::_showConfigDownload(bool instant)
 	m_btnMgr.show(m_configLblTitle, instant);
 	m_btnMgr.show(m_configBtnBack, instant);
 
+	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+		if(m_configLblUser[i] != -1)
+			m_btnMgr.show(m_configLblUser[i]);
+		
 	m_btnMgr.setText(m_configLbl[2], _t("dl99", L"Cover style"));
 	m_btnMgr.setText(m_configLblVal[2], m_cfg.getBool(general_domain, "dl_box_cover", true) ?  _t("dl96", L"Box") : _t("dl95", L"Flat"));
 	

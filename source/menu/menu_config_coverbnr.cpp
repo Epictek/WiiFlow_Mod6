@@ -6,7 +6,7 @@ void CMenu::_showCoverBanner(void)
 	m_btnMgr.setText(m_configLblTitle, _t("cfgg40", L"Manage cover and banner"));
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
-	m_btnMgr.setText(m_configBtnCenter, _t("cfg1", L"Settings"));
+	m_btnMgr.setText(m_configBtnCenter, _t("cfg837", L"Options"));
 	m_btnMgr.show(m_configBtnCenter);
 
 	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)

@@ -462,7 +462,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 				//! Create new emunand folder
 				else if(m_btnMgr.selected(m_configBtnGo[4]))
 				{
-					_hideConfig();
+					_hideConfig(true);
 					char *c = NULL;
 					c = _keyboard();
 					if(strlen(c) > 0)
@@ -472,6 +472,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 						{
 							fsop_MakeFolder(newNand);
 							_checkEmuNandSettings(EMU_NAND);
+							error(_t("dlmsg14", L"Done."));
 						}
 					}
 					_showNandEmu();

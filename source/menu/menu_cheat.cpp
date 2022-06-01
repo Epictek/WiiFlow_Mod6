@@ -11,9 +11,11 @@
 static u8 curPage = 0;
 int txtavailable;
 GCTCheats m_cheatfile;
+bool enabled;
 
 s16 m_cheatLblLarge;
 s16 m_cheatLblItem[CHEATSPERPAGE];
+s16 m_cheatLblUser[4];
 
 int CMenu::_downloadCheatFileAsync(const char *id)
 {
@@ -63,6 +65,7 @@ void CMenu::_CheatSettings(const char *id)
 		else
 			m_cheatfile.sCheatSelected.push_back(false);
 	}
+	enabled = m_gcfg2.getBool(id, "cheat", 0);
 
 	_setBg(m_configBg, m_configBg);
 	SetupInput();
@@ -71,38 +74,8 @@ void CMenu::_CheatSettings(const char *id)
 	while(!m_exit)
 	{
 		_mainLoopCommon();
-		if((BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED) || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
-		{
-			if(m_cheatfile.getCnt() > 0)
-			{
-				bool selected = false;
-				//! checks if at least one cheat is selected
-				for(unsigned int i = 0; i < m_cheatfile.getCnt(); ++i)
-				{
-					if(m_cheatfile.sCheatSelected[i] == true) 
-					{
-						selected = true;
-						break;
-					}
-				}
-					
-				if(selected)
-				{
-					m_cheatfile.createGCT(fmt("%s/%s.gct", m_cheatDir.c_str(), id)); 
-					m_gcfg2.setOptBool(id, "cheat", 1);
-					m_gcfg2.setInt(id, "hooktype", m_gcfg2.getInt(id, "hooktype", 1));
-				}
-				else
-				{
-					fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id));
-					m_gcfg2.remove(id, "cheat");
-					m_gcfg2.remove(id, "hooktype");
-				}
-				break;
-			}
-			else
-				break;
-		}
+		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
+			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 			m_btnMgr.up();
 		else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)
@@ -144,77 +117,101 @@ void CMenu::_CheatSettings(const char *id)
 				}
 			}
 			
-			if(m_btnMgr.selected(m_configBtnCenter) && txtavailable && !m_locked) // delete
+			if(m_btnMgr.selected(m_configBtnBack))
+				break;
+			else if(m_btnMgr.selected(m_configBtnCenter)) // enable/disable or download if txt missing
 			{
-				if(error(_t("errcfg5", L"Are you sure?"), true))
+				if(txtavailable) // enable/disable
 				{
-					fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id));
-					fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
-					m_gcfg2.remove(id, "cheat");
-					m_gcfg2.remove(id, "hooktype");
+					enabled = !enabled;
+					m_gcfg2.setBool(id, "cheat", enabled);
 					break;
 				}
-				else
-					_showCheatSettings();
-			}
-			else if(m_btnMgr.selected(m_configBtnCenter) && !txtavailable) // download
-			{
-				_hideConfig(true);
-				bool dl_finished = false;
-				while(!m_exit)
+				else // download
 				{
-					_mainLoopCommon();
-					if(((BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED) || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack))) && dl_finished)
+					_hideConfig(true);
+					bool dl_finished = false;
+					while(!m_exit)
 					{
-						_hideConfigFull(true);
-						break;
+						_mainLoopCommon();
+						if(((BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED) || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack))) && dl_finished)
+						{
+							_hideConfigFull(true);
+							break;
+						}
+						if(!dl_finished)
+						{
+							m_btnMgr.setProgress(m_wbfsPBar, 0.f, true);
+							m_btnMgr.setText(m_wbfsLblMessage, L"0%");
+							m_btnMgr.setText(m_configLblDialog, L"");
+							m_btnMgr.show(m_wbfsPBar);
+							m_btnMgr.show(m_wbfsLblMessage);
+							m_btnMgr.show(m_configLblDialog);
+							
+							_start_pThread();
+							int ret = _downloadCheatFileAsync(id);
+							_stop_pThread();
+							if(ret == -1)
+								m_btnMgr.setText(m_configLblDialog, _t("dlmsg27", L"Not enough memory!"));
+							else if(ret == -2)
+								m_btnMgr.setText(m_configLblDialog, _t("dlmsg2", L"Network initialization failed!"));
+							// else if(ret == -3)
+								// m_btnMgr.setText(m_configLblDialog, _t("dlmsg12", L"Download failed!"));
+							// else if(ret == -4)
+							else if(ret <= -3) //
+								m_btnMgr.setText(m_configLblDialog, _t("dlmsg36", L"No cheat file available to download."));
+							else
+								m_btnMgr.setText(m_configLblDialog, _t("dlmsg14", L"Done."));
+							dl_finished = true;
+							m_btnMgr.show(m_configBtnBack);
+						}
 					}
-					if(!dl_finished)
-					{
-						m_btnMgr.setProgress(m_wbfsPBar, 0.f, true);
-						m_btnMgr.setText(m_wbfsLblMessage, L"0%");
-						m_btnMgr.setText(m_configLblDialog, L"");
-						m_btnMgr.show(m_wbfsPBar);
-						m_btnMgr.show(m_wbfsLblMessage);
-						m_btnMgr.show(m_configLblDialog);
-						
-						_start_pThread();
-						int ret = _downloadCheatFileAsync(id);
-						_stop_pThread();
-						if(ret == -1)
-							m_btnMgr.setText(m_configLblDialog, _t("dlmsg27", L"Not enough memory!"));
-						else if(ret == -2)
-							m_btnMgr.setText(m_configLblDialog, _t("dlmsg2", L"Network initialization failed!"));
-						// else if(ret == -3)
-							// m_btnMgr.setText(m_configLblDialog, _t("dlmsg12", L"Download failed!"));
-						// else if(ret == -4)
-						else if(ret <= -3) //
-							m_btnMgr.setText(m_configLblDialog, _t("dlmsg36", L"No cheat file available to download."));
-						else
-							m_btnMgr.setText(m_configLblDialog, _t("dlmsg14", L"Done."));
-						dl_finished = true;
-						m_btnMgr.show(m_configBtnBack);
-					}
-				}
-				txtavailable = m_cheatfile.openTxtfile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
-				if(txtavailable > 0)
-					gctBuf = fsop_ReadFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id), &gctSize);
+					txtavailable = m_cheatfile.openTxtfile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
+					if(txtavailable > 0)
+						gctBuf = fsop_ReadFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id), &gctSize);
 
-				chtsCnt = m_cheatfile.getCnt();
-				for(u8 i = 0; i < chtsCnt; ++i)
-				{
-					if(gctBuf && m_cheatfile.IsCheatIncluded(i, gctBuf, gctSize))
-						m_cheatfile.sCheatSelected.push_back(true);
-					else
-						m_cheatfile.sCheatSelected.push_back(false);
+					chtsCnt = m_cheatfile.getCnt();
+					for(u8 i = 0; i < chtsCnt; ++i)
+					{
+						if(gctBuf && m_cheatfile.IsCheatIncluded(i, gctBuf, gctSize))
+							m_cheatfile.sCheatSelected.push_back(true);
+						else
+							m_cheatfile.sCheatSelected.push_back(false);
+					}
+					//! if txt file empty delete it to allow redownload
+					if(txtavailable && m_cheatfile.getCnt() == 0) 
+						fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
+					_showCheatSettings();
 				}
-				//! if txt file empty delete it to allow redownload
-				if(txtavailable && m_cheatfile.getCnt() == 0) 
-					fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), id));
-				_showCheatSettings();
 			}
 		}
 	}
+	
+	if(m_cheatfile.getCnt() > 0)
+	{
+		bool selected = false;
+		//! checks if at least one cheat is selected
+		for(unsigned int i = 0; i < m_cheatfile.getCnt(); ++i)
+		{
+			if(m_cheatfile.sCheatSelected[i] == true) 
+			{
+				selected = true;
+				break;
+			}
+		}
+		if(selected)
+		{
+			m_cheatfile.createGCT(fmt("%s/%s.gct", m_cheatDir.c_str(), id)); 
+			m_gcfg2.setInt(id, "hooktype", m_gcfg2.getInt(id, "hooktype", 1));
+		}
+		else
+		{
+			fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), id));
+			m_gcfg2.remove(id, "cheat");
+			m_gcfg2.remove(id, "hooktype");
+		}
+	}
+
 	_hideCheatSettings(true);
 	_hideConfig(true);
 }
@@ -230,6 +227,10 @@ void CMenu::_hideCheatSettings(bool instant)
 	
 	m_btnMgr.hide(m_cheatLblLarge, instant);
 	m_btnMgr.hide(m_configLblDialog, instant);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_cheatLblUser); ++i)
+		if(m_cheatLblUser[i] != -1)
+			m_btnMgr.hide(m_cheatLblUser[i], instant);
 }
 
 void CMenu::_showCheatSettings(bool instant)
@@ -242,14 +243,14 @@ void CMenu::_showCheatSettings(bool instant)
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
 	
-	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
-		if(m_configLblUser[i] != -1)
-			m_btnMgr.show(m_configLblUser[i]);
-		
+	for(u8 i = 0; i < ARRAY_SIZE(m_cheatLblUser); ++i)
+		if(m_cheatLblUser[i] != -1)
+			m_btnMgr.show(m_cheatLblUser[i]);
+	
 	if(chtsCnt > 0)
 	{
-		/* Cheat found, show delete */
-		m_btnMgr.setText(m_configBtnCenter, _t("cfgbnr6", L"Delete"));
+		/* Cheat found, show Enable or Disable */
+		m_btnMgr.setText(m_configBtnCenter, enabled ? _t("cfg835", L"Disable") : _t("cfg834", L"Enable"));
 		m_btnMgr.show(m_configBtnCenter);
 		if(((chtsCnt + CHEATSPERPAGE - 1) / CHEATSPERPAGE) > 1)
 		{
@@ -265,12 +266,12 @@ void CMenu::_showCheatSettings(bool instant)
 			m_btnMgr.hide(m_configBtnPageP);
 		}
 		m_btnMgr.setText(m_cheatLblLarge, _t("cheat98", L"Click on a code to view full description"));
-		m_btnMgr.show(m_cheatLblLarge); //
+		m_btnMgr.show(m_cheatLblLarge);
 		
 		/* Show cheats if available, else hide */
 		for(u32 i = 0; i < CHEATSPERPAGE; ++i)
 		{
-			//! cheat in range?
+			// cheat in range?
 			if(((curPage - 1) * CHEATSPERPAGE + i + 1) <= chtsCnt) 
 			{
 				string chtNameTemp = m_cheatfile.getCheatName((curPage - 1) * CHEATSPERPAGE + i);
@@ -290,7 +291,8 @@ void CMenu::_showCheatSettings(bool instant)
 				m_btnMgr.show(m_cheatLblItem[i]);
 				m_btnMgr.show(m_configLbl[i]);
 			}
-			else // cheat out of range, hide elements
+			// cheat out of range, hide elements
+			else
 			{
 				m_btnMgr.hide(m_cheatLblItem[i], true);
 				m_btnMgr.hide(m_configLbl[i], true);
@@ -299,9 +301,10 @@ void CMenu::_showCheatSettings(bool instant)
 	}
 	else
 	{
+		/* Cheat not found, show Download */
 		m_btnMgr.setText(m_configBtnCenter, _t("cfg4", L"Download"));
 		m_btnMgr.show(m_configBtnCenter);
-		m_btnMgr.setText(m_configLblDialog, _t("cheat3", L"Cheat file for game not found"));
+		m_btnMgr.setText(m_configLblDialog, _t("cheat3", L"Cheat file not found"));
 		m_btnMgr.show(m_configLblDialog);
 	}
 }
@@ -316,7 +319,10 @@ void CMenu::_initCheatSettingsMenu()
 	TexData texBtnEntryS;
 	TexHandle.fromPNG(texBtnEntryS, tex_list_s_png);
 	
+	_addUserLabels(m_cheatLblUser, ARRAY_SIZE(m_cheatLblUser), "CHEAT");
+	
 	m_cheatLblLarge = _addText("CHEAT/ITEM_LARGE", theme.txtFont, L"", 60, 270, 520, 96, theme.txtFontColor, FTGX_JUSTIFY_CENTER | FTGX_ALIGN_MIDDLE);
+	
 	_setHideAnim(m_cheatLblLarge, fmt("CHEAT/ITEM_LARGE"), 0, 0, 1.f, -1.f);
 	
 	for(u8 i = 0; i < CHEATSPERPAGE; ++i) 

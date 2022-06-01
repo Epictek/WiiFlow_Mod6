@@ -62,7 +62,13 @@ void CMenu::_showConfigMain(bool instant)
 	m_btnMgr.setText(m_configLblTitle, _t("cfg776", L"WiiFlow settings"));
 	m_btnMgr.show(m_configLblTitle);
 
-	m_btnMgr.setText(m_configLbl[0], _t("cfg5", L"Child lock"));
+	m_btnMgr.setText(m_configLbl[m_locked ? 4 : 0], _t("cfg5", L"Child lock"));
+	m_btnMgr.show(m_configLbl[m_locked ? 4 : 0]); // child lock
+	m_btnMgr.show(m_configBtnGo[m_locked ? 4 : 0]);
+	
+	if(m_locked)
+		return;
+
 	m_btnMgr.setText(m_configLbl[1], _t("cfgc9", L"WiiFlow language"));
 	m_btnMgr.setText(m_configLblVal[1], m_curLanguage);
 	m_btnMgr.setText(m_configLbl[2], _t("cfg795", L"User interface"));
@@ -73,12 +79,6 @@ void CMenu::_showConfigMain(bool instant)
 	m_btnMgr.setText(m_configLbl[7-a], _t("cfgd4", L"Path manager"));
 	m_btnMgr.setText(m_configLbl[8-a], _t("cfgg98", L"Network settings"));
 	m_btnMgr.setText(m_configLbl[9-a], _t("cfg794", L"Misc settings"));
-	
-	m_btnMgr.show(m_configLbl[0]); // child lock
-	m_btnMgr.show(m_configBtnGo[0]);
-	
-	if(m_locked)
-		return;
 
 	m_btnMgr.show(m_configLbl[1], instant);
 	m_btnMgr.show(m_configLblVal[1], instant);
@@ -148,28 +148,32 @@ void CMenu::_config(void)
 			if(m_btnMgr.selected(m_configBtnBack))
 				break;
 			//! CHILD LOCK
-			else if(m_btnMgr.selected(m_configBtnGo[0]))
+			else if(m_btnMgr.selected(m_configBtnGo[m_locked ? 4 : 0]))
 			{
 				char code[4];
 				_hideConfig(true);
 				if(!m_locked)
 				{
-					if(_code(code, true))
+					if(_code(code))
 					{
 						m_refreshGameList = true;
-						m_cfg.setString(general_domain, "parent_code", string(code, 4).c_str());
+						m_cfg.setString(general_domain, "parent_code", string(code, 4));
 						m_locked = true;
 					}
 				}
 				else
 				{
-					if(_code(code) && memcmp(code, m_cfg.getString(general_domain, "parent_code", "").c_str(), 4) == 0)
+					if(_code(code))
 					{
-						m_refreshGameList = true;
-						m_locked = false;
+						if(memcmp(code, m_cfg.getString(general_domain, "parent_code", "").c_str(), 4) == 0)
+						{
+							m_refreshGameList = true;
+							m_locked = false;
+							error(_t("errcfg12",L"WiiFlow unlocked until next reboot."));
+						}
+						else
+							error(_t("cfgg25",L"Password incorrect."));
 					}
-					else
-						error(_t("cfgg25",L"Password incorrect."));
 				}
 				_showConfigMain();
 			}

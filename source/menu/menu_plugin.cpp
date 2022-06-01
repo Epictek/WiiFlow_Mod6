@@ -14,6 +14,11 @@ void CMenu::_showPluginSettings(void)
 	m_btnMgr.setText(m_configLblTitle, _t("cfgpl1", L"Select plugins"));
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+		if(m_configLblUser[i] != -1)
+			m_btnMgr.show(m_configLblUser[i]);
+	
 	_updatePluginCheckboxes();
 }
 

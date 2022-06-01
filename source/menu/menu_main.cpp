@@ -82,7 +82,6 @@ void CMenu::_getCustomBgTex()
 			m_plugin.PluginMagicWord[0] = '\0';
 			u8 i = 0;
 			bool match = true;
-			vector<string> magics;
 			string first_pf = "";
 			switch(m_current_view)
 			{
@@ -99,21 +98,24 @@ void CMenu::_getCustomBgTex()
 					strncpy(m_plugin.PluginMagicWord, "4E47434D", 9);
 					break;
 				case COVERFLOW_PLUGIN:
-					magics = m_cfg.getStrings(plugin_domain, "enabled_plugins", ',');
-					if(magics.size() > 0)
+					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
+					if(m_plugin.PluginExist(i))
 					{
+						strncpy(m_plugin.PluginMagicWord, fmt("%08x", m_plugin.GetPluginMagic(i)), 8);
 						//! in case of multiple plugins check if all are for the same platform
-						first_pf = m_platform.getString("PLUGINS", magics[0]);
-						for(i = 1; i < magics.size(); i++)
+						first_pf = m_platform.getString("PLUGINS", m_plugin.PluginMagicWord);
+						i++;
+						while(m_plugin.PluginExist(i))
 						{
-							if(first_pf != m_platform.getString("PLUGINS", magics[i]))
+							if(m_plugin.GetEnabledStatus(i) && first_pf != m_platform.getString("PLUGINS", fmt("%08x", m_plugin.GetPluginMagic(i))))
 							{
 								match = false;
 								break;
 							}
+							i++;
 						}
 						//! if multiple platforms default to HOMEBREW
-						strncpy(m_plugin.PluginMagicWord, match ? magics[0].c_str() : "48425257", match ? 8 : 9);
+						strncpy(m_plugin.PluginMagicWord, match ? m_plugin.PluginMagicWord : "48425257", match ? 8 : 9);
 					}
 					break;
 				default: // COVERFLOW_WII
@@ -849,7 +851,7 @@ int CMenu::main(void)
 			{
 				u8 page = m_btnMgr.selected(m_configBtnGo[7]) ? GAME_LIST : MAIN_SETTINGS;
 				_hideMain();
-				if(BTN_B_OR_1_HELD && !m_locked) // shortcut to global settings
+				if(BTN_B_OR_1_HELD) // shortcut to global settings
 				{
 					bUsed = true;
 					_config();
@@ -906,7 +908,7 @@ int CMenu::main(void)
 						break;
 					if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
 					_setMainBg();
-					if(m_refreshGameList) // if changes were made to categories
+					if(m_refreshGameList) // // if changes were made to favorites, parental lock, or categories
 					{
 						_initCF();
 						m_refreshGameList = false;

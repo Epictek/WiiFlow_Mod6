@@ -41,7 +41,7 @@ void CMenu::_showDownload(void)
 	m_btnMgr.setText(m_configLblTitle, _t("cfg3", L"Download covers and info"));
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
-	m_btnMgr.setText(m_configBtnCenter, _t("cfg1", L"Settings"));
+	m_btnMgr.setText(m_configBtnCenter, _t("cfg837", L"Options"));
 	m_btnMgr.show(m_configBtnCenter);
 	m_btnMgr.setText(m_configLblNotice, _t("dl10", L"Please donate\nto GameTDB.com"));
 	m_btnMgr.show(m_configLblNotice);

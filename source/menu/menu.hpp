@@ -582,7 +582,6 @@ private:
 	void _hideCheatSettings(bool instant = false);
 	void _hideMain(bool instant = false);
 	void _hideGame(bool instant = false);
-	void _hideCode(bool instant = false);
 	void _hideAbout(bool instant = false);
 	void _hideCFTheme(bool instant = false);
 	void _hideSource(bool instant = false);
@@ -595,7 +594,6 @@ private:
 	void _hideConfig(bool instant = false);
 	void _hideConfigPage(bool instant = false);
 	void _hideCheckboxes(bool instant = false);
-	void _hideKeyboard(bool instant = false);
 	
 	void _showError(void);
 	void _showMain(void);
@@ -613,7 +611,6 @@ private:
 	void _showConfigNet(bool instant = false);
 	void _showConfigPaths(bool instant = false);
 	void _showConfigMisc(bool instant = false);
-	void _showCode(void);
 	void _showProgress(void);
 	void _showGame(bool fanart = false, bool anim = false);
 	void _showDownload(void);
@@ -636,7 +633,6 @@ private:
 	void _showCheckboxesMenu(void);
 	void _showAddGame(void);
 	void _showCF(bool refreshList = false);
-	void _showKeyboard(void);
 	void _showCategoryConfig(bool instant = false);
 
 	void _updateSourceBtns(void);
@@ -690,7 +686,7 @@ private:
 	
 	void _game(bool launch = false);
 	void _download(string gameId = string(), int dl_type = 0);
-	bool _code(char code[4], bool erase = false);
+	bool _code(char code[4]);
 	void _about(bool help = false);
 	bool _wbfsOp(u8 op);
 	bool _cfTheme(void);

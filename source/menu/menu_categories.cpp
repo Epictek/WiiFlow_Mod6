@@ -8,12 +8,13 @@ char id[64];
 char catDomain[16];
 bool gameSet = false;
 bool renameCat = false;
+bool exit_renameCat = false;
 
 void CMenu::_showCategorySettings(void)
 {
 	m_btnMgr.setText(m_configLblTitle, renameCat ? _t("cfg832", L"Rename category") : gameSet ? CoverFlow.getTitle() : _t("cat1", L"Select categories"));
 	m_btnMgr.show(m_configLblTitle);
-	m_btnMgr.setText(m_configBtnCenter, gameSet ? _t("cfg1", L"Settings") : _t("none", L"None"));
+	m_btnMgr.setText(m_configBtnCenter, gameSet ? _t("cfg837", L"Options") : _t("none", L"None"));
 	if(!renameCat)
 		m_btnMgr.show(m_configBtnCenter);
 	m_btnMgr.show(m_configBtnBack);
@@ -143,6 +144,7 @@ void CMenu::_setGameCategories(void)
 
 void CMenu::_CategorySettings(bool fromGameSet)
 {
+	exit_renameCat = false;
 	gameSet = fromGameSet;
 	
 	_setBg(m_configBg, m_configBg);
@@ -238,27 +240,16 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		else if((BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED) && !ShowPointer())
 			m_btnMgr.down();
 		
-		else if(wBtn_Pressed(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) && ShowPointer() && fromGameSet)
+		else if(fromGameSet && !renameCat && ShowPointer() && (wBtn_Pressed(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) || wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE)))
 		{
+			bool left = wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE);
 			_setGameCategories();
 			_hideConfig();
-			CoverFlow.right();
+			left ? CoverFlow.left() : CoverFlow.right();
 			curPage = 1;
 			m_newGame = true;
 			m_categories.assign(m_max_categories, '0');
 			_playGameSound(); // changes banner and game sound
-			_getGameCategories(CoverFlow.getHdr());
-			_showCategorySettings();
-		}
-		else if(wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) && ShowPointer() && fromGameSet)
-		{
-			_setGameCategories();
-			_hideConfig();
-			CoverFlow.left();
-			curPage = 1;
-			m_newGame = true;
-			m_categories.assign(m_max_categories, '0');
-			_playGameSound();
 			_getGameCategories(CoverFlow.getHdr());
 			_showCategorySettings();
 		}
@@ -283,7 +274,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		{
 			if(m_btnMgr.selected(m_configBtnCenter))
 			{
-				if(!fromGameSet)
+				if(!fromGameSet) // uncheck all categories
 				{
 					m_refreshGameList = true;
 					bool hiddenCat = false;
@@ -300,7 +291,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 						m_categories.at(0) = '1';
 					_updateCatCheckboxes();
 				}
-				else
+				else // settings
 				{
 					_setGameCategories();
 					_hideConfig(true);
@@ -312,7 +303,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 			
 			for(u8 i = 0; i < 10; ++i)
 			{
-				if(m_btnMgr.selected(m_checkboxBtn[i]))
+				if(m_btnMgr.selected(m_checkboxBtn[i])) // set category
 				{
 					m_refreshGameList = true;
 					int j = i + 1 + ((curPage - 1) * 10);
@@ -333,16 +324,16 @@ void CMenu::_CategorySettings(bool fromGameSet)
 					m_btnMgr.hide(m_checkboxBtn[i], true);
 					switch(m_categories.at(j))
 					{
-						case '0':
+						case '0': // off
 							m_checkboxBtn[i] = m_configChkOff[i];
 							break;
-						case '1':
+						case '1': // on
 							m_checkboxBtn[i] = m_configChkOn[i];
 							break;
-						case '2':
+						case '2': // hidden
 							m_checkboxBtn[i] = m_configChkHid[i];
 							break;
-						default:
+						default: // required
 							m_checkboxBtn[i] = m_configChkReq[i];
 							break;
 					}
@@ -351,7 +342,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 					break;
 				}
 				
-				if(m_btnMgr.selected(m_configBtnGo[i]))
+				if(m_btnMgr.selected(m_configBtnGo[i])) // choose category to rename
 				{
 					_hideConfig(true);
 					char *c = NULL;
@@ -363,6 +354,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 						{
 							int j = i + 1 + ((curPage - 1) * 10);
 							m_cat.setString(general_domain, fmt("cat%d", j), s);
+							exit_renameCat = true;
 						}
 					}
 					_showCategorySettings();
@@ -370,7 +362,10 @@ void CMenu::_CategorySettings(bool fromGameSet)
 				}
 			}
 		}
+		if(exit_renameCat)
+			break;
 	}
+	
 	_hideConfig(true);
 }
 
@@ -380,7 +375,7 @@ void CMenu::_showCategoryConfig(bool instant)
 {
 	_hideCheckboxes(true); // reset checkboxes
 	
-	m_btnMgr.setText(m_configLblTitle, _t("cfg828", L"Category settings"));
+	m_btnMgr.setText(m_configLblTitle, _t("cfg828", L"Category options"));
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
 	
@@ -388,8 +383,8 @@ void CMenu::_showCategoryConfig(bool instant)
 		if(m_configLblUser[i] != -1)
 			m_btnMgr.show(m_configLblUser[i]);
 	
-	m_btnMgr.setText(m_configLbl[2], _t("cfg829", L"Erase categories for this game"));
-	m_btnMgr.setText(m_configBtn[2], _t("cd2", L"Erase"));
+	m_btnMgr.setText(m_configLbl[2], _t("cfg829", L"Uncheck all for this game"));
+	m_btnMgr.setText(m_configBtn[2], _t("set", L"Set"));
 	
 	m_btnMgr.setText(m_configLbl[3], _t("cfg830", L"GameTDB categories for this game"));
 	m_btnMgr.setText(m_configBtn[3], _t("set", L"Set"));
@@ -441,13 +436,17 @@ void CMenu::_CategoryConfig(void)
 					m_refreshGameList = true;
 					m_categories.assign(m_max_categories, '0');
 					_setGameCategories();
+					break;
 				}
 				_showCategoryConfig();
 			}
 			else if(m_btnMgr.selected(m_configBtn[3])) // gameTDB categories for this game
 			{
 				if(error(_t("errcfg11", L"Categories that don't exist will be automatically added."), true))
+				{
 					_setTDBCategories(CoverFlow.getHdr());
+					break;
+				}
 				_showCategoryConfig();
 			}
 			else if(m_btnMgr.selected(m_checkboxBtn[4])) // gameTDB categories for all games
@@ -482,6 +481,8 @@ void CMenu::_CategoryConfig(void)
 						m_max_categories++;
 						m_categories.resize(m_max_categories, '0');
 						m_cat.setInt(general_domain, "numcategories", m_max_categories);
+						curPage = ((m_max_categories - 2) / 10) + 1;
+						break;
 					}
 				}
 				_showCategoryConfig();
@@ -492,7 +493,13 @@ void CMenu::_CategoryConfig(void)
 				renameCat = true;
 				_CategorySettings(true);
 				renameCat = false;
-				_showCategoryConfig();
+				if(!exit_renameCat) // no category renamed
+					_showCategoryConfig();
+				else // a category has been renamed, return to category settings
+				{
+					exit_renameCat = false;
+					break;
+				}
 			}
 		}
 	}

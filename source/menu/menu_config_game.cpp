@@ -266,10 +266,11 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 	{
 		m_btnMgr.setText(m_configLblTitle, _t("cfgg92", L"Cheat codes"));
 		m_btnMgr.show(m_configLblTitle);
-		//! OCARINA
-		m_btnMgr.setText(m_configLbl[3], _t("cfgg5", L"Enable ocarina (cheats)"));
-		m_checkboxBtn[3] = m_gcfg2.getBool(GameHdr->id, "cheat", 0) == 0 ? m_configChkOff[3] : m_configChkOn[3];
-		m_btnMgr.show(m_checkboxBtn[3], instant);
+		
+		//! DELETE CHEATS
+		m_btnMgr.setText(m_configLbl[3], _t("cfg833", L"Delete cheat file"));
+		m_btnMgr.setText(m_configBtn[3], _t("cfgbnr6", L"Delete"));
+		m_btnMgr.show(m_configBtn[3], instant);
 		
 		//! SELECT CHEATS
 		m_btnMgr.setText(m_configLbl[4], _t("cfgg15", L"Select codes"));
@@ -743,12 +744,18 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 			}
 			else if(curPage == CHEAT_SETTINGS)
 			{
-				//! OCARINA
-				if(m_btnMgr.selected(m_checkboxBtn[3]))
+				//! DELETE CHEATS
+				if(m_btnMgr.selected(m_configBtn[3]))
 				{
-					m_gcfg2.setBool(GameHdr->id, "cheat", !m_gcfg2.getBool(GameHdr->id, "cheat", 0));
+					if(error(_t("errcfg5", L"Are you sure?"), true))
+					{
+						fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), GameHdr->id));
+						fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), GameHdr->id));
+						m_gcfg2.remove(GameHdr->id, "cheat");
+						m_gcfg2.remove(GameHdr->id, "hooktype");
+						error(_t("dlmsg14", L"Done."));
+					}
 					_showGameSettings(true, dvd);
-					m_btnMgr.setSelected(m_checkboxBtn[3]);
 				}
 				//! SELECT CHEATS
 				else if(m_btnMgr.selected(m_configBtnGo[4]))

@@ -9,7 +9,7 @@ void CMenu::_showConfigScreen(bool instant)
 
 	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
 		if(m_configLblUser[i] != -1)
-			m_btnMgr.show(m_configLblUser[i], instant);
+			m_btnMgr.show(m_configLblUser[i]);
 
 	//! TV width
 	m_btnMgr.setText(m_configLbl[2], _t("cfgc2", L"Adjust TV width"));

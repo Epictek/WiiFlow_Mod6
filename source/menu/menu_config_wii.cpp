@@ -353,7 +353,7 @@ void CMenu::_configWii(u8 startPage)
 				//! Create new emunand folder
 				else if(m_btnMgr.selected(m_configBtnGo[5]))
 				{
-					_hideConfig();
+					_hideConfig(true);
 					char *c = NULL;
 					c = _keyboard();
 					if(strlen(c) > 0)
@@ -363,6 +363,7 @@ void CMenu::_configWii(u8 startPage)
 						{
 							fsop_MakeFolder(newNand);
 							_checkEmuNandSettings(SAVES_NAND);
+							error(_t("dlmsg14", L"Done."));
 						}
 					}
 					_showConfigWii();

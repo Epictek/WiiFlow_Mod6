@@ -38,6 +38,11 @@ void CMenu::_showCheckboxesMenu(void)
 	m_btnMgr.setText(m_configBtnCenter, allow_tiers ? _t("smedit98", L"Disable tiers") : _t("smedit99", L"Enable tiers"));
 	if(mode == HIDE_SOURCES)
 		m_btnMgr.show(m_configBtnCenter);
+
+	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+		if(m_configLblUser[i] != -1)
+			m_btnMgr.show(m_configLblUser[i]);
+		
 	_updateCheckboxes();
 }
 

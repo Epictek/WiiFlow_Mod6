@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update May 26, 2022.
+Update June 1, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -238,8 +238,8 @@ You can also choose to store your saves on emunand, and you can even select a de
 > Wii settings > Global nand emulation > Wii disc emunand folder (select the emunand where you want to store your saves)
 > Wii settings > Global nand emulation > Wii disc emunand mode > Saves/DLC (or Full to use Miis from emunand)
 
-The last option can be modified on a per-game basis, in game settings select:
-> Nand emulation > Nand emulation > Saves/DLC (or Full to use Miis from emunand)
+The last option can be modified on a per-game basis, go to:
+> Game config icon > Nand emulation > Nand emulation > Saves/DLC (or Full to use Miis from emunand)
 
 Your Wii game saves will now be stored on your drive, and you can also add DLC wad packages to this emunand.
 
@@ -248,10 +248,10 @@ NB: You can't launch Wii games with saves on emunand if both game and emunand ar
 If you haven't built your emunand using Wiiflow, you may want to extract your existing saves from your real nand to your emunand, then go to:
 > Wii settings > Global nand emulation > Extract all saves from nand
 
-To extract the save for one particular game, go to game settings and select:
-> Nand emulation > Extract nand save to emunand
-You can also copy the save stored on your "saves emunand" back to the real nand on the same screen with:
-> Nand emulation > Flash emunand save to nand
+To extract the save for one particular game, go to:
+> Game config icon >  Nand emulation > Extract nand save to emunand
+You can also copy the save stored on your "saves emunand" back to the real nand:
+> Game config icon >  Nand emulation > Flash emunand save to nand
 
 
 Wii Channels and Virtual console games
@@ -277,19 +277,19 @@ Gamecube game saves are handled by Nintendont, but Wiiflow can pass some argumen
 - Create only one virtual memory card for all saves:
 > GameCube settings > Global emulation settings > Virtual MemCard mode > Multi saves
 
-All options can be modified on a per-game basis, go to game settings and select:
-> Manage virtual MemCard
+All options can be modified on a per-game basis, go to:
+> Game config icon > Manage virtual MemCard
 
 Virtual memory cards are stored on the same device as Gamecube games in dev:/saves (this path cannot be modified).
 
-You can copy those saves if you want a backup on another device, go to game settings and select:
-> Manage virtual MemCard > Backup save file
+You can copy those saves if you want a backup on another device, go to:
+> Game config icon > Manage virtual MemCard > Backup save file
 
 Save backups are stored in dev:/wiiflow/backups, you can modify this path:
 > Settings > Path manager > Game save backup path
 
-You can also delete a virtual memory card (can be useful if the 256-block one was not enough and you want to recreate a 1019 blocks one), go to game settings and select:
-> Manage virtual MemCard > Delete save file
+You can also delete a virtual memory card (can be useful if the 256-block one was not enough and you want to recreate a 1019 blocks one), go to:
+> Game config icon > Manage virtual MemCard > Delete save file
 
 
 Emulator plugins
@@ -305,14 +305,14 @@ Saves are handled by emulators and cannot be managed within Wiiflow.
 A set of 20 default categories is created on the first Wiiflow boot if no former categories_lite.ini file is found.
 
 You can choose to update those categories automatically using GameTDB and Wiimpathy's databases:
-> Settings > User interface > Fetch categories from GameTDB > On
+> Game category icon > Options > GameTDB categories for all games > On
 
 Categories will automatically be assigned to existing and new games, including region tags (NTSC-U, NTSC-J, PAL).
 
 If a new category is found in GameTDB, it will be added to the list. New categories from Wiimpathy's base won't be added.
 
 To manually add a new category, go to:
-> Settings > Misc settings > Add new category
+> Game category icon > Options > Add new category
 
 
 ==================================================================================
@@ -321,11 +321,11 @@ To manually add a new category, go to:
 
 Wii, Wii Channels, Virtual console and Gamecube games can be launched with Gecko cheat codes.
 
-To download, then activate one or more codes, go to game settings and select:
-> Cheat codes > Cheat codes
+To download, then activate one or more codes, go to:
+> Game cheat code icon > Download
 
-To deactivate all codes, go to game settings and select:
-> Cheat codes > Enable ocarina (cheats) > Off
+To deactivate all codes, go to:
+> Game cheat code icon > Disable
 
 You can also find full packs of txt cheat codes on internet and put them in dev:/wiiflow/codes/.
 
@@ -345,6 +345,7 @@ Up to 4 image layers can be added to these menus:
 - Source menu screen using [SOURCE/USER1] to [SOURCE/USER4]
 - Parental lock code screen using [CODE/USER1] to [CODE/USER4]
 - Game controller guide using [GAMEGUIDE/USER1] to [GAMEGUIDE/USER4]
+- Cheat code screen using [CHEAT/USER1] to [CHEAT/USER4]
 - File explorer using [EXPLORER/USER1] to [EXPLORER/USER4]
 - Help / Credits screen using [ABOUT/USER1] to [ABOUT/USER4]
 - Coverflow adjust screen using [CFTHEME/USER1] to [CFTHEME/USER4]
@@ -388,8 +389,8 @@ sneek/di.bin (if you choose to have Disc Interface to launch Wii games through S
 It is also recommended to install neek2o "Back to nand" forwarder channel on your emunand, this way Wiiflow will use it to go back to real NAND when you quit the game. You can install it using:
 > Wii channels settings > Manage Wii channel list > Install Wii channel (Wad file)
 
-Once it's done, launch your Virtual console game from emunand coverflow with neek2o ON in game settings:
-> Nand emulation > Nand emulation > Neek2o
+Once it's done, launch your Virtual console game from emunand coverflow with neek2o ON:
+> Game config icon > Nand emulation > Nand emulation > Neek2o
 
 
 ==================================================================================
@@ -472,21 +473,21 @@ Wii channels issues can be easily solved by installing and using neek2o mode (se
 Wii games
 ---------
 
-If a Wii game doesn't boot, first try to disable all patches and make sure "Language" is set to "Console" in game settings:
-> Language > Console
+If a Wii game doesn't boot, first try to disable all patches and make sure "Language" is set to "Console":
+> Game config icon > Language > Console
 (That could be useful for games like Kirby's adventures, which won't work otherwise.)
 
-You can also try to force another cIOS base (56/57/58) in game settings:
-> Compatibility > cIOS > (choose the slot where you installed the cIOS base)
+You can also try to force another cIOS base (56/57/58):
+> Game config icon > Compatibility > cIOS > (choose the slot where you installed the cIOS base)
 
-If it still doesn't work, try to patch your real nand region temporarily in game settings:
-> Compatibility > Adapt Wii region to game > On
+If it still doesn't work, try to patch your real nand region temporarily:
+> Game config icon > Compatibility > Adapt Wii region to game > On
 (That could be useful for some trivia Ubisoft NTSC games that won't work on PAL consoles otherwise.)
 
 For some Wii games with strong anti-piracy protection, you'll have no option but to launch them from neek2o menu with DI (Disc Interface):
 (Adventures of Tintin, Driver San Francisco...)
-You can redirect those games directly to neek2o system menu in game settings:
-> Nand emulation > Nand emulation > Neek2o
+You can redirect those games directly to neek2o system menu:
+> Game config icon > Nand emulation > Nand emulation > Neek2o
 
 Note that it will launch your "Wii disc emunand" and not your "channel emunand".
 

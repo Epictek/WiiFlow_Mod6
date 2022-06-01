@@ -10,7 +10,7 @@ void CMenu::_showConfigHB(bool instant)
 
 	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
 		if(m_configLblUser[i] != -1)
-			m_btnMgr.show(m_configLblUser[i], instant);
+			m_btnMgr.show(m_configLblUser[i]);
 	
 	/** MAIN PAGE **/
 	if(curPage == MAIN_SETTINGS)

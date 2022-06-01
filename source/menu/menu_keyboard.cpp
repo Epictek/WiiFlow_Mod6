@@ -7,29 +7,6 @@ s16 m_keyboardBtnKey[42];
 s16 m_keyboardLblUser[4];
 char text[17];
 
-void CMenu::_hideKeyboard(bool instant)
-{
-	for(u8 i = 0; i < 42; ++i)
-		m_btnMgr.hide(m_keyboardBtnKey[i], instant);
-	m_btnMgr.hide(m_configBtnBack, instant);
-	m_btnMgr.hide(m_configBtnCenter, instant);
-	m_btnMgr.hide(m_configLblTitle, instant);
-	for(u8 i = 0; i < ARRAY_SIZE(m_keyboardLblUser); ++i)
-		if(m_keyboardLblUser[i] != -1)
-			m_btnMgr.hide(m_keyboardLblUser[i], instant);
-}
-
-void CMenu::_showKeyboard(void)
-{
-	for(u8 i = 0; i < 42; ++i)
-		m_btnMgr.show(m_keyboardBtnKey[i]);
-	m_btnMgr.show(m_configBtnBack);
-	m_btnMgr.show(m_configLblTitle);
-	for(u8 i = 0; i < ARRAY_SIZE(m_keyboardLblUser); ++i)
-		if(m_keyboardLblUser[i] != -1)
-			m_btnMgr.show(m_keyboardLblUser[i]);
-}
-
 static const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -',.<"; // 42 buttons
 
 char *CMenu::_keyboard(bool search)
@@ -38,9 +15,18 @@ char *CMenu::_keyboard(bool search)
 	u8 n = 0;
 	wchar_t textLbl[] = L"_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _";
 	
+		SetupInput();
+
+	for(u8 i = 0; i < 42; ++i)
+		m_btnMgr.show(m_keyboardBtnKey[i]);
+	m_btnMgr.show(m_configBtnBack);
 	m_btnMgr.setText(m_configLblTitle, textLbl);
-	SetupInput();
-	_showKeyboard();
+	m_btnMgr.show(m_configLblTitle);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_keyboardLblUser); ++i)
+		if(m_keyboardLblUser[i] != -1)
+			m_btnMgr.show(m_keyboardLblUser[i]);	
+	
 	if(!search)
 	{
 		m_btnMgr.setText(m_configBtnCenter, _t("ok", L"Ok"));
@@ -114,8 +100,15 @@ char *CMenu::_keyboard(bool search)
 		else
 			repeatDelay = REPEATDELAY;
 	}
-	_hideKeyboard();
+
+	_hideConfig(true);
+	for(u8 i = 0; i < 42; ++i)
+		m_btnMgr.hide(m_keyboardBtnKey[i]);
 	
+	for(u8 i = 0; i < ARRAY_SIZE(m_keyboardLblUser); ++i)
+		if(m_keyboardLblUser[i] != -1)
+			m_btnMgr.hide(m_keyboardLblUser[i]);
+		
 	return text;
 }
 
