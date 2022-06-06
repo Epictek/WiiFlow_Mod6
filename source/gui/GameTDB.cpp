@@ -843,7 +843,7 @@ int GameTDB::GetRatingDescriptors(const char *id, std::vector<std::string> & des
 
 int GameTDB::GetWifiPlayers(const char *id)
 {
-	int players = -1;
+	int players = 0;
 
 	if(!id)
 		return players;
@@ -915,7 +915,7 @@ int GameTDB::GetWifiFeatures(const char *id, std::vector<std::string> & feat_lis
 
 int GameTDB::GetPlayers(const char *id)
 {
-	int players = -1;
+	int players = 1;
 
 	if(!id)
 		return players;

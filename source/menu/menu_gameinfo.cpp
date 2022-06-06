@@ -46,22 +46,15 @@ bool CMenu::_gameinfo(void)
 		_mainLoopCommon();
 		CoverFlow.tick();
 		
-		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
-		{
-			if(dl_tdb)
-			{
-				_hideGameInfo();
-				_download();
-			}
+		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 			break;
-		}
 		
 		else if((wBtn_Pressed(WPAD_BUTTON_RIGHT, WPAD_EXP_NONE) && ShowPointer()) // wiimote vertical
 			|| (wBtn_Pressed(WPAD_BUTTON_DOWN, WPAD_EXP_NONE) && !ShowPointer()) // wiimote sideways
 			|| (wBtn_Pressed(WPAD_CLASSIC_BUTTON_RIGHT, WPAD_EXP_CLASSIC)) // classic controller
 			|| GBTN_RIGHT_PRESSED) // gamecube controller
 		{
-			_hideGameInfo();
+			_hideGameInfoPg(true);
 			CoverFlow.right();
 			m_newGame = true;
 			curPage = 1;
@@ -75,7 +68,7 @@ bool CMenu::_gameinfo(void)
 			|| (wBtn_Pressed(WPAD_CLASSIC_BUTTON_LEFT, WPAD_EXP_CLASSIC)) // classic controller
 			|| GBTN_LEFT_PRESSED) // gamecube controller
 		{
-			_hideGameInfo();
+			_hideGameInfoPg(true);
 			CoverFlow.left();
 			m_newGame = true;
 			curPage = 1;
@@ -122,60 +115,63 @@ bool CMenu::_gameinfo(void)
 			|| (wBtn_Pressed(WPAD_CLASSIC_BUTTON_UP, WPAD_EXP_CLASSIC) || wBtn_Held(WPAD_CLASSIC_BUTTON_UP, WPAD_EXP_CLASSIC)) // classic controller
 			|| (GBTN_UP_PRESSED || GBTN_UP_HELD)) // gamecube controller
 		{
-			if(curPage == 2)
+			if(xtra_skips > 0)
 			{
-				if(xtra_skips > 0)
-				{
-					m_btnMgr.moveBy(m_gameinfoLblSynopsis, 0, xtra_skips);
-					xtra_skips = 0;
-				}
-				else if (amount_of_skips > 0)
-				{
-					m_btnMgr.moveBy(m_gameinfoLblSynopsis, 0, pixels_to_skip);
-					amount_of_skips--;
-				}
+				m_btnMgr.moveBy(curPage == 1 ? m_gameinfoLblRomInfo : m_gameinfoLblSynopsis, 0, xtra_skips);
+				xtra_skips = 0;
 			}
-			else // curPage 1
+			else if(amount_of_skips > 0)
 			{
-				if(xtra_skips > 0)
-				{
-					m_btnMgr.moveBy(m_gameinfoLblRomInfo, 0, xtra_skips);
-					xtra_skips = 0;
-				}
-				else if (amount_of_skips > 0)
-				{
-					m_btnMgr.moveBy(m_gameinfoLblRomInfo, 0, pixels_to_skip);
-					amount_of_skips--;
-				}
+				m_btnMgr.moveBy(curPage == 1 ? m_gameinfoLblRomInfo : m_gameinfoLblSynopsis, 0, pixels_to_skip);
+				amount_of_skips--;
 			}
 		}
-		else if((BTN_MINUS_PRESSED || (BTN_A_OR_2_PRESSED && (m_btnMgr.selected(m_configBtnPageM)))) && (tdb_found && !noSynopsis))
+		else if(BTN_MINUS_PRESSED && tdb_found && !noSynopsis)
 		{
 			curPage = curPage == 1 ? 2 : curPage - 1;
 			amount_of_skips = 0;
 			xtra_skips = 0;
-			if(BTN_MINUS_PRESSED)
-				m_btnMgr.click(m_configBtnPageM);
+			m_btnMgr.click(m_configBtnPageM);
 			_hideGameInfoPg(true);
 			_showGameInfoPg();
 		}
-		else if((BTN_PLUS_PRESSED || (BTN_A_OR_2_PRESSED && (m_btnMgr.selected(m_configBtnPageP)))) && (tdb_found && !noSynopsis))
+		else if(BTN_PLUS_PRESSED && tdb_found && !noSynopsis)
 		{
 			curPage = curPage == 2 ? 1 : curPage + 1;
 			amount_of_skips = 0;
 			xtra_skips = 0;
-			if(BTN_PLUS_PRESSED)
-				m_btnMgr.click(m_configBtnPageP);
+			m_btnMgr.click(m_configBtnPageP);
 			_hideGameInfoPg(true);
 			_showGameInfoPg();
 		}
-		else if((BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnCenter)) || (BTN_A_OR_2_PRESSED && !ShowPointer()))
+		else if(BTN_A_OR_2_PRESSED)
 		{
-			launchGame = true;
-			break;
+			if(m_btnMgr.selected(m_configBtnBack))
+				break;
+			else if(m_btnMgr.selected(m_configBtnPageM) && tdb_found && !noSynopsis)
+			{
+				curPage = curPage == 1 ? 2 : curPage - 1;
+				amount_of_skips = 0;
+				xtra_skips = 0;
+				_hideGameInfoPg(true);
+				_showGameInfoPg();
+			}
+			else if(m_btnMgr.selected(m_configBtnPageP) && tdb_found && !noSynopsis)
+			{
+				curPage = curPage == 2 ? 1 : curPage + 1;
+				amount_of_skips = 0;
+				xtra_skips = 0;
+				_hideGameInfoPg(true);
+				_showGameInfoPg();
+			}
+			else if(m_btnMgr.selected(m_configBtnCenter) || !ShowPointer())
+			{
+				launchGame = true;
+				break;
+			}
 		}
 	}
-	_hideGameInfo(false);
+	_hideGameInfo();
 	
 	TexHandle.Cleanup(m_cart);
 	TexHandle.Cleanup(m_snap);
@@ -186,6 +182,9 @@ bool CMenu::_gameinfo(void)
 		TexHandle.Cleanup(m_controls[i]);
 	TexHandle.Cleanup(m_wifi);
 	TexHandle.Cleanup(m_rating);
+	
+	if(dl_tdb && !launchGame)
+		_download();
 
 	return launchGame;
 }
@@ -201,6 +200,10 @@ void CMenu::_hideGameInfo(bool instant)
 
 void CMenu::_hideGameInfoPg(bool instant)
 {
+	m_btnMgr.hide(m_configLblPage);
+	m_btnMgr.hide(m_configBtnPageM);
+	m_btnMgr.hide(m_configBtnPageP);	
+
 	m_btnMgr.hide(m_gameinfoLblSynopsis, instant);
 	m_btnMgr.hide(m_gameinfoLblRating, instant);
 	m_btnMgr.hide(m_gameinfoLblWifiplayers, instant);
@@ -223,7 +226,9 @@ void CMenu::_showGameInfoPg(void)
 	if(curPage == 1)
 	{
 		m_btnMgr.reset(m_gameinfoLblRomInfo);
-		m_btnMgr.show(m_gameinfoLblRomInfo, false);
+		m_btnMgr.show(m_gameinfoLblRomInfo);
+		if(!tdb_found)
+			return;
 		m_btnMgr.getTotalHeight(m_gameinfoLblRomInfo, rominfo_th);
 		m_btnMgr.moveBy(m_gameinfoLblRomInfo, 0, -1);
 		m_btnMgr.setText(m_configLblPage, L"1 / 2");
@@ -250,15 +255,19 @@ void CMenu::_showGameInfoPg(void)
 	else // curPage 2
 	{
 		m_btnMgr.reset(m_gameinfoLblSynopsis);
-		m_btnMgr.show(m_gameinfoLblSynopsis, false);
+		m_btnMgr.show(m_gameinfoLblSynopsis);
 		m_btnMgr.getTotalHeight(m_gameinfoLblSynopsis, synopsis_th);
 		m_btnMgr.moveBy(m_gameinfoLblSynopsis, 0, -1);
 		
 		m_btnMgr.setText(m_configLblPage, L"2 / 2");
 	}
+	if(!noSynopsis)
+	{
+		m_btnMgr.show(m_configLblPage);
+		m_btnMgr.show(m_configBtnPageM);
+		m_btnMgr.show(m_configBtnPageP);
+	}
 }
-
-wstringEx rom_info;
 
 void CMenu::_showGameInfo(void)
 {
@@ -271,30 +280,7 @@ void CMenu::_showGameInfo(void)
 	for(u8 i = 0; i < ARRAY_SIZE(m_gameinfoLblUser); ++i)
 			m_btnMgr.show(m_gameinfoLblUser[i]);
 	
-	if(tdb_found)
-	{
-		if(!noSynopsis)
-		{
-			m_btnMgr.show(m_configLblPage);
-			m_btnMgr.show(m_configBtnPageM);
-			m_btnMgr.show(m_configBtnPageP);
-		}
-		_showGameInfoPg();
-	}
-	else if(!tdb_found && dl_tdb)
-	{
-		m_btnMgr.show(m_gameinfoLblRomInfo, true);
-		rom_info.append(_t("errtdb", L"Download GameTDB to use this feature."));
-		m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);
-		// m_btnMgr.setText(m_gameinfoLblRomInfo, _t("errtdb", L"Download GameTDB to use this feature."));
-	}
-	else
-	{
-		m_btnMgr.show(m_gameinfoLblRomInfo, true);
-		rom_info.append(_t("errgame18", L"No game info!"));
-		m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);
-		// m_btnMgr.setText(m_gameinfoLblRomInfo, _t("errgame18", L"No game info!"));
-	}
+	_showGameInfoPg();
 }
 
 void CMenu::_initGameInfoMenu()
@@ -412,11 +398,12 @@ void CMenu::_textGameInfo(void)
 	TexData emptyTex;
 	const dir_discHdr *GameHdr = CoverFlow.getHdr();
 	bool wide = m_vid.wide();
-	
-	rom_info = L"";
-	int wiiRegion = CONF_GetRegion(); // reused later for release date
+	wstringEx rom_info = L"", gameinfo_Synopsis_w;
+	int wiiRegion = CONF_GetRegion();
 	u32 playCount = 0;
 	time_t lastPlayed;
+	int PublishDate, year, day, month;
+	u8 players;
 
 /***************************************** Playcount info ***********************************************/
 	
@@ -470,14 +457,14 @@ void CMenu::_textGameInfo(void)
 		
 		/* Is platform.ini available? */
 		if(!m_platform.loaded())
-			return; // no platform.ini found
+			goto out; // no platform.ini found
 		
 		/* Search platform.ini to find plugin magic to get platformName */
 		strncpy(m_plugin.PluginMagicWord, fmt("%08x", GameHdr->settings[0]), 8);
 		snprintf(platformName, sizeof(platformName), "%s", m_platform.getString("PLUGINS", m_plugin.PluginMagicWord).c_str());
 		strcpy(GameID, GameHdr->id);
 		if(strlen(platformName) == 0 || strcasecmp(GameID, "PLUGIN") == 0)
-			return; // no platform name found to match plugin magic #
+			goto out; // no platform name found to match plugin magic #
 			
 		/* Check COMBINED for database platform name
 		some platforms have different names per country (ex. Genesis/Megadrive)
@@ -491,8 +478,8 @@ void CMenu::_textGameInfo(void)
 		/* Load platform name.xml database to get game's info using the gameID (crc/serial) */
 		gametdb.OpenFile(fmt("%s/%s/%s.xml", m_pluginDataDir.c_str(), platformName, platformName));
 		tdb_found = gametdb.IsLoaded();
-		if(!tdb_found)
-			return; // no platform xml found
+		if(!tdb_found) // no platform xml found
+			goto out;
 		
 		gametdb.SetLanguageCode(m_loc.getString(m_curLanguage, "gametdb_code", "EN").c_str());
 
@@ -571,7 +558,7 @@ void CMenu::_textGameInfo(void)
 		if(!tdb_found)
 		{
 			dl_tdb = true; // prompt to download gameTDB
-			return;
+			goto out;
 		}
 
 		gametdb.SetLanguageCode(m_loc.getString(m_curLanguage, "gametdb_code", "EN").c_str());
@@ -585,13 +572,7 @@ void CMenu::_textGameInfo(void)
 		if(fsop_FileExist(cart_path))
 		{			
 			TexHandle.fromImageFile(m_cart, cart_path);
-			if(m_cart.height > 112)
-			{
-				u8 cart_height = wide ? 128 : 114;
-				m_btnMgr.setTexture(m_gameinfoLblCartDisk, m_cart, 114, cart_height);
-			}
-			else
-				m_btnMgr.setTexture(m_gameinfoLblCartDisk, m_cart, 160, 112);
+			m_btnMgr.setTexture(m_gameinfoLblCartDisk, m_cart, 114, wide ? 128 : 114);
 		}
 		else
 			TexHandle.Cleanup(m_cart);
@@ -701,6 +682,12 @@ void CMenu::_textGameInfo(void)
 		bool keyboard = false;
 		bool udraw = false;
 		bool zapper = false;
+		
+		if(GameHdr->type == TYPE_GC_GAME)
+		{
+			wiimote = true;
+			nunchuk = true;
+		}
 
 		vector<Accessory> Accessories;
 		gametdb.GetAccessories(GameID, Accessories);
@@ -733,8 +720,6 @@ void CMenu::_textGameInfo(void)
 		if(wiimote && x < max_controlsReq)
 		{
 			u8 players = gametdb.GetPlayers(GameID);
-			if(players >= 10)
-				players /= 10;
 
 			if(players == 1)
 				TexHandle.fromPNG(m_controlsreq[x], gi_wiimote1_png);
@@ -742,14 +727,14 @@ void CMenu::_textGameInfo(void)
 				TexHandle.fromPNG(m_controlsreq[x], gi_wiimote2_png);
 			else if(players == 3)
 				TexHandle.fromPNG(m_controlsreq[x], gi_wiimote3_png);
-			else if(players == 4)
+			else if(players < 6)
 				TexHandle.fromPNG(m_controlsreq[x], gi_wiimote4_png);
 			else if(players == 6)
 				TexHandle.fromPNG(m_controlsreq[x], gi_wiimote6_png);
-			else if(players == 8)
+			else
 				TexHandle.fromPNG(m_controlsreq[x], gi_wiimote8_png);
 
-			m_btnMgr.setTexture(m_gameinfoLblControlsReq[x] ,m_controlsreq[x], 52, 60); // instead 20, 60 since Wiidev commit
+			m_btnMgr.setTexture(m_gameinfoLblControlsReq[x] ,m_controlsreq[x], 52, 60);
 			x++;
 		}
 		if(nunchuk && x < max_controlsReq)
@@ -773,7 +758,7 @@ void CMenu::_textGameInfo(void)
 		if(motionplus && x < max_controlsReq)
 		{
 			TexHandle.fromPNG(m_controlsreq[x], gi_motionplusR_png);
-			m_btnMgr.setTexture(m_gameinfoLblControlsReq[x] ,m_controlsreq[x], 52, 60); // instead of 20, 60 since Wiidev commit
+			m_btnMgr.setTexture(m_gameinfoLblControlsReq[x] ,m_controlsreq[x], 52, 60);
 			x++;
 		}
 		if(dancepad && x < max_controlsReq)
@@ -817,6 +802,13 @@ void CMenu::_textGameInfo(void)
 		keyboard = false;
 		udraw = false;
 		zapper = false;
+		
+		if(GameHdr->type == TYPE_GC_GAME)
+		{
+			gamecube = true;
+			classiccontroller = true;
+		}
+		
 		for(vector<Accessory>::iterator acc_itr = Accessories.begin(); acc_itr != Accessories.end(); acc_itr++)
 		{
 			if(acc_itr->Required)
@@ -883,7 +875,7 @@ void CMenu::_textGameInfo(void)
 		if(motionplus && x < max_controls)
 		{
 			TexHandle.fromPNG(m_controls[x], gi_motionplus_png);
-			m_btnMgr.setTexture(m_gameinfoLblControls[x] ,m_controls[x], 52, 60); // instead of 20, 60 since wiidev commit
+			m_btnMgr.setTexture(m_gameinfoLblControls[x] ,m_controls[x], 52, 60);
 			x++;
 		}
 		if(balanceboard && x < max_controls)
@@ -934,7 +926,6 @@ void CMenu::_textGameInfo(void)
 /***************************************** Shared game info *********************************************/
 	
 	/* Synopsis */
-	wstringEx gameinfo_Synopsis_w;
 	if(gametdb.GetSynopsis(GameID, TMP_Char))
 	{
 		gameinfo_Synopsis_w.fromUTF8(TMP_Char);
@@ -951,7 +942,10 @@ void CMenu::_textGameInfo(void)
 	rom_info.append(wfmt(_fmt("gameinfo7",L"GameID: %s"), GameID));
 		
 	if(gametdb.GetRegion(GameID, TMP_Char))
-		rom_info.append(wfmt(_fmt("gameinfo3",L" (%s)"), TMP_Char));
+	{
+		rom_info += ' ';
+		rom_info.append(wfmt(_fmt("gameinfo3",L"(%s)"), TMP_Char));
+	}
 
 	if(gametdb.GetGenres(GameID, TMP_Char, GameHdr->type))
 	{
@@ -966,29 +960,20 @@ void CMenu::_textGameInfo(void)
 		}
 		rom_info.append(wfmt(_fmt("gameinfo5",L"Genre: %s"), s.c_str()));
 	}
-	int PublishDate = gametdb.GetPublishDate(GameID);
-	int year = PublishDate >> 16;
-	int day = PublishDate & 0xFF;
-	int month = (PublishDate >> 8) & 0xFF;
-	if(day == 0 && month == 0)
+	PublishDate = gametdb.GetPublishDate(GameID);
+	year = PublishDate >> 16;
+	day = PublishDate & 0xFF;
+	month = (PublishDate >> 8) & 0xFF;
+	//! only display year or nothing if there's no date at all
+	if(day == 0 && month == 0 && year != 0)
 	{
-		//! only display year or nothing if there's no date at all
-		if(year != 0)
-		{
-			rom_info.append(L"\n\n");
-			rom_info.append(wfmt(_fmt("gameinfo8",L"Released: %i"), year));
-		}
+		rom_info.append(L"\n\n");
+		rom_info.append(wfmt(_fmt("gameinfo8",L"Released: %i"), year));
 	}
 	else
 	{
 		switch(wiiRegion)
 		{
-			case 0:
-			case 4:
-			case 5:
-				rom_info.append(L"\n\n");
-				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i"), year, month, day));
-				break;
 			case 1: // US
 				rom_info.append(L"\n\n");
 				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i"), month, day, year));
@@ -997,8 +982,17 @@ void CMenu::_textGameInfo(void)
 				rom_info.append(L"\n\n");
 				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i/%i/%i"), day, month, year));
 				break;
+			default:
+				rom_info.append(L"\n\n");
+				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i"), year, month, day));
+				break;
 		}
 	}
+	
+	players = gametdb.GetPlayers(GameID);
+	rom_info.append(L"\n\n");
+	rom_info.append(wfmt(_fmt("gameinfo9",L"Players: %i"), players));
+	
 	if(gametdb.GetLanguages(GameID, TMP_Char)) // added
 	{
 		rom_info.append(L"\n\n");
@@ -1014,19 +1008,17 @@ void CMenu::_textGameInfo(void)
 		rom_info.append(L"\n\n");
 		rom_info.append(wfmt(_fmt("gameinfo2",L"Publisher: %s"), TMP_Char));
 	}
-	
-/**************************************** Add-on plugin game info ***************************************/
-	
-	if(GameHdr->type == TYPE_PLUGIN)
-	{
-		u8 players = gametdb.GetPlayers(GameID);
-		if(players > 0)
-		{
-			rom_info.append(L"\n\n");
-			rom_info.append(wfmt(_fmt("gameinfo9",L"Players: %i"), players));
-		}	
-	}
-	
-	m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);	
+
 	gametdb.CloseFile();
+	
+out:
+	if(!tdb_found)
+	{
+		if(GameHdr->type == TYPE_PLUGIN)
+			rom_info.append(_t("errgame18", L"Install plugin database to get rom info."));
+		else
+			rom_info.append(_t("errtdb", L"Download GameTDB to use this feature."));
+		m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);
+	}
+	m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);
 }

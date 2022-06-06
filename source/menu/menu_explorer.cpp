@@ -52,7 +52,7 @@ static bool wadsOnly = false;
 static bool pluginExplorer = false;
 static bool fromSource = false;
 static bool importRom = false;
-static bool showImport = false;
+static bool forbidRoot = false;
 
 void CMenu::_hideExplorer(bool instant)
 {
@@ -131,14 +131,14 @@ void CMenu::_Explorer(void)
 	{
 		_mainLoopCommon();
 		/* If dir is root or start dir for plugin explorer, close explorer */
-		if((BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED) && (dir[0] == '\0' || (pluginExplorer && strcmp(dir, startDir) == 0)))
+		if((BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED) && (dir[0] == '\0' || (forbidRoot && strcmp(dir, startDir) == 0)))
 		{
 			memset(folderPath, 0, MAX_FAT_PATH);
 			break;
 		}
 		else if(BTN_HOME_PRESSED)
 		{
-			if(pluginExplorer) // go to rom dir
+			if(forbidRoot) // go to rom dir
 			{
 				memset(dir, 0, MAX_FAT_PATH);
 				strcpy(dir, startDir);
@@ -187,8 +187,8 @@ void CMenu::_Explorer(void)
 		/* If "..." is selected and path is not empty then go up (back) one folder */
 		else if(((BTN_A_OR_2_PRESSED && m_btnMgr.selected(entries_sel[0])) || BTN_B_OR_1_PRESSED) && dir[0] != '\0')
 		{
-			/* If pluginExplorer last parent dir is startDir */
-			if(pluginExplorer && strcmp(dir, startDir) == 0)
+			/* If plugin or file explorer last parent dir is startDir */
+			if(forbidRoot && strcmp(dir, startDir) == 0)
 			{
 				memset(folderPath, 0, MAX_FAT_PATH);
 				break;				
@@ -657,7 +657,7 @@ void CMenu::_refreshExplorer(s8 direction)
 		m_btnMgr.hide(m_configBtnPageP);
 	}
 	
-	if(pluginExplorer && showImport)
+	if(pluginExplorer)
 	{
 		importRom = false; // cancel import rom mode
 		m_btnMgr.hide(m_configLblTitle);
@@ -665,7 +665,7 @@ void CMenu::_refreshExplorer(s8 direction)
 		m_btnMgr.show(m_explorerLblSelFolderBg);
 		m_btnMgr.setText(m_configBtnCenter, _t("explorer1", L"Import"));
 		//! If explorer path and plugin romdir are the same, don't show import button
-		if((strncasecmp(dir, romDirPath, strlen(romDirPath)) == 0))
+		if(strncasecmp(dir, romDirPath, strlen(romDirPath)) == 0)
 			m_btnMgr.hide(m_configBtnCenter); // import
 		else
 			m_btnMgr.show(m_configBtnCenter);
@@ -699,25 +699,30 @@ void CMenu::_FileExplorer(const char *startPath)
 	strcpy(dir, startPath);
 	if(dir[strlen(dir) - 1] != '/')
 		strcat(dir, "/");
+	forbidRoot = true; // restrict browser to startPath directory and subfolders
 	_Explorer();
+	forbidRoot = false;
 	return;
 }
 
 /** Plugin explorer
-Will restrict path to plugin rom directory and allow launch of roms
-Will also allow to copy ("import") roms from "explorer_path" directory to coverflow rom directory
-if launched from source menu using an "explorer" source button in source_menu.ini file
-"explorer_path" has to be defined in plugin.ini file **/
+Will restrict browser to plugin rom directory and allow launch of roms
+Will allow to copy ("import") roms from "explorer_path" directory to coverflow rom directory
+Can be launched from source menu using an "explorer" source button in source_menu.ini file
+"explorer_path" has to be defined in plugin.ini file
+Import and plugin launch are disabled if magic is wii, gc, emunand, realnand or hb **/
 void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 {
 	u8 pos = m_plugin.GetPluginPosition(magic);
 	
-	//! Simple file explorer if not a valid magic number, or if magic is wii, gc, emunand, realnand, scumm or hb
-	if(pos == 255 || magic == 0x4E574949 || magic == 0x4E47434D || magic == 0x454E414E || magic == 0x4E414E44 || magic == 0x5343564D || strncasecmp(fmt("%06x", magic), "484252", 6) == 0)
+	//! Close if magic is not valid or if scummvm
+	if(pos == 255 || magic == 0x5343564D)
+		return;
+
+	//! Simple file explorer if magic is wii, gc, emunand, realnand or hb
+	pluginExplorer = true;
+	if(magic == 0x4E574949 || magic == 0x4E47434D || magic == 0x454E414E || magic == 0x4E414E44 || strncasecmp(fmt("%06x", magic), "484252", 6) == 0)
 		pluginExplorer = false;
-	else
-		pluginExplorer = true;
-	fromSource = source;
 	
 	memset(dir, 0, MAX_FAT_PATH);
 	strcpy(dir, startPath);
@@ -760,15 +765,13 @@ void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 	if(dir[strlen(dir) - 1] != '/')
 		strcat(dir, "/");
 
-	//! Only show import button if plugin explorer ok and startpath is different from romdir
-	showImport = (pluginExplorer && strcasecmp(dir, romDirPath) != 0) ? true : false;
-
-	importRom = false;
+	fromSource = source;
 	magicNum = magic;
-
+	importRom = false;
+	forbidRoot = true;
 	_Explorer();
-	
 	pluginExplorer = false;
+	forbidRoot = false;
 	fromSource = false;
 }
 

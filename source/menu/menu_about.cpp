@@ -32,7 +32,9 @@ void CMenu::_about(bool help)
 	while(!m_exit)
 	{
 		_mainLoopCommon();
-		if((BTN_DOWN_PRESSED || BTN_DOWN_HELD || BTN_LEFT_PRESSED || BTN_LEFT_HELD) && thanks_th > thanks_h)
+		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
+			break;
+		else if((BTN_DOWN_PRESSED || BTN_DOWN_HELD || BTN_LEFT_PRESSED || BTN_LEFT_HELD) && thanks_th > thanks_h)
 		{
 			if((thanks_th - amount_of_skips * pixels_to_skip) >= thanks_h)
 			{
@@ -58,20 +60,6 @@ void CMenu::_about(bool help)
 				amount_of_skips--;
 			}
 		}
-		else if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
-			break;
-		else if(BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnCenter))
-		{
-			_hideAbout(true);
-			showHelp = !showHelp;
-			_textAbout();
-			amount_of_skips = 0;
-			xtra_skips = 0;
-			m_btnMgr.reset(m_aboutLblInfo, true);
-			_showAbout();
-			m_btnMgr.getTotalHeight(m_aboutLblInfo, thanks_th);
-			m_btnMgr.moveBy(m_aboutLblInfo, 0, -1);
-		}
 	}
 	_hideAbout(true);
 }
@@ -79,30 +67,26 @@ void CMenu::_about(bool help)
 void CMenu::_hideAbout(bool instant)
 {
 	m_btnMgr.hide(m_configLblTitle, instant);
+	m_btnMgr.hide(m_configBtnBack, instant);
 	m_btnMgr.hide(m_aboutLblIOS, instant);
 	m_btnMgr.hide(m_aboutLblInfo, instant);
-	for (u8 i = 0; i < ARRAY_SIZE(m_aboutLblUser); ++i)
-	{
+
+	for(u8 i = 0; i < ARRAY_SIZE(m_aboutLblUser); ++i)
 		if(m_aboutLblUser[i] != -1)
 			m_btnMgr.hide(m_aboutLblUser[i], instant);
-	}
-	m_btnMgr.hide(m_configBtnBack, instant);
-	if(!m_txt_view)
-		m_btnMgr.hide(m_configBtnCenter, instant);
 }
 
 void CMenu::_showAbout(void)
 {
 	m_btnMgr.show(m_configLblTitle);
-	if(m_txt_view == false)
+	m_btnMgr.show(m_configBtnBack);
+	if(!m_txt_view)
 		m_btnMgr.show(m_aboutLblIOS);
 	m_btnMgr.show(m_aboutLblInfo,false);
+	
 	for(u8 i = 0; i < ARRAY_SIZE(m_aboutLblUser); ++i)
 		if(m_aboutLblUser[i] != -1)
 			m_btnMgr.show(m_aboutLblUser[i]);
-	m_btnMgr.show(m_configBtnBack);
-	if(!m_txt_view)
-		m_btnMgr.show(m_configBtnCenter);
 }
 
 void CMenu::_initAboutMenu()
@@ -149,7 +133,6 @@ void CMenu::_textAbout(void)
 	if(showHelp) 
 	{
 		m_btnMgr.setText(m_configLblTitle, _t("about10", L"Help guide"));
-		m_btnMgr.setText(m_configBtnCenter, _t("home4", L"Credits"));
 		wstringEx help_text;
 		u32 txt_size = 0;
 		char *txt_mem = (char*)MEM2_alloc(MAX_MSG_SIZE);
@@ -165,19 +148,15 @@ void CMenu::_textAbout(void)
 		else
 			m_btnMgr.setText(m_aboutLblInfo, ENGLISH_TXT_W);
 		txt_mem = NULL;
-		//! Display current video mode for PAL Wii
-		if(!IsOnWiiU() && CONF_GetVideo() == CONF_VIDEO_PAL)
-		{
-			string s = sfmt("PAL %c0Hz", CONF_GetEuRGB60() ? '6' : '5');
-			m_btnMgr.setText(m_aboutLblIOS, s);
-			m_btnMgr.show(m_aboutLblIOS);
-		}
+		//! Display current video mode
+		string s = sfmt("%s %c0Hz", CONF_GetVideo() == CONF_VIDEO_PAL ? "PAL" : "NTSC", (CONF_GetEuRGB60() || CONF_GetVideo() != CONF_VIDEO_PAL) ? '6' : '5');
+		m_btnMgr.setText(m_aboutLblIOS, s);
+		m_btnMgr.show(m_aboutLblIOS);
 		return; 
 	}
 
 	/* Show credits and current cIOS */
 	m_btnMgr.setText(m_configLblTitle, wfmt(L"%s %s", APP_NAME, APP_VERSION));
-	m_btnMgr.setText(m_configBtnCenter, _t("about10", L"Help guide"));
 
 	wstringEx developers(wfmt(_fmt("about6", L"Current Developers:\n%s"), DEVELOPERS));
 	wstringEx pDevelopers(wfmt(_fmt("about7", L"Past Developers:\n%s"), PAST_DEVELOPERS));

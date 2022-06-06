@@ -585,7 +585,7 @@ int CMenu::main(void)
 				CoverFlow.setSorting((Sorting)SORT_ALPHA);
 				sorting = SORT_ALPHA;
 			}
-			wchar_t c[2] = {0, 0};
+			wchar_t c[3] = {0, 0, 0}; //
 			(m_btnMgr.selected(m_mainBtnPrev)) ? CoverFlow.prevLetter(c) : CoverFlow.nextLetter(c);
 			wstringEx curLetter;
 			curLetter = wstringEx(c);
@@ -928,7 +928,7 @@ int CMenu::main(void)
 			bUsed = true;
 			CoverFlow.right();
 		}
-		if(!BTN_B_OR_1_HELD)
+		else if(!BTN_B_OR_1_HELD)
 		{
 			/** Move coverflow up **/
 			if(BTN_MINUS_PRESSED)

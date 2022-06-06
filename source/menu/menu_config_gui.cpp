@@ -46,10 +46,13 @@ void CMenu::_showConfigGui(bool instant)
 	//! Wiimote gestures (explore coverflow by moving Wiimote)
 	m_btnMgr.setText(m_configLbl[8], _t("cfg710", L"Wiimote gestures"));
 	m_checkboxBtn[8] = enable_wmote_roll ? m_configChkOn[8] : m_configChkOff[8];
+	//! Fanart
+	m_btnMgr.setText(m_configLbl[9], _t("cfg706", L"Enable fanart"));
+	m_checkboxBtn[9] = m_cfg.getBool(general_domain, "enable_fanart", 0) == 0 ? m_configChkOff[9] : m_configChkOn[9];
 
-	for(u8 i = 0; i < 9; ++i)
+	for(u8 i = 0; i < 10; ++i)
 		m_btnMgr.show(m_configLbl[i], instant);
-	for(u8 i = 2; i < 9; ++i)
+	for(u8 i = 2; i < 10; ++i)
 		m_btnMgr.show(m_checkboxBtn[i], instant);
 }
 
@@ -194,6 +197,12 @@ void CMenu::_configGui(void)
 				m_cfg.setBool(general_domain, "wiimote_gestures", enable_wmote_roll);
 				_showConfigGui(true);
 				m_btnMgr.setSelected(m_checkboxBtn[8]);
+			}
+			else if(m_btnMgr.selected(m_checkboxBtn[9])) // enable fanart
+			{
+				m_cfg.setBool(general_domain, "enable_fanart", !m_cfg.getBool(general_domain, "enable_fanart"));
+				_showConfigGui(true);
+				m_btnMgr.setSelected(m_checkboxBtn[9]);
 			}
 		}
 	}

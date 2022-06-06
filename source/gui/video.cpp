@@ -503,7 +503,7 @@ u8 CVideo::waitMessageStack[2048] ATTRIBUTE_ALIGN(32);
 const u32 CVideo::waitMessageStackSize = 2048;
 
 bool custom = false;
-bool waitLoop = false;
+bool waitLoop = true; //
 static vector<string> waitImgs;
 
 static void GrabWaitFiles(char *FullPath)
@@ -571,7 +571,7 @@ void CVideo::waitMessage(const vector<TexData> &tex, float delay) // start wait 
 	else
 	{
 		m_waitMessages = tex;
-		m_waitMessageDelay = delay;
+		m_waitMessageDelay = custom ? 0.15f : delay; //
 	}
 
 	if(m_waitMessages.size() == 1)
@@ -630,18 +630,10 @@ void * CVideo::_showWaitMessages(void *obj) // wait images thread
 		{
 			m->waitMessage(*waitItr); // draw frame image
 			waitItr += PNGfadeDirection; // move to next image
-			/** this will change direction at the end of animation **/
-			/**
 			if(waitLoop && waitItr == m->m_waitMessages.end())
 				waitItr = m->m_waitMessages.begin();
 			else if(!waitLoop && (waitItr + 1 == m->m_waitMessages.end() || waitItr == m->m_waitMessages.begin()))
 				PNGfadeDirection *= (-1); // change direction if at beginning or end
-			**/
-			/** this will not change direction at the end of animation **/
-			/**/
-			if(waitItr == m->m_waitMessages.end())
-				waitItr = m->m_waitMessages.begin();
-			/**/
 			waitFrames = frames; // reset delay count
 			m->render();
 		}
@@ -736,6 +728,12 @@ void CVideo::usbImage(bool usb_mounted)
 /* draw and render load list splash screen */
 void CVideo::loadListImage(void)
 {
+	if(custom)
+	{
+		waitMessage(m_defaultWaitMessages, 0.15f);
+		return;
+	}
+	
 	if(m_loadListWaitMessages.size() == 0)
 	{
 		TexData loadListTex[4];

@@ -1188,7 +1188,7 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 		
 		if(m_gameList.size() > 48) // max number of channels displayed in system menu
 		{
-			if(!error(wfmt(_fmt("errneek6", L"Neek2o will fail to launch %i channels, try anyway?"), m_gameList.size()), true))
+			if(!error(wfmt(_fmt("errneek6", L"Neek2o may fail to launch %i channels, try anyway?"), m_gameList.size()), true))
 			{
 				if(nand_type == SAVES_NAND)
 					_loadList();

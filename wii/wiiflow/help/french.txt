@@ -8,8 +8,9 @@
   Moins hors de l'écran  =  Activer / Désactiver la barre d'icônes
   Plus hors de l'écran  =  Lettre (ou type de jeu) suivant(e)
   B + A sur un jeu  =  Lancement immédiat
-  B + A sur l'icône DVD  =  Lancement immédiat
-  B + A sur l'icône menu  =  Vue coverflow suivante
+  B + A sur l'icône source  =  Vue coverflow suivante
+  B + A sur l'icône dvd  =  Lancement immédiat
+  B + A sur l'icône aléatoire  =  Lancement immédiat
   B + A sur l'icône tri  =  Changer le mode de tri
   B + A sur l'icône paramètres  =  Paramètres globaux
   B + Moins / B + Plus  =  Changer la musique

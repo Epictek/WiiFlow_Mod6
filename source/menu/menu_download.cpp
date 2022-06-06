@@ -769,7 +769,7 @@ int CMenu::_bannerDownloader()
 		BnrIDList.push_back(dl_gameID);
 	
 	n = BnrIDList.size();
-	m_thrdTotal = n * 2; // download and save banner
+	m_thrdTotal = n;
 	
 	if(n == 0)
 	{
@@ -816,7 +816,6 @@ int CMenu::_bannerDownloader()
 				MEM2_free(file.data); // more than 0 bytes and less than 50kb			
 			downloadfile(banner_url_id3, &file);
 		}
-		update_pThread(1);
 		/* Minimum 50kb */
 		if(file.size > 51200 && file.data[0] != '<')
 		{

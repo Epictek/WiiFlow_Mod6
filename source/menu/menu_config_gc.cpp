@@ -226,8 +226,8 @@ void CMenu::_configGC(u8 startPage)
 				else if(m_btnMgr.selected(m_configBtnCenter))
 				{
 					_hideConfig(true);
-					string gameDir(fmt(gc_games_dir, DeviceName[m_cfg.getInt(gc_domain, "partition", USB1)]));
-					_FileExplorer(gameDir.c_str());
+					const char * gameDir = fmt(gc_games_dir, DeviceName[m_cfg.getInt(gc_domain, "partition", USB1)]);
+					_FileExplorer(gameDir);
 					_showConfigGC();
 				}
 				else

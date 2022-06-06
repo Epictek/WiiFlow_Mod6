@@ -8,8 +8,9 @@
   Minus out of screen  =  Enable / disable menu bar
   Plus out of screen  =  Next game in sorted list (alpha default)
   B + A on game cover  =  Launch game immediately
-  B + A on DVD icon  =  Launch DVD immediately
-  B + A on menu icon  =  Cycle through coverflow views
+  B + A on source icon  =  Cycle through coverflow views
+  B + A on dvd icon  =  Launch DVD immediately
+  B + A on random icon  =  Launch random game immediately
   B + A on sort icon  =  Cycle through sort modes
   B + A on settings icon  =  Global settings
   B + Minus / B + Plus  =  Previous / next song
