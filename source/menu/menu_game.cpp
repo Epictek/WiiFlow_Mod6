@@ -2,6 +2,7 @@
 #include "menu.hpp"
 #include "gc/gcdisc.hpp"
 #include "gui/WiiMovie.hpp"
+#include "hw/Gekko.h"
 // #include "banner/BannerWindow.hpp"
 
 #define FA_BG_DELAY 100 // number of loops before fanart background update
@@ -290,6 +291,7 @@ void CMenu::_game(bool launch)
 	m_gameSelected = true;
 	m_defaultSndPlayed = false;
 	
+	wiiLightOn();
 	SetupInput();
 
 	while(!m_exit)
@@ -896,6 +898,9 @@ void CMenu::_game(bool launch)
 				if (m_gameLblUser[i] != -1)
 					m_btnMgr.hide(m_gameLblUser[i]);
 		}
+		
+		if(menuBar && ShowPointer())
+			menuBar = !menuBar;
 	}
 	if(coverFlipped) // should not happen
 	{
@@ -903,6 +908,7 @@ void CMenu::_game(bool launch)
 		_loadCFLayout(cf_version, true); // true?
 		CoverFlow.applySettings(true);
 	}
+	wiiLightOff();
 	m_snapshot_loaded = false;
 	TexData emptyTex;
 	m_btnMgr.setTexture(m_gameLblSnap, emptyTex);

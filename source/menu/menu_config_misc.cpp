@@ -93,13 +93,13 @@ void CMenu::_configMisc(void)
 			{
 				_hideConfig(true);
 				_about(false);
-				_showConfigMisc(true);
+				_showConfigMisc();
 			}
 			else if(m_btnMgr.selected(m_configBtnGo[1])) // file explorer
 			{
 				_hideConfig(true);
 				_Explorer();
-				_showConfigMisc(true);
+				_showConfigMisc();
 			}
 			else if(m_btnMgr.selected(m_configBtn[2])) // dump theme
 			{

@@ -7,7 +7,7 @@
 		<!--   // remove this line to enable arguments
 		<arguments>
 			<arg>ios=249</arg>
-			<arg>waitdir=sd:/apps/wiiflow_lite/wait_imgs</arg>
+			<arg>waitdir=sd:/apps/wiiflow/wait_imgs</arg>
 			<arg>waitloop</arg>
 			<arg>noflash</arg>
 		</arguments>

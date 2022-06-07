@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update June 1, 2022.
+Update June 7, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -592,7 +592,7 @@ wifi_gecko_port=4405
 Channel settings under [CHANNELS] domain
 ----------------------------------------
 
-- Use "vwiinands" folder for emunand on WiiU instead of nands (default yes)
+- Use "vwiinands" folder for emunand on WiiU instead of "nands" (default yes)
 use_vwiinands=yes
 
 

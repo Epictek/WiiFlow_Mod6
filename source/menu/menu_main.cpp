@@ -1074,7 +1074,10 @@ int CMenu::main(void)
 		}
 		else
 			_hideMain();
-
+		
+		if(menuBar && ShowPointer())
+			menuBar = !menuBar;
+		
 		for(int chan = WPAD_MAX_WIIMOTES-1; chan >= 0; chan--)
 		{
 			if(WPadIR_Valid(chan) || (m_show_pointer[chan] && !WPadIR_Valid(chan)))

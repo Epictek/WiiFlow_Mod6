@@ -716,7 +716,6 @@ private:
 	
 	void _Explorer(void);
 	void _FileExplorer(const char *startPath); //
-	void _setExplorerCfg(void);
 	const char *_FolderExplorer(const char *startPath);
 	void _wadExplorer(void);
 	void _pluginExplorer(const char *startPath, u32 magic, bool source = true);
