@@ -475,10 +475,13 @@ bool CMenu::init(bool usb_mounted)
 	m_bnrSndVol = m_cfg.getInt(general_domain, "sound_volume_bnr", 255);
 	m_bnr_settings = m_cfg.getBool(general_domain, "banner_in_settings", true);	
 	
-	/* Source Menu on start reset tiers before build menus (unless explorer on start) */ 
-	m_explorer_on_start = (m_cfg.getBool(general_domain, "explorer_on_start", false) && !neek2o());
-	if(m_cfg.getBool(general_domain, "source_on_start", false) && !m_explorer_on_start)
+	/* Explorer on start if last game was launched from Explorer (unless Source menu on start below) */
+	m_explorer_on_start = (m_cfg.getBool(general_domain, "explorer_on_start", 0) && !neek2o());
+	
+	/* Source Menu on start reset tiers before build menus */
+	if(m_cfg.getBool(general_domain, "source_on_start", false))
 	{
+		m_explorer_on_start = false;
 		m_cfg.remove(SOURCEFLOW_DOMAIN, "tiers");
 		m_cfg.remove(SOURCEFLOW_DOMAIN, "numbers");
 	}	

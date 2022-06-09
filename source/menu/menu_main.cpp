@@ -485,12 +485,12 @@ int CMenu::main(void)
 
 	SetupInput(true);
 
-	/* Show explorer if last game was launched using explorer in source menu */
+	/* Show explorer if last game was launched using explorer */
 	if(m_explorer_on_start)
 	{
 		u32 plmagic = strtoul(m_cfg.getString(plugin_domain, "cur_magic", "4E574949").c_str(), NULL, 16);
 		string plpath = m_cfg.getString(general_domain, "explorer_path", "");
-		_pluginExplorer(plpath.c_str(), plmagic);
+		_pluginExplorer(plpath.c_str(), plmagic, true);
 		m_explorer_on_start = false;
 		m_cfg.setBool(general_domain, "explorer_on_start", false);
 		m_source_on_start = true;
@@ -509,7 +509,6 @@ int CMenu::main(void)
 		if(((bheld && !BTN_B_OR_1_HELD) || m_source_on_start) && !neek) // if button b was held and now released
 		{
 			menuBar = false;
-			// m_source_on_start = false;
 			bheld = false;
 			if(bUsed) // if b button used for something don't show source menu or sourceflow
 				bUsed = false;

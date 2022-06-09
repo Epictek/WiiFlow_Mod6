@@ -46,10 +46,10 @@ char folderPath[MAX_FAT_PATH];
 char romDirPath[MAX_FAT_PATH];
 bool folderExplorer = false;
 bool wadsOnly = false;
-bool pluginExplorer = false; // if true, import rom and launch plugin are allowed
-bool fromSource = false; // if true, sets startDir, dir, curPage and explorer_on_start in config ini
+bool pluginExplorer = false; // if true, import and launch of roms are allowed
+bool fromSource = false; // if true, sets source on start next boot if game is launched using explorer
 bool importRom = false; // if true, indicates Import button was clicked
-bool forbidRoot = false; // if true, prevents browsing startDir parent directory
+bool forbidRoot = false; // if true, prevents browsing startDir's parent directory
 
 void CMenu::_hideExplorer(bool instant)
 {
@@ -125,11 +125,8 @@ void CMenu::_Explorer(void)
 	}
 	//! remember start directory
 	else
-	{
 		strcpy(startDir, dir);
-		if(fromSource)
-			m_cfg.setString(general_domain, "explorer_root", startDir);
-	}
+
 	while(!m_exit)
 	{
 		_mainLoopCommon();
@@ -342,6 +339,7 @@ void CMenu::_Explorer(void)
 							m_btnMgr.down();
 						}
 					}
+					/* It's a file */
 					else
 					{
 						char file[MAX_FAT_PATH];
@@ -394,16 +392,44 @@ void CMenu::_Explorer(void)
 						/* Else try to read the file */
 						else
 						{
-							if(fromSource)
+							//! MUSIC FILES
+							if(strcasestr(file, ".mp3") != NULL || strcasestr(file, ".ogg") != NULL)
 							{
-								m_cfg.setBool(general_domain, "explorer_on_start", true);
+								MusicPlayer.LoadFile(file, false);
+								break;
+							}
+							//! TEXT FILES
+							else if(strcasestr(file, ".txt") != NULL || strcasestr(file, ".nfo") != NULL
+								|| strcasestr(file, ".ini") != NULL || strcasestr(file, ".conf") != NULL
+								|| strcasestr(file, ".cfg") != NULL || strcasestr(file, ".xml") != NULL
+								|| strcasestr(file, ".log") != NULL)
+							{
+								_hideExplorer(true);
+								m_txt_view = true;
+								m_txt_path = file;
+								_about(false);
+								m_txt_view = false;
+								m_txt_path = NULL;
+								_showExplorer();
+								break;
+							}
+							//! WAD FILES
+							else if(strcasestr(file, ".wad") != NULL)
+							{
+								_hideExplorer(true);
+								_Wad(file);
+								_showExplorer();
+								break;
+							}
+							else if(fromSource)
+							{
 								m_cfg.setInt(general_domain, "explorer_page", curPage);
 								m_cfg.setString(general_domain, "explorer_path", dir);
+								m_cfg.setString(general_domain, "explorer_root", startDir);
+								m_cfg.setString(plugin_domain, "cur_magic", m_plugin.PluginMagicWord);
 							}
-							
-							if(strcasestr(file, ".mp3") != NULL || strcasestr(file, ".ogg") != NULL)
-								MusicPlayer.LoadFile(file, false);
-							else if(strcasestr(file, ".iso") != NULL || strcasestr(file, ".ciso") != NULL || strcasestr(file, ".wbfs") != NULL)
+							//! WII and GAMECUBE
+							if(strcasestr(file, ".iso") != NULL || strcasestr(file, ".ciso") != NULL || strcasestr(file, ".wbfs") != NULL)
 							{
 								_hideExplorer();
 								//! Create header for id and path
@@ -424,53 +450,45 @@ void CMenu::_Explorer(void)
 								fclose(fp);
 								memcpy(tmpHdr.id, wii_hdr.id, 6);
 								currentPartition = explorer_partition;
+								m_cfg.setBool(general_domain, "explorer_on_start", fromSource);
 								if(wii_hdr.magic == WII_MAGIC)
 									_launchWii(&tmpHdr, false);
 								else if(wii_hdr.gc_magic == GC_MAGIC)
 									_launchGC(&tmpHdr, false);
 								_showExplorer();
 							}
+							//! HOMEBREW
 							else if(strcasestr(file, ".dol") != NULL || strcasestr(file, ".elf") != NULL)
 							{
 								_hideExplorer();
 								vector<string> arguments = _getMetaXML(file);
+								m_cfg.setBool(general_domain, "explorer_on_start", fromSource);
 								_launchHomebrew(file, arguments);
 								_showExplorer();
 							}
-							else if(strcasestr(file, ".txt") != NULL || strcasestr(file, ".nfo") != NULL
-								|| strcasestr(file, ".ini") != NULL || strcasestr(file, ".conf") != NULL
-								|| strcasestr(file, ".cfg") != NULL || strcasestr(file, ".xml") != NULL
-								|| strcasestr(file, ".log") != NULL)
-							{
-								_hideExplorer(true);
-								m_txt_view = true;
-								m_txt_path = file;
-								_about(false);
-								m_txt_view = false;
-								m_txt_path = NULL;
-								_showExplorer();
-							}
-							else if(strcasestr(file, ".wad") != NULL)
-							{
-								_hideExplorer(true);
-								_Wad(file);
-								_showExplorer();
-							}
-							/* Plugin explorer */
+							//! PLUGINS
 							else if(pluginExplorer)
 							{
-								_hideExplorer();
-								//! Create header for settings[0] (magic #), path and type
-								dir_discHdr tmpHdr;
-								memset((void*)&tmpHdr, 0, sizeof(dir_discHdr));
-								memcpy(tmpHdr.path, file, 255);
-								tmpHdr.settings[0] = strtoul(m_plugin.PluginMagicWord, NULL, 16);
-								tmpHdr.type = TYPE_PLUGIN;
-								currentPartition = explorer_partition;
-								m_cfg.setString(plugin_domain, "cur_magic", m_plugin.PluginMagicWord);
-								_launchPlugin(&tmpHdr);
-								_showExplorer();
-							}					
+								u32 magic = strtoul(m_plugin.PluginMagicWord, NULL, 16);
+								vector<string> extensions = stringToVector(m_plugin.GetFileTypes(m_plugin.GetPluginPosition(magic)), '|');
+								for(vector<string>::iterator itr = extensions.begin(); itr != extensions.end(); itr++)
+								{
+									if(strcasestr(file, (*itr).c_str()) != NULL)
+									{
+										_hideExplorer();
+										//! Create header for settings[0] (magic #), path and type
+										dir_discHdr tmpHdr;
+										memset((void*)&tmpHdr, 0, sizeof(dir_discHdr));
+										memcpy(tmpHdr.path, file, 255);
+										tmpHdr.settings[0] = magic;
+										tmpHdr.type = TYPE_PLUGIN;
+										currentPartition = explorer_partition;
+										m_cfg.setBool(general_domain, "explorer_on_start", fromSource);
+										_launchPlugin(&tmpHdr);
+										_showExplorer();
+									}
+								}
+							}
 						}
 					}
 				}
@@ -647,10 +665,10 @@ void CMenu::_refreshExplorer(s8 direction)
 		m_btnMgr.show(m_configLblPage);
 		m_btnMgr.show(m_configBtnPageM);	
 		m_btnMgr.show(m_configBtnPageP);
-
 	}
 	else
 	{
+		curPage = 1;
 		m_btnMgr.hide(m_configLblPage);
 		m_btnMgr.hide(m_configBtnPageM);	
 		m_btnMgr.hide(m_configBtnPageP);
@@ -692,84 +710,77 @@ void CMenu::_wadExplorer(void)
 	wadsOnly = false;
 }
 
-void CMenu::_FileExplorer(const char *startPath)
-{
-	memset(dir, 0, MAX_FAT_PATH);
-	strcpy(dir, startPath);
-	if(dir[strlen(dir) - 1] != '/')
-		strcat(dir, "/");
-	forbidRoot = true; // restrict browser to startPath directory and subfolders
-	_Explorer();
-	forbidRoot = false;
-	return;
-}
-
 /** Plugin explorer
-Will restrict browser to plugin rom directory and allow launch of roms
-Will allow to copy ("import") roms from "explorer_path" directory to coverflow rom directory
-Can be launched from source menu using an "explorer" source button in source_menu.ini file
-"explorer_path" has to be defined in plugin.ini file
-Import and plugin launch are disabled if magic is wii, gc or hb **/
+Will restrict browser to startPath and allow launch of roms (if magic > 0)
+If "explorer_path" is different from "romdir" and defined in plugin.ini file it will allow to
+ copy ("import") roms from "explorer_path" (startPath) to "romdir" (coverflow rom directory)
+If launched from source menu using an "explorer" source button defined in source_menu.ini file
+ WiiFlow will restart on same subfolder and page on next boot **/
 void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 {
-	u8 pos = m_plugin.GetPluginPosition(magic);
-	
-	//! Close if magic is not valid or if emunand, realnand, or scummvm
-	if(pos == 255 || magic == 0x5343564D || magic == 0x454E414E || magic == 0x4E414E44)
-		return;
-
-	//! Simple file explorer if magic is wii, gc or hb
-	if(magic == 0x4E574949 || magic == 0x4E47434D || strncasecmp(fmt("%06x", magic), "484252", 6) == 0)
-		pluginExplorer = false;
-	else
-	{
-		pluginExplorer = true;
-		strcpy(m_plugin.PluginMagicWord, fmt("%08x", magic));
-	}
-	
 	memset(dir, 0, MAX_FAT_PATH);
 	strcpy(dir, startPath);
 	
-	//! Get plugin romdir full path
-	int partition = m_plugin.GetRomPartition(pos);
-	if(partition == -1) // default rom partition
-	{
-		string domain;
-		switch(magic)
-		{
-			case 0x4E574949:
-				domain = wii_domain;
-				break;
-			case 0x4E47434D:
-				domain = gc_domain;
-				break;
-			case 0x48425257:
-				domain = homebrew_domain;
-				break;
-			default:
-				domain = plugin_domain;
-				break;
-		}
-		partition = m_cfg.getInt(domain, "partition", USB1);
-	}
-	romDirPath[MAX_FAT_PATH - 1] = '\0';
-	strcpy(romDirPath, fmt("%s:/%s", DeviceName[partition], m_plugin.GetRomDir(pos)));
-	if(romDirPath[strlen(romDirPath) - 1] != '/')
-		strcat(romDirPath, "/");
+	pluginExplorer = false; // import disabled if not a plugin (no magic)
 	
-	//! If startPath is empty default to romdir full path (rompartition:/romdir)
-	if(dir[0] == '\0')
-		strcpy(dir, romDirPath);
+	if(magic > 0)
+	{
+		u8 pos = m_plugin.GetPluginPosition(magic);
+		
+		//! Close if magic is not valid or if emunand, realnand or scummvm
+		if(pos == 255 || magic == 0x5343564D || magic == 0x454E414E || magic == 0x4E414E44)
+			return;
+
+		//! Enable import and launch of roms if magic is not wii, gc or hb
+		if(magic != 0x4E574949 && magic != 0x4E47434D && strncasecmp(fmt("%06x", magic), "484252", 6) != 0)
+		{
+			pluginExplorer = true;
+			strcpy(m_plugin.PluginMagicWord, fmt("%08x", magic));
+		}
+		
+		//! Get plugin romdir full path
+		int partition = m_plugin.GetRomPartition(pos);
+		if(partition == -1) // default rom partition
+		{
+			string domain;
+			switch(magic)
+			{
+				case 0x4E574949:
+					domain = wii_domain;
+					break;
+				case 0x4E47434D:
+					domain = gc_domain;
+					break;
+				case 0x48425257:
+					domain = homebrew_domain;
+					break;
+				default:
+					domain = plugin_domain;
+					break;
+			}
+			partition = m_cfg.getInt(domain, "partition", USB1);
+		}
+		romDirPath[MAX_FAT_PATH - 1] = '\0';
+		strcpy(romDirPath, fmt("%s:/%s", DeviceName[partition], m_plugin.GetRomDir(pos)));
+		if(romDirPath[strlen(romDirPath) - 1] != '/')
+			strcat(romDirPath, "/");
+		
+		//! If startPath is empty default to romdir full path (rompartition:/romdir)
+		if(dir[0] == '\0')
+			strcpy(dir, romDirPath);
+	}
+	
 	if(dir[strlen(dir) - 1] != '/')
 		strcat(dir, "/");
 
-	fromSource = source;
-	importRom = false;
+	fromSource = source && !m_cfg.getBool(general_domain, "source_on_start", false);
 	forbidRoot = true;
+	
 	_Explorer();
-	pluginExplorer = false;
+	
 	forbidRoot = false;
 	fromSource = false;
+	pluginExplorer = false;
 }
 
 /** Import Folder

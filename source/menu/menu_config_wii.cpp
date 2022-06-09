@@ -224,8 +224,8 @@ void CMenu::_configWii(u8 startPage)
 				else if(m_btnMgr.selected(m_configBtnCenter))
 				{
 					_hideConfig(true);
-					const char * gameDir = fmt(wii_games_dir, DeviceName[m_cfg.getInt(wii_domain, "partition", USB1)]);
-					_FileExplorer(gameDir);
+					const char *gameDir = fmt(wii_games_dir, DeviceName[m_cfg.getInt(wii_domain, "partition", USB1)]);
+					_pluginExplorer(gameDir);
 					_showConfigWii();
 				}
 				else

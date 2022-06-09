@@ -76,7 +76,7 @@ void CMenu::_sourceFlow()
 			m_cfg.setUInt(general_domain, "sources", m_current_view);
 			u32 plmagic = strtoul(m_source.getString(btn_selected, "magic", "").c_str(), NULL, 16);
 			const char *plpath = m_plugin.GetExplorerPath(plmagic);
-			_pluginExplorer(plpath, plmagic);
+			_pluginExplorer(plpath, plmagic, true);
 			return; // don't close sourceflow
 		}
 	}
@@ -461,7 +461,7 @@ bool CMenu::_Source(bool home)
 						exitSource = false;
 						u32 plmagic = strtoul(m_source.getString(btn_selected, "magic", "").c_str(), NULL, 16);
 						const char *plpath = m_plugin.GetExplorerPath(plmagic);
-						_pluginExplorer(plpath, plmagic); // default to wii						
+						_pluginExplorer(plpath, plmagic, true);
 						_showSource();
 						newSource = true;
 						updateSource = true;

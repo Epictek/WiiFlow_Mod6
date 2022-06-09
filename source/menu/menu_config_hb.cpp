@@ -111,8 +111,8 @@ void CMenu::_configHB(u8 startPage)
 				else if(m_btnMgr.selected(m_configBtnCenter)) // file explorer
 				{
 					_hideConfig(true);
-					const char * gameDir = fmt("%s:/apps", DeviceName[m_cfg.getInt(homebrew_domain, "partition", SD)]);
-					_FileExplorer(gameDir);
+					const char *gameDir = fmt("%s:/%s", DeviceName[m_cfg.getInt(homebrew_domain, "partition", SD)], HOMEBREW_DIR);
+					_pluginExplorer(gameDir);
 					_showConfigHB();
 				}
 				else

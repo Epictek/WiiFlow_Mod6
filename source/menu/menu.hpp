@@ -718,7 +718,7 @@ private:
 	void _FileExplorer(const char *startPath); //
 	const char *_FolderExplorer(const char *startPath);
 	void _wadExplorer(void);
-	void _pluginExplorer(const char *startPath, u32 magic, bool source = true);
+	void _pluginExplorer(const char *startPath, u32 magic = 0, bool source = false);
 
 	void _sourceFlow();
 	int _getSrcFlow();
