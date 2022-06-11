@@ -169,7 +169,4 @@ void ShutdownBeforeExit(void)
 		networkInit = false;
 	}
 	net_wc24cleanup(); // moved this here to fix an issue with disc launch
-	// DeviceHandle.UnMountAll();
-	// NandHandle.DeInit_ISFS();
-	// WDVD_Close();
 }

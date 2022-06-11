@@ -1,5 +1,5 @@
  
- Update May 15, 2022
+ Update June 10, 2022
 
  PLUGIN SETUP:
  =============
@@ -37,7 +37,7 @@ romdir=
 # rom directory (without device)
 # for ScummVM plugin: full path of scummvm.ini file with device and extensions if not in plugin folder
 # (can be scummvm.ini in plugin folder or sd:/apps/scummvm/scummvm.ini)
-# ignored if wii, gamecube, nand, emunand, (main) homebrew or scummvm plugins
+# ignored if wii, gamecube, nand, emunand, or (main) homebrew plugins
 
 arguments=
 # arguments sent to the plugin app (use: {device}:/{path}|{name}|{loader} for most plugins)

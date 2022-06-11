@@ -14,43 +14,42 @@ void CMenu::_showConfigMusic(bool instant)
 			m_btnMgr.show(m_configLblUser[i]);
 	
 	//! Music volume
-	m_btnMgr.setText(m_configLbl[0], _t("cfgs1", L"Music volume"));
-	m_btnMgr.setText(m_configLblVal[0], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_music", 255)));
+	m_btnMgr.setText(m_configLbl[1], _t("cfgs1", L"Music volume"));
+	m_btnMgr.setText(m_configLblVal[1], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_music", 255)));
 	//! GUI sound volume
-	m_btnMgr.setText(m_configLbl[1], _t("cfgs2", L"GUI sound volume"));
-	m_btnMgr.setText(m_configLblVal[1], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_gui", 255)));
+	m_btnMgr.setText(m_configLbl[2], _t("cfgs2", L"GUI sound volume"));
+	m_btnMgr.setText(m_configLblVal[2], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_gui", 255)));
 	//! Coverflow sound volume
-	m_btnMgr.setText(m_configLbl[2], _t("cfgs3", L"Coverflow sound volume"));		
-	m_btnMgr.setText(m_configLblVal[2], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_coverflow", 255)));
+	m_btnMgr.setText(m_configLbl[3], _t("cfgs3", L"Coverflow sound volume"));		
+	m_btnMgr.setText(m_configLblVal[3], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_coverflow", 255)));
 	//! Banner sound volume
-	m_btnMgr.setText(m_configLbl[3], _t("cfgs4", L"Banner sound volume"));
-	m_btnMgr.setText(m_configLblVal[3], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_bnr", 255)));
-	//! Music fade rate
-	m_btnMgr.setText(m_configLbl[4], _t("cfg716", L"Music fade rate"));
-	m_btnMgr.setText(m_configLblVal[4], wfmt(L"%i", m_cfg.getInt(general_domain, "music_fade_rate", 8)));
+	m_btnMgr.setText(m_configLbl[4], _t("cfgs4", L"Banner sound volume"));
+	m_btnMgr.setText(m_configLblVal[4], wfmt(L"%i", m_cfg.getInt(general_domain, "sound_volume_bnr", 255)));
 	//! Music path
 	m_btnMgr.setText(m_configLbl[5], _t("cfgp7", L"Music path"));
 	m_btnMgr.show(m_configBtnGo[5], instant);
-	//! Display music title
-	m_btnMgr.setText(m_configLbl[6], _t("cfg714", L"Display music title"));
-	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "display_music_info", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
 	//! Randomize music
-	m_btnMgr.setText(m_configLbl[7], _t("cfg715", L"Randomize music"));
-	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "randomize_music", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
+	m_btnMgr.setText(m_configLbl[6], _t("cfg715", L"Randomize music"));
+	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "randomize_music", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
+	//! Display music title
+	m_btnMgr.setText(m_configLbl[7], _t("cfg714", L"Display music title"));
+	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "display_music_info", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
 	//! Upsample music to 48khz
 	m_btnMgr.setText(m_configLbl[8], _t("cfg728", L"Upsample music to 48khz"));
 	m_checkboxBtn[8] = m_cfg.getOptBool(general_domain, "resample_to_48khz", 1) == 0 ? m_configChkOff[8] : m_configChkOn[8];
 
-	for(u8 i = 0; i < 9; ++i)
-		m_btnMgr.show(m_configLbl[i], instant);
-	for(u8 i = 0; i < 5; ++i)
+	for(u8 i = 1; i < 9; ++i)
 	{
-		m_btnMgr.show(m_configLblVal[i], instant);
-		m_btnMgr.show(m_configBtnM[i], instant);
-		m_btnMgr.show(m_configBtnP[i], instant);		
+		m_btnMgr.show(m_configLbl[i], instant);
+		if(i < 5)
+		{
+			m_btnMgr.show(m_configLblVal[i], instant);
+			m_btnMgr.show(m_configBtnM[i], instant);
+			m_btnMgr.show(m_configBtnP[i], instant);		
+		}
+		else if(i > 5)
+			m_btnMgr.show(m_checkboxBtn[i], instant);
 	}
-	for(u8 i = 6; i < 9; ++i)
-		m_btnMgr.show(m_checkboxBtn[i], instant);
 }
 
 void CMenu::_configMusic(void)
@@ -76,17 +75,17 @@ void CMenu::_configMusic(void)
 		if(BTN_A_REPEAT || BTN_A_OR_2_PRESSED)
 		{
 			int step = 5;
-			if(m_btnMgr.selected(m_configBtnP[0]) || m_btnMgr.selected(m_configBtnM[0])) // sound vol
+			if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1])) // sound vol
 			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[0]) ? 1 : -1;
+				s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
 				cur_music_vol = min(max(0, cur_music_vol + (step * direction)), 255);
 				m_cfg.setInt(general_domain, "sound_volume_music", cur_music_vol);
 				MusicPlayer.SetMaxVolume(cur_music_vol);
 				_showConfigMusic(true);
 			}
-			else if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1])) // GUI vol
+			else if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])) // GUI vol
 			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
+				s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 				int val = m_cfg.getInt(general_domain, "sound_volume_gui", 255) + (step * direction);
 				if(val >= 0 && val <= 255)
 				{
@@ -95,9 +94,9 @@ void CMenu::_configMusic(void)
 				}
 				_showConfigMusic(true);
 			}
-			else if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])) // CF vol
+			else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])) // CF vol
 			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
+				s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 				int val = m_cfg.getInt(general_domain, "sound_volume_coverflow", 255) + (step * direction);
 				if(val >= 0 && val <= 255)
 				{
@@ -106,9 +105,9 @@ void CMenu::_configMusic(void)
 				}
 				_showConfigMusic(true);
 			}
-			else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])) // bnr vol
+			else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4])) // bnr vol
 			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+				s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
 				int val = m_cfg.getInt(general_domain, "sound_volume_bnr", 255) + (step * direction);
 				if(val >= 0 && val <= 255)
 				{
@@ -122,18 +121,6 @@ void CMenu::_configMusic(void)
 		{
 			if(m_btnMgr.selected(m_configBtnBack))
 				break;
-			else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4])) // music fade rate
-			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
-				int val = m_cfg.getInt(general_domain, "music_fade_rate") + direction;
-				if(val >= 0 && val < 30)
-				{
-					MusicPlayer.SetFadeRate(val); //
-					m_cfg.setInt(general_domain, "music_fade_rate", val);
-				}
-				// MusicPlayer.SetFadeRate(m_cfg.getInt(general_domain, "music_fade_rate"));
-				_showConfigMusic(true);
-			}
 			else if(m_btnMgr.selected(m_configBtnGo[5])) // path
 			{
 				_hideConfig(true);
@@ -148,17 +135,17 @@ void CMenu::_configMusic(void)
 				}
 				_showConfigMusic();
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[6])) // display music title
-			{
-				m_music_info = !m_music_info;
-				m_cfg.setBool(general_domain, "display_music_info", m_music_info);
-				_showConfigMusic(true);
-				m_btnMgr.setSelected(m_checkboxBtn[6]);
-			}
-			else if(m_btnMgr.selected(m_checkboxBtn[7])) // randomize music
+			else if(m_btnMgr.selected(m_checkboxBtn[6])) // randomize music
 			{
 				cur_rand_music = !cur_rand_music;
 				m_cfg.setBool(general_domain, "randomize_music", cur_rand_music);
+				_showConfigMusic(true);
+				m_btnMgr.setSelected(m_checkboxBtn[6]);
+			}
+			else if(m_btnMgr.selected(m_checkboxBtn[7])) // display music title
+			{
+				m_music_info = !m_music_info;
+				m_cfg.setBool(general_domain, "display_music_info", m_music_info);
 				_showConfigMusic(true);
 				m_btnMgr.setSelected(m_checkboxBtn[7]);
 			}

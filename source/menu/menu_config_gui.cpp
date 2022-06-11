@@ -19,12 +19,8 @@ void CMenu::_showConfigGui(bool instant)
 	//! Theme selection
 	m_btnMgr.setText(m_configLbl[0], _t("cfga7", L"Select theme"));
 	m_btnMgr.setText(m_configLblVal[0], m_themeName);
-	m_btnMgr.show(m_configLblVal[0], instant);
-	m_btnMgr.show(m_configBtnM[0], instant);
-	m_btnMgr.show(m_configBtnP[0], instant);
 	//! Adjust CF
 	m_btnMgr.setText(m_configLbl[1], _t("cfgc4", L"Adjust coverflow"));
-	m_btnMgr.show(m_configBtnGo[1], instant);
 	//! Show game banner and plugin snapshot (turns on/off banner sound)
 	m_btnMgr.setText(m_configLbl[2], _t("cfg779", L"Show game banner"));
 	m_checkboxBtn[2] = m_bnrSndVol == 0 ? m_configChkOff[2] : m_configChkOn[2];
@@ -39,7 +35,7 @@ void CMenu::_showConfigGui(bool instant)
 	m_checkboxBtn[5] = m_cfg.getOptBool(general_domain, "cover_use_hq", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
 	//! Memorize favorite mode state when returning to CF
 	m_btnMgr.setText(m_configLbl[6], _t("cfgd5", L"Save favorite mode state"));
-	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "save_favorites_mode", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
+	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "save_favorites_mode", 1) == 0 ? m_configChkOff[6] : m_configChkOn[6];
 	//! Wiimote vibration
 	m_btnMgr.setText(m_configLbl[7], _t("cfg709", L"Rumble"));
 	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "rumble", 1) == 0 ? m_configChkOff[7] : m_configChkOn[7];
@@ -51,9 +47,19 @@ void CMenu::_showConfigGui(bool instant)
 	m_checkboxBtn[9] = m_cfg.getBool(general_domain, "enable_fanart", 0) == 0 ? m_configChkOff[9] : m_configChkOn[9];
 
 	for(u8 i = 0; i < 10; ++i)
+	{
 		m_btnMgr.show(m_configLbl[i], instant);
-	for(u8 i = 2; i < 10; ++i)
-		m_btnMgr.show(m_checkboxBtn[i], instant);
+		if(i == 0)
+		{
+			m_btnMgr.show(m_configLblVal[i], instant);
+			m_btnMgr.show(m_configBtnM[i], instant);
+			m_btnMgr.show(m_configBtnP[i], instant);
+		}
+		else if(i == 1)
+			m_btnMgr.show(m_configBtnGo[i], instant);
+		else
+			m_btnMgr.show(m_checkboxBtn[i], instant);
+	}
 }
 
 template <class T> static inline T loopNum(T i, T s)

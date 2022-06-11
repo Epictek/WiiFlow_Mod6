@@ -48,118 +48,42 @@ void CMenu::_showNandEmu(bool instant)
 	/** MAIN PAGE **/
 	if(curPage == MAIN_SETTINGS)
 	{
+		bool a = neek2o() || isWiiVC;
 		m_btnMgr.setText(m_configLblTitle, _t("wiichannels", L"Wii channels"));
 		m_btnMgr.show(m_configLblTitle);
 
-		//! Default game language
-		m_btnMgr.setText(m_configLbl[2], _t("cfgb4", L"Default game language"));
-		i = min(max(0, m_cfg.getInt(channel_domain, "game_language", 0)), (int)ARRAY_SIZE(CMenu::_languages) - 2);
-		m_btnMgr.setText(m_configLblVal[2], _t(CMenu::_languages[i + 1].id, CMenu::_languages[i + 1].text), true);
-		m_btnMgr.show(m_configLblVal[2], instant);
-		m_btnMgr.show(m_configBtnM[2], instant);
-		m_btnMgr.show(m_configBtnP[2], instant);
-		//! Return to Wiiflow channel
-		if(!isWiiVC)
-		{
-			m_btnMgr.setText(m_configLbl[3], _t("cfgg21", L"Return to WiiFlow channel"));
-			m_checkboxBtn[3] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[3] : m_configChkOff[3];
-			m_btnMgr.show(m_configLbl[3], instant);
-			m_btnMgr.show(m_checkboxBtn[3], instant);
-		}
+		//! Game location
+		m_btnMgr.setText(m_configLbl[2], _t("cfg814", L"Manage Wii channel list"));
 		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[4-isWiiVC], _t("cfg3", L"Download covers and info"));
+		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
 		//! Global video settings
-		m_btnMgr.setText(m_configLbl[5-isWiiVC], _t("cfg803", L"Global video settings"));
-	
-		for(u8 i = 2; i < 6-isWiiVC; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 4-isWiiVC; i < 6-isWiiVC; ++i)
-			m_btnMgr.show(m_configBtnGo[i], instant);
-
-		if(!neek2o() && !isWiiVC)
+		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
+		if(!a)
 		{
 			//! Global nand emulation
-			m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Global nand emulation"));
-			//! Game location
-			m_btnMgr.setText(m_configLbl[7], _t("cfg814", L"Manage Wii channel list"));
-			
-			for(u8 i = 6; i < 8; ++i)
-			{
-				m_btnMgr.show(m_configLbl[i], instant);
-				m_btnMgr.show(m_configBtnGo[i], instant);
-			}
-		}	
-	}
+			m_btnMgr.setText(m_configLbl[5], _t("cfg802", L"Global nand emulation"));
+			//! Return to Wiiflow channel
+			m_btnMgr.setText(m_configLbl[6], _t("cfgg21", L"Return to WiiFlow channel"));
+			m_checkboxBtn[6] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[6] : m_configChkOff[6];
+			m_btnMgr.show(m_configLbl[6], instant);
+			m_btnMgr.show(m_checkboxBtn[6], instant);
+		}
+		//! Default game language
+		m_btnMgr.setText(m_configLbl[7-(2*a)], _t("cfgb4", L"Default game language"));
+		i = min(max(0, m_cfg.getInt(channel_domain, "game_language", 0)), (int)ARRAY_SIZE(CMenu::_languages) - 2);
+		m_btnMgr.setText(m_configLblVal[7-(2*a)], _t(CMenu::_languages[i + 1].id, CMenu::_languages[i + 1].text), true);
+		m_btnMgr.show(m_configLbl[7-(2*a)], instant);
+		m_btnMgr.show(m_configLblVal[7-(2*a)], instant);
+		m_btnMgr.show(m_configBtnM[7-(2*a)], instant);
+		m_btnMgr.show(m_configBtnP[7-(2*a)], instant);
 
-	/** GLOBAL VIDEO SETTINGS **/
-	else if(curPage == VIDEO_SETTINGS)
-	{
-		m_btnMgr.setText(m_configLblTitle, _t("cfg803", L"Global video settings"));
-		m_btnMgr.show(m_configLblTitle);
-		
-		//! Wii channel video mode
-		m_btnMgr.setText(m_configLbl[3], _t("cfgb3", L"Default game video mode"));
-		i = min(max(0, m_cfg.getInt(channel_domain, "video_mode", 0)), (int)ARRAY_SIZE(CMenu::_VideoModes) - 2);
-		m_btnMgr.setText(m_configLblVal[3], _t(CMenu::_VideoModes[i + 1].id, CMenu::_VideoModes[i + 1].text), true);
-		//! Wii channel video deflicker
-		m_btnMgr.setText(m_configLbl[4], _t("cfgg44", L"Video deflicker"));
-		i = min(max(0, m_cfg.getInt(channel_domain, "deflicker_wii", 0)), (int)ARRAY_SIZE(CMenu::_DeflickerOptions) - 2);
-		m_btnMgr.setText(m_configLblVal[4], _t(CMenu::_DeflickerOptions[i + 1].id, CMenu::_DeflickerOptions[i + 1].text), true);
-		//! Wii channel 480p pixel patch
-		m_btnMgr.setText(m_configLbl[5], _t("cfgg49", L"480p pixel patch"));
-		m_checkboxBtn[5] = m_cfg.getOptBool(channel_domain, "fix480p", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
-		m_btnMgr.show(m_checkboxBtn[5], instant);
-		
-		for(u8 i = 3; i < 6; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 3; i < 5; ++i)
+		for(u8 i = (2 + a); i < (6 - a); ++i)
 		{
-			m_btnMgr.show(m_configLblVal[i], instant);
-			m_btnMgr.show(m_configBtnM[i], instant);
-			m_btnMgr.show(m_configBtnP[i], instant);
+			m_btnMgr.show(m_configLbl[i], instant);
+			m_btnMgr.show(m_configBtnGo[i], instant);
 		}
 	}
 
-	/** GLOBAL NAND EMULATION SETTINGS **/
-	else if(curPage == NANDEMU_SETTINGS)
-	{
-		m_btnMgr.setText(m_configLblTitle, _t("cfg802", L"Global nand emulation"));
-		m_btnMgr.show(m_configLblTitle);
-		
-		//! Wii channel emunand mode
-		m_btnMgr.setText(m_configLbl[3], _t("cfgne1", L"Emunand mode"));
-		// Minus 2 and [i + 1] to ignore "default" array value
-		i = min(max(0, m_cfg.getInt(channel_domain, "emulation", 0)), (int)ARRAY_SIZE(CMenu::_NandEmu) - 2);
-		m_btnMgr.setText(m_configLblVal[3], _t(CMenu::_NandEmu[i + 1].id, CMenu::_NandEmu[i + 1].text));
-		m_btnMgr.show(m_configLblVal[3], instant);
-		m_btnMgr.show(m_configBtnM[3], instant);
-		m_btnMgr.show(m_configBtnP[3], instant);
-		//! Keep emunand updated with latest nand config
-		m_btnMgr.setText(m_configLbl[4], _t("cfgne40", L"Update emunand to latest config"));
-		m_checkboxBtn[4] = m_cfg.getOptBool(channel_domain, "real_nand_config", 0) == 0 ? m_configChkOff[4] : m_configChkOn[4];
-		//! Keep emunand updated with latest nand miis
-		m_btnMgr.setText(m_configLbl[5], _t("cfgne41", L"Update emunand to latest Miis"));
-		m_checkboxBtn[5] = m_cfg.getOptBool(channel_domain, "real_nand_miis", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
-		//! Launch neek2o channel emunand system menu
-		m_btnMgr.setText(m_configLbl[6], _t("neek2", L"Neek2o system menu"));
-		m_btnMgr.setText(m_configBtn[6], _t("cfgne6", L"Start"));
-		m_btnMgr.show(m_configBtn[6], instant);
-		
-		for(u8 i = 3; i < 7; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 4; i < 6; ++i)
-			m_btnMgr.show(m_checkboxBtn[i], instant);
-		
-		//! Launch WiiFlow channel on emunand in neek2o mode
-		if(!IsOnWiiU())
-		{
-			m_btnMgr.setText(m_configLbl[7], _t("neek4", L"Neek2o Wiiflow channel"));
-			m_btnMgr.setText(m_configBtn[7], _t("cfgne6", L"Start"));
-			m_btnMgr.show(m_configLbl[7], instant);
-			m_btnMgr.show(m_configBtn[7], instant);
-		}
-	}
-	
 	/** WII CHANNEL GAME LOCATION **/
 	else if(curPage == GAME_LIST)
 	{
@@ -210,17 +134,97 @@ void CMenu::_showNandEmu(bool instant)
 		m_btnMgr.setText(m_configBtn[9], _t("cfgne6", L"Start"));
 		
 		for(u8 i = 0; i < 10; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 0; i < 3; ++i)
 		{
-			m_btnMgr.show(m_configLblVal[i], instant);
-			m_btnMgr.show(m_configBtnM[i], instant);
-			m_btnMgr.show(m_configBtnP[i], instant);
+			m_btnMgr.show(m_configLbl[i], instant);
+			if(i < 3)
+			{
+				m_btnMgr.show(m_configLblVal[i], instant);
+				m_btnMgr.show(m_configBtnM[i], instant);
+				m_btnMgr.show(m_configBtnP[i], instant);
+			}
+			else if(i > 3 && i < 7)
+				m_btnMgr.show(m_configBtnGo[i], instant);
+			else if(i > 6)
+				m_btnMgr.show(m_configBtn[i], instant);
 		}
-		for(u8 i = 4; i < 7; ++i)
-			m_btnMgr.show(m_configBtnGo[i], instant);
-		for(u8 i = 7; i < 10; ++i)
-			m_btnMgr.show(m_configBtn[i], instant);
+	}
+	
+	/** GLOBAL VIDEO SETTINGS **/
+	else if(curPage == VIDEO_SETTINGS)
+	{
+		m_btnMgr.setText(m_configLblTitle, _t("cfg803", L"Global video settings"));
+		m_btnMgr.show(m_configLblTitle);
+		
+		//! Wii channel video mode
+		m_btnMgr.setText(m_configLbl[3], _t("cfgb3", L"Default game video mode"));
+		i = min(max(0, m_cfg.getInt(channel_domain, "video_mode", 0)), (int)ARRAY_SIZE(CMenu::_VideoModes) - 2);
+		m_btnMgr.setText(m_configLblVal[3], _t(CMenu::_VideoModes[i + 1].id, CMenu::_VideoModes[i + 1].text), true);
+		//! Wii channel video deflicker
+		m_btnMgr.setText(m_configLbl[4], _t("cfgg44", L"Video deflicker"));
+		i = min(max(0, m_cfg.getInt(channel_domain, "deflicker_wii", 0)), (int)ARRAY_SIZE(CMenu::_DeflickerOptions) - 2);
+		m_btnMgr.setText(m_configLblVal[4], _t(CMenu::_DeflickerOptions[i + 1].id, CMenu::_DeflickerOptions[i + 1].text), true);
+		//! Wii channel 480p pixel patch
+		m_btnMgr.setText(m_configLbl[5], _t("cfgg49", L"480p pixel patch"));
+		m_checkboxBtn[5] = m_cfg.getOptBool(channel_domain, "fix480p", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
+		
+		for(u8 i = 3; i < 6; ++i)
+		{
+			m_btnMgr.show(m_configLbl[i], instant);
+			if(i < 5)
+			{
+				m_btnMgr.show(m_configLblVal[i], instant);
+				m_btnMgr.show(m_configBtnM[i], instant);
+				m_btnMgr.show(m_configBtnP[i], instant);
+			}
+			else
+				m_btnMgr.show(m_checkboxBtn[i], instant);
+		}
+	}
+
+	/** GLOBAL NAND EMULATION SETTINGS **/
+	else if(curPage == NANDEMU_SETTINGS)
+	{
+		m_btnMgr.setText(m_configLblTitle, _t("cfg802", L"Global nand emulation"));
+		m_btnMgr.show(m_configLblTitle);
+		
+		//! Wii channel emunand mode
+		m_btnMgr.setText(m_configLbl[3], _t("cfgne1", L"Emunand mode"));
+		// Minus 2 and [i + 1] to ignore "default" array value
+		i = min(max(0, m_cfg.getInt(channel_domain, "emulation", 0)), (int)ARRAY_SIZE(CMenu::_NandEmu) - 2);
+		m_btnMgr.setText(m_configLblVal[3], _t(CMenu::_NandEmu[i + 1].id, CMenu::_NandEmu[i + 1].text));
+		//! Keep emunand updated with latest nand config
+		m_btnMgr.setText(m_configLbl[4], _t("cfgne40", L"Update emunand to latest config"));
+		m_checkboxBtn[4] = m_cfg.getOptBool(channel_domain, "real_nand_config", 0) == 0 ? m_configChkOff[4] : m_configChkOn[4];
+		//! Keep emunand updated with latest nand miis
+		m_btnMgr.setText(m_configLbl[5], _t("cfgne41", L"Update emunand to latest Miis"));
+		m_checkboxBtn[5] = m_cfg.getOptBool(channel_domain, "real_nand_miis", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
+		//! Launch neek2o channel emunand system menu
+		m_btnMgr.setText(m_configLbl[6], _t("neek2", L"Neek2o system menu"));
+		m_btnMgr.setText(m_configBtn[6], _t("cfgne6", L"Start"));
+		
+		for(u8 i = 3; i < 7; ++i)
+		{
+			m_btnMgr.show(m_configLbl[i], instant);
+			if(i == 3)
+			{
+				m_btnMgr.show(m_configLblVal[i], instant);
+				m_btnMgr.show(m_configBtnM[i], instant);
+				m_btnMgr.show(m_configBtnP[i], instant);
+			}
+			else if(i < 6)
+				m_btnMgr.show(m_checkboxBtn[i], instant);
+			else
+				m_btnMgr.show(m_configBtn[i], instant);
+		}
+	
+		//! Launch WiiFlow channel on emunand in neek2o mode
+		if(!IsOnWiiU())
+		{
+			m_btnMgr.setText(m_configLbl[7], _t("neek4", L"Neek2o Wiiflow channel"));
+			m_btnMgr.setText(m_configBtn[7], _t("cfgne6", L"Start"));
+			m_btnMgr.show(m_configLbl[7], instant);
+			m_btnMgr.show(m_configBtn[7], instant);
+		}
 	}
 }
 
@@ -273,141 +277,69 @@ bool CMenu::_configNandEmu(u8 startPage)
 					break;
 				else
 				{
-					//! Default game language
-					if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
+					bool a = neek2o() || isWiiVC;
+					//! Game location
+					if(m_btnMgr.selected(m_configBtnGo[2]))
 					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
-						m_cfg.setInt(channel_domain, "game_language", (int)loopNum(m_cfg.getUInt(channel_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
-						_showNandEmu(true);
-					}
-					//! Return to WiiFlow channel
-					else if(m_btnMgr.selected(m_checkboxBtn[3]))
-					{
-						if(m_cfg.getString(channel_domain, "returnto") == WFID4)
-							m_cfg.remove(channel_domain, "returnto");
-						else // check if channel exists
-						{
-							bool found = true;
-							if(!neek2o()) // channel exists if neek2o
-							{
-								found = false;
-								bool curNANDemuView = NANDemuView;
-								NANDemuView = false;
-								ChannelHandle.Init("EN");
-								int amountOfChannels = ChannelHandle.Count();
-								for(int i = 0; i < amountOfChannels; i++)
-								{
-									if(strncmp(WFID4, ChannelHandle.GetId(i), 4) == 0)
-									{
-										found = true;
-										break;
-									}
-								}
-								NANDemuView = curNANDemuView;
-							}
-							if(found)
-								m_cfg.setString(channel_domain, "returnto", WFID4);
-						}
-						_showNandEmu(true);
-						m_btnMgr.setSelected(m_checkboxBtn[3]);
+						_hideConfig(true);
+						curPage = GAME_LIST;
+						_showNandEmu();
 					}
 					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[4-isWiiVC]))
+					else if(m_btnMgr.selected(m_configBtnGo[3]))
 					{
 						_hideConfig(true);
 						_download();
 						_showNandEmu();
 					}
 					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[5-isWiiVC]))
+					else if(m_btnMgr.selected(m_configBtnGo[4]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
 						_showNandEmu();
 					}
 					//! Global nand emulation
-					else if(m_btnMgr.selected(m_configBtnGo[6]))
+					else if(m_btnMgr.selected(m_configBtnGo[5]) && !a)
 					{
 						_hideConfig(true);
 						curPage = NANDEMU_SETTINGS;
 						_showNandEmu();
 					}
-					//! Game location
-					else if(m_btnMgr.selected(m_configBtnGo[7]))
+					//! Return to WiiFlow channel
+					else if(m_btnMgr.selected(m_checkboxBtn[6]) && !a)
 					{
-						_hideConfig(true);
-						curPage = GAME_LIST;
-						_showNandEmu();
+						if(m_cfg.getString(channel_domain, "returnto") == WFID4)
+							m_cfg.remove(channel_domain, "returnto");
+						else // check if channel exists
+						{
+							bool curNANDemuView = NANDemuView;
+							NANDemuView = false;
+							ChannelHandle.Init("EN");
+							int amountOfChannels = ChannelHandle.Count();
+							for(int i = 0; i < amountOfChannels; i++)
+							{
+								if(strncmp(WFID4, ChannelHandle.GetId(i), 4) == 0)
+								{
+									m_cfg.setString(channel_domain, "returnto", WFID4);
+									break;
+								}
+							}
+							NANDemuView = curNANDemuView;
+						}
+						_showNandEmu(true);
+						m_btnMgr.setSelected(m_checkboxBtn[6]);
+					}
+					//! Default game language
+					else if(m_btnMgr.selected(m_configBtnP[7-(2*a)]) || m_btnMgr.selected(m_configBtnM[7-(2*a)]))
+					{
+						s8 direction = m_btnMgr.selected(m_configBtnP[7-(2*a)]) ? 1 : -1;
+						m_cfg.setInt(channel_domain, "game_language", (int)loopNum(m_cfg.getUInt(channel_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
+						_showNandEmu(true);
 					}
 				}
 			}
 
-			/** GLOBAL VIDEO SETTINGS **/
-			else if(curPage == VIDEO_SETTINGS)
-			{
-				//! Wii channel video mode
-				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
-				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
-					m_cfg.setInt(channel_domain, "video_mode", (int)loopNum(m_cfg.getUInt(channel_domain, "video_mode", 0) + direction, ARRAY_SIZE(CMenu::_VideoModes) - 1)); // minus 1 because of "default" array value
-					_showNandEmu(true);
-				}
-				//! Wii channel video deflicker
-				else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
-				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
-					m_cfg.setInt(channel_domain, "deflicker_wii", (int)loopNum(m_cfg.getUInt(channel_domain, "deflicker_wii", 0) + direction, ARRAY_SIZE(CMenu::_DeflickerOptions) - 1));
-					_showNandEmu(true);
-				}
-				//! Wii channel 480p pixel patch
-				else if(m_btnMgr.selected(m_checkboxBtn[5]))
-				{
-					m_cfg.setBool(channel_domain, "fix480p", !m_cfg.getBool(channel_domain, "fix480p"));
-					_showNandEmu(true);
-					m_btnMgr.setSelected(m_checkboxBtn[5]);
-				}
-			}
-			
-			/** GLOBAL NAND EMULATION SETTINGS **/
-			else if(curPage == NANDEMU_SETTINGS)
-			{
-				//! Wii channel emunand mode
-				if((m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])))
-				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
-					m_cfg.setInt(channel_domain, "emulation", loopNum(m_cfg.getInt(channel_domain, "emulation", 0) + direction, ARRAY_SIZE(CMenu::_NandEmu) - 1));
-					_showNandEmu(true);
-				}
-				//! Keep emunand updated with latest nand config
-				else if(m_btnMgr.selected(m_checkboxBtn[4]))
-				{
-					m_cfg.setBool(channel_domain, "real_nand_config", !m_cfg.getBool(channel_domain, "real_nand_config"));
-					_showNandEmu(true);
-					m_btnMgr.setSelected(m_checkboxBtn[4]);
-				}
-				//! Keep emunand updated with latest nand miis
-				else if(m_btnMgr.selected(m_checkboxBtn[5]))
-				{
-					m_cfg.setBool(channel_domain, "real_nand_miis", !m_cfg.getBool(channel_domain, "real_nand_miis"));
-					_showNandEmu(true);
-					m_btnMgr.setSelected(m_checkboxBtn[5]);
-				}
-				//! Launch neek2o channel emunand system menu
-				else if(m_btnMgr.selected(m_configBtn[6]))
-				{
-					if(_launchNeek2oChannel(EXIT_TO_SMNK2O, EMU_NAND))
-						break;
-					_showNandEmu();
-				}
-				//! Launch WiiFlow channel on emunand in neek2o mode
-				else if(m_btnMgr.selected(m_configBtn[7]))
-				{
-					if(_launchNeek2oChannel(EXIT_TO_WFNK2O, EMU_NAND))
-						break;
-					_showNandEmu();
-				}
-			}
-			
 			/** GAME LOCATION **/
 			else if(curPage == GAME_LIST)
 			{
@@ -421,11 +353,11 @@ bool CMenu::_configNandEmu(u8 startPage)
 					m_current_view = COVERFLOW_CHANNEL;
 					_setPartition(direction);
 					_checkEmuNandSettings(EMU_NAND); // refresh emunands in case the partition was changed
-					_showNandEmu(true);
 					if((m_prev_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
 						m_refreshGameList = true;
 					m_current_view = m_prev_view;
 					currentPartition = prevPartition;
+					_showNandEmu(true);
 				}
 				//! Wii channel preffered partition
 				else if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
@@ -519,6 +451,72 @@ bool CMenu::_configNandEmu(u8 startPage)
 						m_cfg.setBool(plugin_domain, "update_cache", true);
 					m_refreshGameList = true;
 					break;
+				}
+			}
+			
+			/** GLOBAL VIDEO SETTINGS **/
+			else if(curPage == VIDEO_SETTINGS)
+			{
+				//! Wii channel video mode
+				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
+				{
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					m_cfg.setInt(channel_domain, "video_mode", (int)loopNum(m_cfg.getUInt(channel_domain, "video_mode", 0) + direction, ARRAY_SIZE(CMenu::_VideoModes) - 1)); // minus 1 because of "default" array value
+					_showNandEmu(true);
+				}
+				//! Wii channel video deflicker
+				else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
+				{
+					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
+					m_cfg.setInt(channel_domain, "deflicker_wii", (int)loopNum(m_cfg.getUInt(channel_domain, "deflicker_wii", 0) + direction, ARRAY_SIZE(CMenu::_DeflickerOptions) - 1));
+					_showNandEmu(true);
+				}
+				//! Wii channel 480p pixel patch
+				else if(m_btnMgr.selected(m_checkboxBtn[5]))
+				{
+					m_cfg.setBool(channel_domain, "fix480p", !m_cfg.getBool(channel_domain, "fix480p"));
+					_showNandEmu(true);
+					m_btnMgr.setSelected(m_checkboxBtn[5]);
+				}
+			}
+			
+			/** GLOBAL NAND EMULATION SETTINGS **/
+			else if(curPage == NANDEMU_SETTINGS)
+			{
+				//! Wii channel emunand mode
+				if((m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])))
+				{
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					m_cfg.setInt(channel_domain, "emulation", loopNum(m_cfg.getInt(channel_domain, "emulation", 0) + direction, ARRAY_SIZE(CMenu::_NandEmu) - 1));
+					_showNandEmu(true);
+				}
+				//! Keep emunand updated with latest nand config
+				else if(m_btnMgr.selected(m_checkboxBtn[4]))
+				{
+					m_cfg.setBool(channel_domain, "real_nand_config", !m_cfg.getBool(channel_domain, "real_nand_config"));
+					_showNandEmu(true);
+					m_btnMgr.setSelected(m_checkboxBtn[4]);
+				}
+				//! Keep emunand updated with latest nand miis
+				else if(m_btnMgr.selected(m_checkboxBtn[5]))
+				{
+					m_cfg.setBool(channel_domain, "real_nand_miis", !m_cfg.getBool(channel_domain, "real_nand_miis"));
+					_showNandEmu(true);
+					m_btnMgr.setSelected(m_checkboxBtn[5]);
+				}
+				//! Launch neek2o channel emunand system menu
+				else if(m_btnMgr.selected(m_configBtn[6]))
+				{
+					if(_launchNeek2oChannel(EXIT_TO_SMNK2O, EMU_NAND))
+						break;
+					_showNandEmu();
+				}
+				//! Launch WiiFlow channel on emunand in neek2o mode
+				else if(m_btnMgr.selected(m_configBtn[7]))
+				{
+					if(_launchNeek2oChannel(EXIT_TO_WFNK2O, EMU_NAND))
+						break;
+					_showNandEmu();
 				}
 			}
 		}

@@ -55,7 +55,8 @@ void Musicplayer::Init(Config &cfg, const string& musicDir, const string& themeM
 		return;
 	}
 	Cleanup();
-	FadeRate = cfg.getInt("GENERAL", "music_fade_rate", 8);
+	// FadeRate = cfg.getInt("GENERAL", "music_fade_rate", 8);
+	FadeRate = 8;
 	Volume = cfg.getInt("GENERAL", "sound_volume_music", 255);
 
 	MusicFile.SetVoice(0);

@@ -964,11 +964,14 @@ void CMenu::_textGameInfo(void)
 	year = PublishDate >> 16;
 	day = PublishDate & 0xFF;
 	month = (PublishDate >> 8) & 0xFF;
-	//! only display year or nothing if there's no date at all
-	if(day == 0 && month == 0 && year != 0)
+	if(day == 0 && month == 0)
 	{
-		rom_info.append(L"\n\n");
-		rom_info.append(wfmt(_fmt("gameinfo8",L"Released: %i"), year));
+		//! only display year or nothing if there's no date at all
+		if(year != 0)
+		{
+			rom_info.append(L"\n\n");
+			rom_info.append(wfmt(_fmt("gameinfo8",L"Released: %i"), year));
+		}
 	}
 	else
 	{
@@ -990,8 +993,11 @@ void CMenu::_textGameInfo(void)
 	}
 	
 	players = gametdb.GetPlayers(GameID);
-	rom_info.append(L"\n\n");
-	rom_info.append(wfmt(_fmt("gameinfo9",L"Players: %i"), players));
+	if(players > 1)
+	{
+		rom_info.append(L"\n\n");
+		rom_info.append(wfmt(_fmt("gameinfo9",L"Players: %i"), players));
+	}
 	
 	if(gametdb.GetLanguages(GameID, TMP_Char)) // added
 	{
@@ -1015,7 +1021,7 @@ out:
 	if(!tdb_found)
 	{
 		if(GameHdr->type == TYPE_PLUGIN)
-			rom_info.append(_t("errgame18", L"Install plugin database to get rom info."));
+			rom_info.append(_t("errgame18", L"No game info!"));
 		else
 			rom_info.append(_t("errtdb", L"Download GameTDB to use this feature."));
 		m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);

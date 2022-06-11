@@ -62,34 +62,39 @@ void CMenu::_showConfigMain(bool instant)
 	m_btnMgr.setText(m_configLblTitle, _t("cfg776", L"WiiFlow settings"));
 	m_btnMgr.show(m_configLblTitle);
 
-	m_btnMgr.setText(m_configLbl[m_locked ? 4 : 0], _t("cfg5", L"Child lock"));
-	m_btnMgr.show(m_configLbl[m_locked ? 4 : 0]); // child lock
-	m_btnMgr.show(m_configBtnGo[m_locked ? 4 : 0]);
+	m_btnMgr.setText(m_configLbl[m_locked ? 4 : 0+a], _t("cfg5", L"Child lock"));
+	m_btnMgr.show(m_configLbl[m_locked ? 4 : 0+a]); // child lock
+	m_btnMgr.show(m_configBtnGo[m_locked ? 4 : 0+a]);
 	
 	if(m_locked)
 		return;
 
-	m_btnMgr.setText(m_configLbl[1], _t("cfgc9", L"WiiFlow language"));
-	m_btnMgr.setText(m_configLblVal[1], m_curLanguage);
-	m_btnMgr.setText(m_configLbl[2], _t("cfg795", L"User interface"));
-	m_btnMgr.setText(m_configLbl[3], _t("cfg793", L"Screen adjustment"));
-	m_btnMgr.setText(m_configLbl[4], _t("cfg791", L"Startup and shutdown"));
-	m_btnMgr.setText(m_configLbl[5-a], _t("cfg796", L"Source menu settings"));
-	m_btnMgr.setText(m_configLbl[6-a], _t("cfg792", L"Music settings"));
-	m_btnMgr.setText(m_configLbl[7-a], _t("cfgd4", L"Path manager"));
-	m_btnMgr.setText(m_configLbl[8-a], _t("cfgg98", L"Network settings"));
-	m_btnMgr.setText(m_configLbl[9-a], _t("cfg794", L"Misc settings"));
+	if(!a)
+	{
+		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
+		m_btnMgr.show(m_configBtnCenter);
+	}
 
-	m_btnMgr.show(m_configLbl[1], instant);
-	m_btnMgr.show(m_configLblVal[1], instant);
-	m_btnMgr.show(m_configBtnM[1], instant);
-	m_btnMgr.show(m_configBtnP[1], instant);
+	m_btnMgr.setText(m_configLbl[1+a], _t("cfg795", L"User interface"));
+	m_btnMgr.setText(m_configLbl[2+a], _t("cfg793", L"Screen adjustment"));
+	m_btnMgr.setText(m_configLbl[3], _t("cfg791", L"Startup and shutdown"));
+	m_btnMgr.setText(m_configLbl[4], _t("cfg796", L"Source menu settings"));
+	m_btnMgr.setText(m_configLbl[5-a], _t("cfg792", L"Music settings"));
+	m_btnMgr.setText(m_configLbl[6-a], _t("cfgd4", L"Path manager"));
+	m_btnMgr.setText(m_configLbl[7-a], _t("cfgg98", L"Network settings"));
+	m_btnMgr.setText(m_configLbl[8-a], _t("cfg794", L"Misc settings"));
+	m_btnMgr.setText(m_configLbl[9-a], _t("cfgc9", L"WiiFlow language"));
+	m_btnMgr.setText(m_configLblVal[9-a], m_curLanguage);
 
-	for(u8 i = 2; i < 10-a; ++i)
+	for(u8 i = 1; i < 9-a; ++i)
 	{
 		m_btnMgr.show(m_configLbl[i], instant);
 		m_btnMgr.show(m_configBtnGo[i], instant);
 	}
+	m_btnMgr.show(m_configLbl[9-a], instant);
+	m_btnMgr.show(m_configLblVal[9-a], instant);
+	m_btnMgr.show(m_configBtnM[9-a], instant);
+	m_btnMgr.show(m_configBtnP[9-a], instant);
 }
 
 template <class T> static inline T loopNum(T i, T s)
@@ -147,8 +152,14 @@ void CMenu::_config(void)
 		{
 			if(m_btnMgr.selected(m_configBtnBack))
 				break;
+			else if(m_btnMgr.selected(m_configBtnCenter)) // file explorer
+			{
+				_hideConfig(true);
+				_Explorer();
+				_showConfigMain();
+			}
 			//! CHILD LOCK
-			else if(m_btnMgr.selected(m_configBtnGo[m_locked ? 4 : 0]))
+			else if(m_btnMgr.selected(m_configBtnGo[m_locked ? 4 : 0+a]))
 			{
 				char code[4];
 				_hideConfig(true);
@@ -177,10 +188,66 @@ void CMenu::_config(void)
 				}
 				_showConfigMain();
 			}
-			//! WIIFLOW LANGUAGE
-			else if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
+			//! GUI SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[1+a]))
 			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
+				_hideConfig(true);
+				_configGui();
+				_showConfigMain();
+			}
+			//! SCREEN SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[2+a]))
+			{
+				_hideConfig(true);
+				_configScreen();
+				_showConfigMain();
+			}
+			//! STARTUP AND SHUTDOWN SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[3]) && !a)
+			{
+				_hideConfig(true);
+				_configBoot();
+				_showConfigMain();
+			}
+			//! SOURCE MENU SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[4]) && !a)
+			{
+				_hideConfig(true);
+				_configSource();
+				_showConfigMain();
+			}
+			//! MUSIC SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[5-a]))
+			{
+				_hideConfig(true);
+				_configMusic();
+				_showConfigMain();
+			}
+			//! CUSTOM PATHS
+			else if(m_btnMgr.selected(m_configBtnGo[6-a]))
+			{
+				_hideConfig(true);
+				_configPaths();
+				_showConfigMain();
+			}
+			//! NETWORK SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[7-a]))
+			{
+				_hideConfig(true);
+				_configNet();
+				_showConfigMain();
+			}
+			//! MISC SETTINGS
+			else if(m_btnMgr.selected(m_configBtnGo[8-a]))
+			{
+				_hideConfig(true);
+				_configMisc();
+				_showConfigMain();
+			}
+			//! WIIFLOW LANGUAGE
+			else if(m_btnMgr.selected(m_configBtnP[9-a]) || m_btnMgr.selected(m_configBtnM[9-a]))
+			{
+				s8 direction = m_btnMgr.selected(m_configBtnP[9-a]) ? 1 : -1;
 				curLang = loopNum(curLang + direction, (u32)languages_available.size());
 				m_curLanguage = languages_available[curLang];					
 				if(!m_loc.load(fmt("%s/%s.ini", m_languagesDir.c_str(), m_curLanguage.c_str())))
@@ -193,62 +260,6 @@ void CMenu::_config(void)
 					m_cfg.setString(general_domain, "language", m_curLanguage);
 				_updateText();
 				_showConfigMain(true);
-			}
-			//! GUI SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[2]))
-			{
-				_hideConfig(true);
-				_configGui();
-				_showConfigMain();
-			}
-			//! SCREEN SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[3]))
-			{
-				_hideConfig(true);
-				_configScreen();
-				_showConfigMain();
-			}
-			//! STARTUP AND SHUTDOWN SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[4]) && !a)
-			{
-				_hideConfig(true);
-				_configBoot();
-				_showConfigMain();
-			}
-			//! SOURCE MENU SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[5-a]))
-			{
-				_hideConfig(true);
-				_configSource();
-				_showConfigMain();
-			}
-			//! MUSIC SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[6-a]))
-			{
-				_hideConfig(true);
-				_configMusic();
-				_showConfigMain();
-			}
-			//! CUSTOM PATHS
-			else if(m_btnMgr.selected(m_configBtnGo[7-a]))
-			{
-				_hideConfig(true);
-				_configPaths();
-				_showConfigMain();
-			}
-			//! NETWORK SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[8-a]))
-			{
-				_hideConfig(true);
-				_configNet();
-				_showConfigMain();
-			}
-			//! MISC SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[9-a]))
-			{
-				_hideConfig(true);
-				_configMisc();
-				_showConfigMain();
 			}
 		}
 	}

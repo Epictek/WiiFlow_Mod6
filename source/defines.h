@@ -1,4 +1,4 @@
-#define DEBUG // comment this line to remove debug options in startup settings (SD/WiFi logging switches)
+
 // #define APP_WIIFLOW_LITE	// uncomment this line to compile wfl as wiiflow_lite
 #define SCREENSHOT // comment this line to remove screenshot feature
 
@@ -7,7 +7,7 @@
 #else
 #define APP_NAME				"WiiFlow Mod6"
 #endif
-#define APP_VERSION				"668"
+#define APP_VERSION				"669"
 
 #define APP_DATA_DIR			"wiiflow"
 #ifdef APP_WIIFLOW_LITE

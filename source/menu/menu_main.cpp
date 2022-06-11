@@ -355,7 +355,7 @@ void CMenu::_showCF(bool refreshList)
 	m_clearCats = true; // set to true for next source
 
 	m_favorites = false;
-	if(m_getFavs || m_cfg.getBool(general_domain, "save_favorites_mode", false))
+	if(m_getFavs || m_cfg.getBool(general_domain, "save_favorites_mode", true))
 		m_favorites = m_cfg.getBool(_domainFromView(), "favorites", false);
 	else
 		m_cfg.setBool(_domainFromView(), "favorites", false);

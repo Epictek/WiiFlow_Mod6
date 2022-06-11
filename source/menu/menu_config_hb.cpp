@@ -21,24 +21,26 @@ void CMenu::_showConfigHB(bool instant)
 		//! File browser
 		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
 		m_btnMgr.show(m_configBtnCenter);
-		
-		//! CF smallbox
-		m_btnMgr.setText(m_configLbl[3], _t("cfghb2", L"Coverflow smallbox"));
-		m_checkboxBtn[3] = m_cfg.getOptBool(homebrew_domain, "smallbox", 1) == 0 ? m_configChkOff[3] : m_configChkOn[3]; // default true
-		//! CF box mode
-		m_btnMgr.setText(m_configLbl[4], _t("cfg726", L"Covers box Mode"));
-		m_checkboxBtn[4] = m_cfg.getOptBool(homebrew_domain, "box_mode", 0) == 0 ? m_configChkOff[4] : m_configChkOn[4]; // default false
-		//! Adjust homebrew CF
-		m_btnMgr.setText(m_configLbl[5], _t("cfgc4", L"Adjust coverflow"));
+
 		//! Homebrew app list
-		m_btnMgr.setText(m_configLbl[6], _t("cfg817", L"Manage Homebrew app list"));
-		
+		m_btnMgr.setText(m_configLbl[3], _t("cfg817", L"Manage Homebrew app list"));	
+		//! Adjust homebrew CF
+		m_btnMgr.setText(m_configLbl[4], _t("cfgc4", L"Adjust coverflow"));
+		//! CF box mode
+		m_btnMgr.setText(m_configLbl[5], _t("cfg726", L"Covers box Mode"));
+		m_checkboxBtn[5] = m_cfg.getOptBool(homebrew_domain, "box_mode", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5]; // default false
+		//! CF smallbox
+		m_btnMgr.setText(m_configLbl[6], _t("cfghb2", L"Coverflow smallbox"));
+		m_checkboxBtn[6] = m_cfg.getOptBool(homebrew_domain, "smallbox", 1) == 0 ? m_configChkOff[6] : m_configChkOn[6]; // default true
+
 		for(u8 i = 3; i < 7; ++i)
+		{
 			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 3; i < 5; ++i)
-			m_btnMgr.show(m_checkboxBtn[i], instant);
-		for(u8 i = 5; i < 7; ++i)
-			m_btnMgr.show(m_configBtnGo[i], instant);
+			if(i < 5)
+				m_btnMgr.show(m_configBtnGo[i], instant);
+			else
+				m_btnMgr.show(m_checkboxBtn[i], instant);
+		}
 	}
 	/** HOMEBREW APP LIST **/
 	else if(curPage == GAME_LIST)
@@ -50,9 +52,6 @@ void CMenu::_showConfigHB(bool instant)
 		m_btnMgr.setText(m_configLbl[3], _t("cfghb3", L"Homebrew partition"));
 		const char *partitionname = DeviceName[m_cfg.getInt(homebrew_domain, "partition", 0)];
 		m_btnMgr.setText(m_configLblVal[3], upperCase(partitionname));
-		m_btnMgr.show(m_configLblVal[3], instant);
-		m_btnMgr.show(m_configBtnM[3], instant);
-		m_btnMgr.show(m_configBtnP[3], instant);
 		//! Dump homebrew app coverflow list
 		m_btnMgr.setText(m_configLbl[4], _t("cfg783", L"Dump coverflow list"));
 		m_btnMgr.setText(m_configBtn[4], _t("cfgne6", L"Start"));
@@ -61,9 +60,17 @@ void CMenu::_showConfigHB(bool instant)
 		m_btnMgr.setText(m_configBtn[5], _t("cfgne6", L"Start"));
 		
 		for(u8 i = 3; i < 6; ++i)
+		{
 			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 4; i < 6; ++i)
-			m_btnMgr.show(m_configBtn[i], instant);
+			if(i == 3)
+			{
+				m_btnMgr.show(m_configLblVal[i], instant);
+				m_btnMgr.show(m_configBtnM[i], instant);
+				m_btnMgr.show(m_configBtnP[i], instant);
+			}
+			else
+				m_btnMgr.show(m_configBtn[i], instant);
+		}
 	}
 }
 
@@ -117,22 +124,13 @@ void CMenu::_configHB(u8 startPage)
 				}
 				else
 				{
-					if(m_btnMgr.selected(m_checkboxBtn[3])) // small box
+					if(m_btnMgr.selected(m_configBtnGo[3])) // game list
 					{
-						m_refreshGameList = true;
-						m_cfg.setBool(homebrew_domain, "update_cache", true);
-						m_cfg.setBool(homebrew_domain, "smallbox", !m_cfg.getBool(homebrew_domain, "smallbox"));
-						_showConfigHB(true);
-						m_btnMgr.setSelected(m_checkboxBtn[3]);
+						_hideConfig(true);
+						curPage = GAME_LIST;
+						_showConfigHB();
 					}
-					else if(m_btnMgr.selected(m_checkboxBtn[4])) // box mode
-					{
-						m_refreshGameList = true;
-						m_cfg.setBool(homebrew_domain, "box_mode", !m_cfg.getBool(homebrew_domain, "box_mode"));
-						_showConfigHB(true);
-						m_btnMgr.setSelected(m_checkboxBtn[4]);
-					}
-					else if(m_btnMgr.selected(m_configBtnGo[5])) // adjust CF
+					else if(m_btnMgr.selected(m_configBtnGo[4])) // adjust CF
 					{
 						_hideConfig();
 						m_prev_view = m_current_view;
@@ -154,11 +152,20 @@ void CMenu::_configHB(u8 startPage)
 						_setBg(m_configBg, m_configBg); // reset background after adjusting CF
 						_showConfigHB();
 					}
-					else if(m_btnMgr.selected(m_configBtnGo[6])) // game list
+					else if(m_btnMgr.selected(m_checkboxBtn[5])) // box mode
 					{
-						_hideConfig(true);
-						curPage = GAME_LIST;
-						_showConfigHB();
+						m_refreshGameList = true;
+						m_cfg.setBool(homebrew_domain, "box_mode", !m_cfg.getBool(homebrew_domain, "box_mode"));
+						_showConfigHB(true);
+						m_btnMgr.setSelected(m_checkboxBtn[5]);
+					}
+					else if(m_btnMgr.selected(m_checkboxBtn[6])) // small box
+					{
+						m_refreshGameList = true;
+						m_cfg.setBool(homebrew_domain, "update_cache", true);
+						m_cfg.setBool(homebrew_domain, "smallbox", !m_cfg.getBool(homebrew_domain, "smallbox"));
+						_showConfigHB(true);
+						m_btnMgr.setSelected(m_checkboxBtn[6]);
 					}
 				}
 			}
@@ -173,11 +180,11 @@ void CMenu::_configHB(u8 startPage)
 					currentPartition = m_cfg.getInt(homebrew_domain, "partition");
 					m_current_view = COVERFLOW_HOMEBREW;
 					_setPartition(direction);
-					_showConfigHB(true);
 					if(m_prev_view & COVERFLOW_HOMEBREW || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
 						m_refreshGameList = true;
 					m_current_view = m_prev_view;
 					currentPartition = prevPartition;
+					_showConfigHB(true);
 				}
 				else if(m_btnMgr.selected(m_configBtn[4])) // dump list
 				{

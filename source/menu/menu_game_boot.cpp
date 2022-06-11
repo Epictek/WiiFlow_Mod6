@@ -19,13 +19,19 @@
 #include "memory/memory.h"
 #include "network/gcard.h"
 #include "loader/wdvd.h"
-#include "network/FTP_Dir.hpp" // -ftp-
+#include "network/FTP_Dir.hpp"
 // #include "types.h"
 // #include "channel/channels.h"
 // #include "devicemounter/DeviceHandler.hpp"
 // #include "devicemounter/sdhc.h"
 // #include "devicemounter/usbstorage.h"
 // #include "loader/wbfs.h"
+
+#ifdef APP_WIIFLOW_LITE
+#define WFID4 "WFLA"
+#else
+#define WFID4 "DWFA"
+#endif
 
 static void setLanguage(int l)
 {
@@ -543,7 +549,7 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 	gprintf("Use slippi: %s\n", use_slippi ? "yes" : "no");
 	
 	//! ACTIVITY LED
-	bool activity_led = m_gcfg2.getBool(id, "led", false);
+	bool activity_led = cheats && !m_gcfg2.getBool(id, "led", false);
 	
 	/* Configs no longer needed */
 	m_gcfg1.save(true);
@@ -826,7 +832,8 @@ void CMenu::_launchChannel(dir_discHdr *hdr)
 	
 	//! RETURN TO PATCH
 	u32 returnTo = 0;
-	const char *rtrn = isWiiVC ? "" : m_cfg.getString(channel_domain, "returnto", "").c_str();
+	// const char *rtrn = isWiiVC ? "" : m_cfg.getString(channel_domain, "returnto", "").c_str();
+	const char *rtrn = isWiiVC ? "" : neek2o() ? WFID4 : m_cfg.getString(channel_domain, "returnto", "").c_str();
 	if(strlen(rtrn) == 4)
 		returnTo = rtrn[0] << 24 | rtrn[1] << 16 | rtrn[2] << 8 | rtrn[3];
 	
@@ -854,7 +861,7 @@ void CMenu::_launchChannel(dir_discHdr *hdr)
 	u32 gameIOS = ChannelHandle.GetRequestedIOS(gameTitle);
 	
 	//! ACTIVITY LED
-	bool use_led = m_gcfg2.getBool(id, "led", false);
+	bool use_led = cheat && cheatFile != NULL && !m_gcfg2.getBool(id, "led", false);
 
 	/* Configs no longer needed */
 	m_gcfg1.save(true);
@@ -1128,7 +1135,7 @@ void CMenu::_launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg)
 	int gameIOS = dvd ? userIOS : GetRequestedGameIOS(hdr);
 	
 	//! ACTIVITY LED
-	bool use_led = m_gcfg2.getBool(id, "led", false);
+	bool use_led = cheat && cheatFile != NULL && !m_gcfg2.getBool(id, "led", false);
 	
 	m_gcfg1.save(true);
 	m_gcfg2.save(true);

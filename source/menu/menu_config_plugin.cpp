@@ -1,7 +1,7 @@
 
 #include "menu.hpp"
 
-#define NB_BUTTONS 3
+#define NB_BUTTONS 2
 
 static u8 curPage;
 static u8 start_pos;
@@ -100,17 +100,16 @@ void CMenu::_showConfigPlugin(bool instant)
 		if(enabledPluginsCount == 1)
 			m_btnMgr.show(m_configBtnCenter);
 
-		m_btnMgr.setText(m_configLbl[start_pos], _t("cfg727", L"Use plugin database titles"));
-		m_checkboxBtn[start_pos] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[start_pos] : m_configChkOn[start_pos]; // default true
-		m_btnMgr.show(m_checkboxBtn[start_pos], instant);
-		m_btnMgr.setText(m_configLbl[start_pos+1], _t("cfgpl1", L"Select plugins"));		
-		m_btnMgr.setText(m_configLbl[start_pos+2], _t("cfg816", L"Manage Plugin game list"));
+		//! Game location
+		m_btnMgr.setText(m_configLbl[start_pos], _t("cfg816", L"Manage Plugin game list"));
+		//! Select plugins
+		m_btnMgr.setText(m_configLbl[start_pos + 1], _t("cfgpl1", L"Select plugins"));		
 
-		for(u8 i = start_pos; i < start_pos+3; ++i)
+		for(u8 i = start_pos; i < (start_pos + 2); ++i)
+		{
 			m_btnMgr.show(m_configLbl[i], instant);
-		
-		for(u8 i = start_pos+1; i < start_pos+3; ++i)
 			m_btnMgr.show(m_configBtnGo[i], instant);
+		}
 
 		//! The following buttons will only show up if their corresponding plugin is selected
 		if(wii_enabled) // shortcut to wii settings
@@ -158,26 +157,36 @@ void CMenu::_showConfigPlugin(bool instant)
 		m_btnMgr.setText(m_configLbl[2], _t("part4", L"Plugins default partition"));
 		const char *partitionname = DeviceName[m_cfg.getInt(plugin_domain, "partition", 0)];
 		m_btnMgr.setText(m_configLblVal[2], upperCase(partitionname));
-		m_btnMgr.show(m_configLblVal[2], instant);
-		m_btnMgr.show(m_configBtnM[2], instant);
-		m_btnMgr.show(m_configBtnP[2], instant);		
 		//! Plugin rom paths
 		m_btnMgr.setText(m_configLbl[3], _t("smedit7", L"Custom rom paths"));
 		//! Plugin explorer paths
 		m_btnMgr.setText(m_configLbl[4], _t("cfg827", L"Custom explorer paths"));
+		//! Use plugin database names
+		m_btnMgr.setText(m_configLbl[5], _t("cfg727", L"Use plugin database titles"));
+		m_checkboxBtn[5] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[5] : m_configChkOn[5]; // default true
 		//! Dump plugin game coverflow list
-		m_btnMgr.setText(m_configLbl[5], _t("cfg783", L"Dump coverflow list"));
+		m_btnMgr.setText(m_configLbl[6], _t("cfg783", L"Dump coverflow list"));
 		//! Refresh coverflow list and cover cache
-		m_btnMgr.setText(m_configLbl[6], _t("home2", L"Refresh coverflow list"));
+		m_btnMgr.setText(m_configLbl[7], _t("home2", L"Refresh coverflow list"));
 
-		for(u8 i = 2; i < 7; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
-		for(u8 i = 3; i < 5; ++i)
-			m_btnMgr.show(m_configBtnGo[i], instant);
-		for(u8 i = 5; i < 7; ++i)
+		for(u8 i = 2; i < 8; ++i)
 		{
-			m_btnMgr.setText(m_configBtn[i], _t("cfgne6", L"Start"));
-			m_btnMgr.show(m_configBtn[i], instant);
+			m_btnMgr.show(m_configLbl[i], instant);
+			if(i == 2)
+			{
+				m_btnMgr.show(m_configLblVal[i], instant);
+				m_btnMgr.show(m_configBtnM[i], instant);
+				m_btnMgr.show(m_configBtnP[i], instant);
+			}
+			else if(i < 5)
+				m_btnMgr.show(m_configBtnGo[i], instant);
+			else if(i == 5)
+				m_btnMgr.show(m_checkboxBtn[i], instant);
+			else
+			{
+				m_btnMgr.setText(m_configBtn[i], _t("cfgne6", L"Start"));
+				m_btnMgr.show(m_configBtn[i], instant);
+			}
 		}
 	}
 }
@@ -237,23 +246,16 @@ void CMenu::_configPlugin(u8 startPage)
 				}
 				else
 				{
-					if(m_btnMgr.selected(m_checkboxBtn[start_pos])) // plugin database titles
-					{
-						cur_db_titles = !cur_db_titles;
-						m_cfg.setBool(plugin_domain, "database_titles", cur_db_titles);
-						_showConfigPlugin(true);
-						m_btnMgr.setSelected(m_checkboxBtn[start_pos+2]);
-					}
-					else if(m_btnMgr.selected(m_configBtnGo[start_pos+1])) // select plugins
-					{
-						_hideConfig(true);
-						_PluginSettings();
-						_showConfigPlugin();
-					}
-					else if(m_btnMgr.selected(m_configBtnGo[start_pos+2])) //  game location
+					if(m_btnMgr.selected(m_configBtnGo[start_pos])) //  game location
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
+						_showConfigPlugin();
+					}
+					else if(m_btnMgr.selected(m_configBtnGo[start_pos + 1])) // select plugins
+					{
+						_hideConfig(true);
+						_PluginSettings();
 						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[WiiBtn])) // wii settings
@@ -302,11 +304,11 @@ void CMenu::_configPlugin(u8 startPage)
 					currentPartition = m_cfg.getInt(plugin_domain, "partition");
 					m_current_view = COVERFLOW_PLUGIN;
 					_setPartition(direction);
-					_showConfigPlugin(true);
 					if(m_prev_view & COVERFLOW_PLUGIN)
 						m_refreshGameList = true;
 					m_current_view = m_prev_view;
 					currentPartition = prevPartition;
+					_showConfigPlugin(true);
 				}
 				else if(m_btnMgr.selected(m_configBtnGo[3])) // custom rom paths
 				{
@@ -320,12 +322,19 @@ void CMenu::_configPlugin(u8 startPage)
 					_checkboxesMenu(5); // SM editor mode 5 (EDIT_EXPLORER_PATH)
 					_showConfigPlugin();
 				}
-				else if(m_btnMgr.selected(m_configBtn[5])) // dump list
+				else if(m_btnMgr.selected(m_checkboxBtn[5])) // plugin database titles
+				{
+					cur_db_titles = !cur_db_titles;
+					m_cfg.setBool(plugin_domain, "database_titles", cur_db_titles);
+					_showConfigPlugin(true);
+					m_btnMgr.setSelected(m_checkboxBtn[5]);
+				}
+				else if(m_btnMgr.selected(m_configBtn[6])) // dump list
 				{
 					_dumpGameList();
 					_showConfigPlugin();
 				}
-				else if(m_btnMgr.selected(m_configBtn[6])) // refresh list
+				else if(m_btnMgr.selected(m_configBtn[7])) // refresh list
 				{
 					m_cfg.setBool(plugin_domain, "update_cache", true);
 					m_refreshGameList = true;

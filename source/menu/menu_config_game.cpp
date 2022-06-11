@@ -266,18 +266,21 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 	{
 		m_btnMgr.setText(m_configLblTitle, _t("cfgg92", L"Cheat codes"));
 		m_btnMgr.show(m_configLblTitle);
+
+		//! ACTIVITY LED
+		if(!IsOnWiiU())
+		{
+			m_btnMgr.setText(m_configLbl[3], _t("cfgg38", L"Disable LED"));
+			m_checkboxBtn[3] = m_gcfg2.getBool(GameHdr->id, "led", 0) == 0 ? m_configChkOff[3] : m_configChkOn[3];
+			m_btnMgr.show(m_configLbl[3], instant);
+			m_btnMgr.show(m_checkboxBtn[3], instant);
+		}
 		
 		//! DELETE CHEATS
-		m_btnMgr.setText(m_configLbl[3], _t("cfg833", L"Delete cheat file"));
-		m_btnMgr.setText(m_configBtn[3], _t("cfgbnr6", L"Delete"));
-		m_btnMgr.show(m_configBtn[3], instant);
-		
-		//! SELECT CHEATS
-		m_btnMgr.setText(m_configLbl[4], _t("cfgg15", L"Select codes"));
-		m_btnMgr.show(m_configBtnGo[4], instant);
-		
-		for(u8 i = 3; i < 5; ++i)
-			m_btnMgr.show(m_configLbl[i], instant);
+		m_btnMgr.setText(m_configLbl[4], _t("cfg833", L"Delete cheat file"));
+		m_btnMgr.setText(m_configBtn[4], _t("cfgbnr6", L"Delete"));
+		m_btnMgr.show(m_configLbl[4], instant);
+		m_btnMgr.show(m_configBtn[4], instant);
 		
 		//! DEBUGGER
 		if(!(IsOnWiiU() && GameHdr->type == TYPE_GC_GAME))
@@ -309,6 +312,10 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 		m_btnMgr.show(m_configLblTitle);
 		if(GameHdr->type == TYPE_GC_GAME)
 		{
+			//! WIIU WIDESCREEN -> default global
+			m_btnMgr.setText(m_configLbl[1], _t("cfgg46", L"WiiU Widescreen"));
+			m_btnMgr.setText(m_configLblVal[1], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "wiiu_widescreen", 2)));
+			
 			//! WIDESCREEN PATCH -> default global
 			m_btnMgr.setText(m_configLbl[2], _t("cfgg36", L"Widescreen patch"));
 			m_btnMgr.setText(m_configLblVal[2], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "widescreen", 2)));
@@ -334,22 +341,18 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 			else
 				m_btnMgr.setText(m_configLblVal[5], wfmt(L"%i", max(-20, min(20, videoOffset))));
 			
-			//! WIIU WIDESCREEN -> default global
-			m_btnMgr.setText(m_configLbl[6], _t("cfgg46", L"WiiU Widescreen"));
-			m_btnMgr.setText(m_configLblVal[6], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "wiiu_widescreen", 2)));
-			
 			//! DEFLICKER
-			m_btnMgr.setText(m_configLbl[7], _t("cfgg44", L"Video deflicker"));
-			m_checkboxBtn[7] = m_gcfg2.getBool(GameHdr->id, "deflicker", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
+			m_btnMgr.setText(m_configLbl[6], _t("cfgg44", L"Video deflicker"));
+			m_checkboxBtn[6] = m_gcfg2.getBool(GameHdr->id, "deflicker", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
 			
 			//! PAL50 PATCH
-			m_btnMgr.setText(m_configLbl[8], _t("cfgg56", L"Patch PAL50"));
-			m_checkboxBtn[8] = m_gcfg2.getBool(GameHdr->id, "patch_pal50", 0) == 0 ? m_configChkOff[8] : m_configChkOn[8];
+			m_btnMgr.setText(m_configLbl[7], _t("cfgg56", L"Patch PAL50"));
+			m_checkboxBtn[7] = m_gcfg2.getBool(GameHdr->id, "patch_pal50", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
 			
-			for(u8 i = 2; i < 9; ++i)
+			for(u8 i = (1 + IsOnWiiU()); i < 8; ++i)
 			{
 				m_btnMgr.show(m_configLbl[i], instant);
-				if(i < 7)
+				if(i < 6)
 				{
 					m_btnMgr.show(m_configLblVal[i], instant);
 					m_btnMgr.show(m_configBtnM[i], instant);
@@ -444,49 +447,36 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 	else if(curPage == COMPAT_SETTINGS)
 	{
 		m_btnMgr.show(m_configLblTitle);
-		//! ACTIVITY LED
-		if(!IsOnWiiU())
-		{
-			m_btnMgr.setText(m_configLbl[2], _t("cfgg38", L"Activity LED"));
-			m_checkboxBtn[2] = m_gcfg2.getBool(GameHdr->id, "led", 0) == 0 ? m_configChkOff[2] : m_configChkOn[2];
-			m_btnMgr.show(m_configLbl[2], instant);
-			m_btnMgr.show(m_checkboxBtn[2], instant);
-		}
-
 		if(GameHdr->type == TYPE_GC_GAME)
 		{
 			m_btnMgr.setText(m_configLblTitle, _t("cfgg91", L"Emulation settings"));
-			//! NATIVE CONTROL -> default global
-			if(!IsOnWiiU())
-			{
-				m_btnMgr.setText(m_configLbl[3], _t("cfgg43", L"Native control"));
-				m_btnMgr.setText(m_configLblVal[3], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "native_ctl", 2)));
-				m_btnMgr.show(m_configLbl[3], instant);
-				m_btnMgr.show(m_configLblVal[3], instant);
-				m_btnMgr.show(m_configBtnM[3], instant);
-				m_btnMgr.show(m_configBtnP[3], instant);
-			}
-			
-			//! WIIMOTE CC RUMBLE -> default global
-			m_btnMgr.setText(m_configLbl[4], _t("cfgg52", L"Wiimote CC rumble"));
-			m_btnMgr.setText(m_configLblVal[4], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "cc_rumble", 2)));
-			m_btnMgr.show(m_configLblVal[4], instant);
-			m_btnMgr.show(m_configBtnM[4], instant);
-			m_btnMgr.show(m_configBtnP[4], instant);
-			
 			//! TRIFORCE MODE
-			m_btnMgr.setText(m_configLbl[5], _t("cfgg48", L"Triforce arcade mode (insert coins)"));
-			m_checkboxBtn[5] = m_gcfg2.getBool(GameHdr->id, "triforce_arcade", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5];
+			m_btnMgr.setText(m_configLbl[3], _t("cfgg48", L"Triforce arcade mode (insert coins)"));
+			m_checkboxBtn[3] = m_gcfg2.getBool(GameHdr->id, "triforce_arcade", 0) == 0 ? m_configChkOff[3] : m_configChkOn[3];
 			
 			//! SKIP IPL BIOS
-			m_btnMgr.setText(m_configLbl[6], _t("cfgg53", L"Skip IPL BIOS"));
-			m_checkboxBtn[6] = m_gcfg2.getBool(GameHdr->id, "skip_ipl", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
-			
-			for(u8 i = 4; i < 7; ++i)
+			m_btnMgr.setText(m_configLbl[4], _t("cfgg53", L"Skip IPL BIOS"));
+			m_checkboxBtn[4] = m_gcfg2.getBool(GameHdr->id, "skip_ipl", 0) == 0 ? m_configChkOff[4] : m_configChkOn[4];
+
+			//! WIIMOTE CC RUMBLE -> default global
+			m_btnMgr.setText(m_configLbl[5], _t("cfgg52", L"Wiimote CC rumble"));
+			m_btnMgr.setText(m_configLblVal[5], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "cc_rumble", 2)));
+
+			//! NATIVE CONTROL -> default global
+			m_btnMgr.setText(m_configLbl[6], _t("cfgg43", L"Native control"));
+			m_btnMgr.setText(m_configLblVal[6], _optBoolToString(m_gcfg2.getOptBool(GameHdr->id, "native_ctl", 2)));	
+
+			for(u8 i = 3; i < (7 - IsOnWiiU()); ++i)
 			{
 				m_btnMgr.show(m_configLbl[i], instant);
-				if(i > 4)
+				if(i < 5)
 					m_btnMgr.show(m_checkboxBtn[i], instant);
+				else
+				{
+					m_btnMgr.show(m_configLblVal[i], instant);
+					m_btnMgr.show(m_configBtnM[i], instant);
+					m_btnMgr.show(m_configBtnP[i], instant);
+				}
 			}
 		}
 		else // wii and channels
@@ -557,11 +547,11 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 			m_btnMgr.setText(m_configLblVal[2], _t(CMenu::_SaveEmu[i].id, CMenu::_SaveEmu[i].text), true);			
 			
 			//! EXTRACT NAND SAVE
-			m_btnMgr.setText(m_configLbl[6], _t("cfgg30", L"Extract nand save to emunand"));
+			m_btnMgr.setText(m_configLbl[6], _t("cfgg30", L"Extract Wii save to emunand"));
 			m_btnMgr.setText(m_configBtn[6], _t("cfgg31", L"Extract"));
 			
 			//! FLASH NAND SAVE
-			m_btnMgr.setText(m_configLbl[7], _t("cfgg32", L"Flash emunand save to nand"));
+			m_btnMgr.setText(m_configLbl[7], _t("cfgg32", L"Flash emunand save to Wii"));
 			m_btnMgr.setText(m_configBtn[7], _t("cfgg33", L"Flash"));
 			
 			for(u8 i = 6; i < 8; ++i)
@@ -744,8 +734,15 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 			}
 			else if(curPage == CHEAT_SETTINGS)
 			{
+				//! ACTIVITY LED
+				if(m_btnMgr.selected(m_checkboxBtn[3]))
+				{
+					m_gcfg2.setBool(GameHdr->id, "led", !m_gcfg2.getBool(GameHdr->id, "led", 0));
+					_showGameSettings(true, dvd);
+					m_btnMgr.setSelected(m_checkboxBtn[3]);
+				}
 				//! DELETE CHEATS
-				if(m_btnMgr.selected(m_configBtn[3]))
+				if(m_btnMgr.selected(m_configBtn[4]))
 				{
 					if(error(_t("errcfg5", L"Are you sure?"), true))
 					{
@@ -756,14 +753,6 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 						error(_t("dlmsg14", L"Done."));
 					}
 					_showGameSettings(true, dvd);
-				}
-				//! SELECT CHEATS
-				else if(m_btnMgr.selected(m_configBtnGo[4]))
-				{
-					_hideConfig(true);
-					_CheatSettings(GameHdr->id);
-					_hideConfig(true);
-					_showGameSettings(false, dvd);
 				}
 				//! DEBUGGER
 				else if(m_btnMgr.selected(m_configBtnP[5]) || m_btnMgr.selected(m_configBtnM[5]))
@@ -784,8 +773,15 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 			{
 				if(GameHdr->type == TYPE_GC_GAME)
 				{
+					//! WIIU WIDESCREEN
+					if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
+					{
+						s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
+						m_gcfg2.setOptBool(GameHdr->id, "wiiu_widescreen", loopNum(m_gcfg2.getOptBool(GameHdr->id, "wiiu_widescreen") + direction, 3));
+						_showGameSettings(true, dvd);
+					}
 					//! WIDESCREEN PATCH (GC)
-					if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
+					else if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
 					{
 						s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 						m_gcfg2.setOptBool(GameHdr->id, "widescreen", loopNum(m_gcfg2.getOptBool(GameHdr->id, "widescreen") + direction, 3));
@@ -842,26 +838,19 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 						m_gcfg2.setInt(GameHdr->id, "nin_pos", videoOffset);
 						_showGameSettings(true, dvd);
 					}
-					//! WIIU WIDESCREEN
-					else if(m_btnMgr.selected(m_configBtnP[6]) || m_btnMgr.selected(m_configBtnM[6]))
-					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[6]) ? 1 : -1;
-						m_gcfg2.setOptBool(GameHdr->id, "wiiu_widescreen", loopNum(m_gcfg2.getOptBool(GameHdr->id, "wiiu_widescreen") + direction, 3));
-						_showGameSettings(true, dvd);
-					}
 					//! DEFLICKER
-					else if(m_btnMgr.selected(m_checkboxBtn[7]))
+					else if(m_btnMgr.selected(m_checkboxBtn[6]))
 					{
 						m_gcfg2.setBool(GameHdr->id, "deflicker", !m_gcfg2.getBool(GameHdr->id, "deflicker", 0));
 						_showGameSettings(true, dvd);
-						m_btnMgr.setSelected(m_checkboxBtn[7]);
+						m_btnMgr.setSelected(m_checkboxBtn[6]);
 					}
 					//! PAL50 PATCH
-					else if(m_btnMgr.selected(m_checkboxBtn[8]))
+					else if(m_btnMgr.selected(m_checkboxBtn[7]))
 					{
 						m_gcfg2.setBool(GameHdr->id, "patch_pal50", !m_gcfg2.getBool(GameHdr->id, "patch_pal50", 0));
 						_showGameSettings(true, dvd);
-						m_btnMgr.setSelected(m_checkboxBtn[8]);
+						m_btnMgr.setSelected(m_checkboxBtn[7]);
 					}
 				}
 				else // wii and channels
@@ -943,42 +932,35 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 			}
 			else if(curPage == COMPAT_SETTINGS)
 			{
-				//! ACTIVITY LED
-				if(m_btnMgr.selected(m_checkboxBtn[2]))
+				if(GameHdr->type == TYPE_GC_GAME)
 				{
-					m_gcfg2.setBool(GameHdr->id, "led", !m_gcfg2.getBool(GameHdr->id, "led", 0));
-					_showGameSettings(true, dvd);
-					m_btnMgr.setSelected(m_checkboxBtn[2]);
-				}
-				else if(GameHdr->type == TYPE_GC_GAME)
-				{
-					//! NATIVE CONTROL
-					if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
-					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
-						m_gcfg2.setOptBool(GameHdr->id, "native_ctl", loopNum(m_gcfg2.getOptBool(GameHdr->id, "native_ctl") + direction, 3));
-						_showGameSettings(true, dvd);
-					}
-					//! WIIMOTE CC RUMBLE
-					else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
-					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
-						m_gcfg2.setOptBool(GameHdr->id, "cc_rumble", loopNum(m_gcfg2.getOptBool(GameHdr->id, "cc_rumble") + direction, 3));
-						_showGameSettings(true, dvd);
-					}
 					//! TRIFORCE MODE
-					else if(m_btnMgr.selected(m_checkboxBtn[5]))
+					if(m_btnMgr.selected(m_checkboxBtn[3]))
 					{
 						m_gcfg2.setBool(GameHdr->id, "triforce_arcade", !m_gcfg2.getBool(GameHdr->id, "triforce_arcade", 0));
 						_showGameSettings(true, dvd);
-						m_btnMgr.setSelected(m_checkboxBtn[5]);
+						m_btnMgr.setSelected(m_checkboxBtn[3]);
 					}
 					//! SKIP IPL BIOS
-					else if(m_btnMgr.selected(m_checkboxBtn[6]))
+					else if(m_btnMgr.selected(m_checkboxBtn[4]))
 					{
 						m_gcfg2.setBool(GameHdr->id, "skip_ipl", !m_gcfg2.getBool(GameHdr->id, "skip_ipl", 0));
 						_showGameSettings(true, dvd);
-						m_btnMgr.setSelected(m_checkboxBtn[6]);
+						m_btnMgr.setSelected(m_checkboxBtn[4]);
+					}
+					//! WIIMOTE CC RUMBLE
+					else if(m_btnMgr.selected(m_configBtnP[5]) || m_btnMgr.selected(m_configBtnM[5]))
+					{
+						s8 direction = m_btnMgr.selected(m_configBtnP[5]) ? 1 : -1;
+						m_gcfg2.setOptBool(GameHdr->id, "cc_rumble", loopNum(m_gcfg2.getOptBool(GameHdr->id, "cc_rumble") + direction, 3));
+						_showGameSettings(true, dvd);
+					}
+					//! NATIVE CONTROL
+					else if(m_btnMgr.selected(m_configBtnP[6]) || m_btnMgr.selected(m_configBtnM[6]))
+					{
+						s8 direction = m_btnMgr.selected(m_configBtnP[6]) ? 1 : -1;
+						m_gcfg2.setOptBool(GameHdr->id, "native_ctl", loopNum(m_gcfg2.getOptBool(GameHdr->id, "native_ctl") + direction, 3));
+						_showGameSettings(true, dvd);
 					}
 				}
 				else // wii and channels

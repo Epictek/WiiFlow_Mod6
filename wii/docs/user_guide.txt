@@ -1,10 +1,10 @@
 **********************************************************************************
 *                                                                                *
-*                              WIIFLOW GUIDE                                     *
+*                             WIIFLOW MOD6 GUIDE                                 *
 *                                                                                *
 **********************************************************************************
 
-Update June 7, 2022.
+Update June 10, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -581,19 +581,18 @@ Animation acts as a screensaver and will appear a few seconds after a game has b
 
 Here are some settings that are only available through manual editing of wiiflow_lite.ini.
 
+FTP settings under [FTP] domain
+-------------------------------
+
+- FTP server port (default 21):
+server_port=21
+
 
 WiFi debug settings under [DEBUG] domain (for use with WifiGeckoReader)
 -----------------------------------
 
-wifi_gecko_ip=[ip address of WifiGeckoReader console]
+- Server port of WifiGeckoReader (default 4405):
 wifi_gecko_port=4405
-
-
-Channel settings under [CHANNELS] domain
-----------------------------------------
-
-- Use "vwiinands" folder for emunand on WiiU instead of "nands" (default yes)
-use_vwiinands=yes
 
 
 Gamecube settings under [GAMECUBE] domain
