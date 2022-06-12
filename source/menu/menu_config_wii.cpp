@@ -150,37 +150,37 @@ void CMenu::_showConfigWii(bool instant)
 		
 		//! Wii game saves emunand partition
 		const char *partitionname = DeviceName[m_cfg.getInt(wii_domain, "savepartition")];
-		m_btnMgr.setText(m_configLbl[2], _t("cfgne38", L"Wii disc emunand partition"));
-		m_btnMgr.setText(m_configLblVal[2], upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[1], _t("cfgne38", L"Wii disc emunand partition"));
+		m_btnMgr.setText(m_configLblVal[1], upperCase(partitionname));
 		//! Select saves emunand
-		m_btnMgr.setText(m_configLbl[3], _t("cfgne32", L"Wii disc emunand folder"));
-		m_btnMgr.setText(m_configLblVal[3], m_cfg.getString(wii_domain, "current_save_emunand"));
+		m_btnMgr.setText(m_configLbl[2], _t("cfgne32", L"Wii disc emunand folder"));
+		m_btnMgr.setText(m_configLblVal[2], m_cfg.getString(wii_domain, "current_save_emunand"));
 		//! Saves emunand mode
-		m_btnMgr.setText(m_configLbl[4], _t("cfgne33", L"Wii disc emunand mode"));
+		m_btnMgr.setText(m_configLbl[3], _t("cfgne33", L"Wii disc emunand mode"));
 		i = min(max(0, m_cfg.getInt(wii_domain, "save_emulation", 0)), (int)ARRAY_SIZE(CMenu::_SaveEmu) - 2);
-		m_btnMgr.setText(m_configLblVal[4], _t(CMenu::_SaveEmu[i + 1].id, CMenu::_SaveEmu[i + 1].text), true);
+		m_btnMgr.setText(m_configLblVal[3], _t(CMenu::_SaveEmu[i + 1].id, CMenu::_SaveEmu[i + 1].text), true);
 		//! Create new emunand folder
-		m_btnMgr.setText(m_configLbl[5], _t("cfg821", L"Create new emunand folder"));
+		m_btnMgr.setText(m_configLbl[4], _t("cfg821", L"Create new emunand folder"));
 		//! Extract all saves from nand
-		m_btnMgr.setText(m_configLbl[6], _t("cfgne2", L"Extract all saves from nand"));
-		m_btnMgr.setText(m_configBtn[6], _t("cfgg31", L"Extract"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfgne2", L"Extract all saves from nand"));
+		m_btnMgr.setText(m_configBtn[5], _t("cfgg31", L"Extract"));
 		//! Extract missing saves from nand
-		m_btnMgr.setText(m_configLbl[7], _t("cfgne4", L"Extract missing saves from nand"));
-		m_btnMgr.setText(m_configBtn[7], _t("cfgg31", L"Extract"));
+		m_btnMgr.setText(m_configLbl[6], _t("cfgne4", L"Extract missing saves from nand"));
+		m_btnMgr.setText(m_configBtn[6], _t("cfgg31", L"Extract"));
 		//! Launch neek2o saves emunand system menu
-		m_btnMgr.setText(m_configLbl[8], _t("neek2", L"Neek2o system menu"));
-		m_btnMgr.setText(m_configBtn[8], _t("cfgne6", L"Start"));
+		m_btnMgr.setText(m_configLbl[7], _t("neek2", L"Neek2o system menu"));
+		m_btnMgr.setText(m_configBtn[7], _t("cfgne6", L"Start"));
 		
-		for(u8 i = 2; i < 9; ++i)
+		for(u8 i = 1; i < 8; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i < 5)
+			if(i < 4)
 			{
 				m_btnMgr.show(m_configLblVal[i], instant);
 				m_btnMgr.show(m_configBtnM[i], instant);
 				m_btnMgr.show(m_configBtnP[i], instant);
 			}
-			else if(i == 5)
+			else if(i == 4)
 				m_btnMgr.show(m_configBtnGo[i], instant);
 			else
 				m_btnMgr.show(m_configBtn[i], instant);
@@ -410,10 +410,10 @@ void CMenu::_configWii(u8 startPage)
 			else if(curPage == NANDEMU_SETTINGS)
 			{
 				//! Wii game saves emunand partition
-				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
+				if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
 				{
 					u8 prevPartition = currentPartition;
-					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
 					currentPartition = m_cfg.getInt(wii_domain, "savepartition");
 					_setPartition(direction, true); // m_emuSaveNand = true
 					_checkEmuNandSettings(SAVES_NAND); // refresh emunands in case partition was changed
@@ -421,9 +421,9 @@ void CMenu::_configWii(u8 startPage)
 					_showConfigWii(true);
 				}
 				//! Select saves emunand
-				else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
+				else if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 					m_prev_view = m_current_view;
 					m_current_view = COVERFLOW_WII;
 					_SetEmuNand(direction);
@@ -431,14 +431,14 @@ void CMenu::_configWii(u8 startPage)
 					_showConfigWii(true);
 				}
 				//! Saves emunand mode
-				else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
+				else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					m_cfg.setInt(wii_domain, "save_emulation", loopNum(m_cfg.getInt(wii_domain, "save_emulation", 0) + direction, ARRAY_SIZE(CMenu::_SaveEmu) - 1)); // minus 1 because of "default" array value
 					_showConfigWii(true);
 				}
 				//! Create new emunand folder
-				else if(m_btnMgr.selected(m_configBtnGo[5]))
+				else if(m_btnMgr.selected(m_configBtnGo[4]))
 				{
 					_hideConfig(true);
 					char *c = NULL;
@@ -456,11 +456,11 @@ void CMenu::_configWii(u8 startPage)
 					_showConfigWii();
 				}
 				//! Extract all or missing saves from nand
-				else if(m_btnMgr.selected(m_configBtn[6]) || m_btnMgr.selected(m_configBtn[7]))
+				else if(m_btnMgr.selected(m_configBtn[5]) || m_btnMgr.selected(m_configBtn[6]))
 				{
-					bool all = m_btnMgr.selected(m_configBtn[6]);
+					bool all = m_btnMgr.selected(m_configBtn[5]);
 					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, m_cfg.getString(wii_domain, "current_save_emunand").c_str());
-					if(error(wfmt(_fmt("errcfg6", L"Extract saves to %s?"), currentNand), true))
+					if(error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), currentNand), true))
 					{
 						m_prev_view = m_current_view;
 						if(m_prev_view != COVERFLOW_WII)
@@ -478,7 +478,7 @@ void CMenu::_configWii(u8 startPage)
 					_showConfigWii();
 				}
 				//! Launch neek2o system menu
-				else if(m_btnMgr.selected(m_configBtn[8]))
+				else if(m_btnMgr.selected(m_configBtn[7]))
 				{
 					if(_launchNeek2oChannel(EXIT_TO_SMNK2O, SAVES_NAND))
 						break;

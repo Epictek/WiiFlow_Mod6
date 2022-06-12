@@ -169,6 +169,7 @@ bool CMenu::_wbfsOp(u8 op)
 						}
 						else
 						{
+							_FindEmuPart(EMU_NAND, true);
 							const char *nand_base = NandHandle.GetPath();
 							fsop_deleteFolder(fmt("%s/title/%08x/%08x", nand_base, CF_Hdr->settings[0], CF_Hdr->settings[1]));
 							fsop_deleteFile(fmt("%s/ticket/%08x/%08x.tik", nand_base, CF_Hdr->settings[0], CF_Hdr->settings[1]));
@@ -200,7 +201,7 @@ bool CMenu::_wbfsOp(u8 op)
 					{
 						savePath = fmt("%s:/saves/%.4s.raw", DeviceName[currentPartition], CF_Hdr->id);
 						backupPath = fmt("%s/gamecube/%.4s.raw", m_backupDir.c_str(), CF_Hdr->id);
-						exist = fsop_FileExist(op == WO_BACKUP_EMUSAVE ? savePath : backupPath);
+						exist = fsop_FileExist(op == WO_RESTORE_EMUSAVE ? backupPath : savePath);
 						if(exist)
 						{
 							if(op == WO_BACKUP_EMUSAVE)
@@ -239,7 +240,7 @@ bool CMenu::_wbfsOp(u8 op)
 							savePath = fmt("%s:%s/title/00010001/%08x/data", DeviceName[_FindEmuPart(EMU_NAND, true)], NandHandle.Get_NandPath(), CF_Hdr->settings[1]);
 							backupPath = fmt("%s/emunand/title/00010001/%08x/data", m_backupDir.c_str(), CF_Hdr->settings[1]);
 						}
-						exist = fsop_FolderExist(op == WO_BACKUP_EMUSAVE ? savePath : backupPath);
+						exist = fsop_FolderExist(op == WO_RESTORE_EMUSAVE ? backupPath : savePath);
 						if(exist)
 						{
 							if(op == WO_BACKUP_EMUSAVE)

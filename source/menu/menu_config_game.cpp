@@ -349,7 +349,7 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 			m_btnMgr.setText(m_configLbl[7], _t("cfgg56", L"Patch PAL50"));
 			m_checkboxBtn[7] = m_gcfg2.getBool(GameHdr->id, "patch_pal50", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
 			
-			for(u8 i = (1 + IsOnWiiU()); i < 8; ++i)
+			for(u8 i = (2 - IsOnWiiU()); i < 8; ++i)
 			{
 				m_btnMgr.show(m_configLbl[i], instant);
 				if(i < 6)
@@ -752,7 +752,7 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 						m_gcfg2.remove(GameHdr->id, "hooktype");
 						error(_t("dlmsg14", L"Done."));
 					}
-					_showGameSettings(true, dvd);
+					_showGameSettings(false, dvd);
 				}
 				//! DEBUGGER
 				else if(m_btnMgr.selected(m_configBtnP[5]) || m_btnMgr.selected(m_configBtnM[5]))
@@ -1039,24 +1039,26 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 						m_gcfg2.setInt(GameHdr->id, "emu_memcard", (int)loopNum(m_gcfg2.getUInt(GameHdr->id, "emu_memcard", 2) + direction, ARRAY_SIZE(CMenu::_NinEmuCard)));
 					_showGameSettings(true, dvd);
 				}
-				//! EXTRACT SAVE
-				else if(m_btnMgr.selected(m_configBtn[6]))
+				//! EXTRACT - FLASH SAVE
+				else if(m_btnMgr.selected(m_configBtn[6]) || m_btnMgr.selected(m_configBtn[7]))
 				{
-					if(error(_t("errcfg5", L"Are you sure?"), true))
+					bool extract = m_btnMgr.selected(m_configBtn[6]);
+					bool nosave = false;
+					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, m_cfg.getString(wii_domain, "current_save_emunand").c_str());
+					if(extract) // extract save from nand to saves emunand
 					{
-						if(!_AutoExtractSave(GameHdr->id))
-							error(_t("cfgg50", L"No save to extract!"));
+						if(error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), currentNand), true))
+							if(!_AutoExtractSave(GameHdr->id))
+								nosave = true;
 					}
-					_showGameSettings(false, dvd);
-				}
-				//! FLASH SAVE
-				else if(m_btnMgr.selected(m_configBtn[7]))
-				{
-					if(error(_t("errcfg5", L"Are you sure?"), true))
+					else // flash save from saves emunand to nand
 					{
-						if(!_FlashSave(GameHdr->id))
-							error(_t("cfgg51", L"No save to flash!"));
+						if(error(wfmt(_fmt("errcfg13", L"Flash save from %s?"), currentNand), true))
+							if(!_FlashSave(GameHdr->id))
+								nosave = true;
 					}
+					if(nosave)
+						error(_t("cfgmc10", L"File not found!"));
 					_showGameSettings(false, dvd);
 				}
 				//! BACKUP - REMOVE - RESTORE EMUNAND MEMCARD OR SAVE

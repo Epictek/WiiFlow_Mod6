@@ -132,8 +132,6 @@ void CMenu::_configSource(void)
 				_hideConfig();
 				m_sourceflow = true;
 				_showCF(true);
-				_getSFlowBgTex();
-				_setMainBg();
 				if(_cfTheme())
 					break; // reboot if CF was modified due to possible memory leak with cf_theme
 				m_sourceflow = false;

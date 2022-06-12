@@ -62,9 +62,9 @@ void CMenu::_showConfigMain(bool instant)
 	m_btnMgr.setText(m_configLblTitle, _t("cfg776", L"WiiFlow settings"));
 	m_btnMgr.show(m_configLblTitle);
 
-	m_btnMgr.setText(m_configLbl[m_locked ? 4 : 0+a], _t("cfg5", L"Child lock"));
-	m_btnMgr.show(m_configLbl[m_locked ? 4 : 0+a]); // child lock
-	m_btnMgr.show(m_configBtnGo[m_locked ? 4 : 0+a]);
+	m_btnMgr.setText(m_configLbl[m_locked ? 4 : 0], _t("cfg5", L"Child lock"));
+	m_btnMgr.show(m_configLbl[m_locked ? 4 : 0]); // child lock
+	m_btnMgr.show(m_configBtnGo[m_locked ? 4 : 0]);
 	
 	if(m_locked)
 		return;
@@ -75,10 +75,10 @@ void CMenu::_showConfigMain(bool instant)
 		m_btnMgr.show(m_configBtnCenter);
 	}
 
-	m_btnMgr.setText(m_configLbl[1+a], _t("cfg795", L"User interface"));
-	m_btnMgr.setText(m_configLbl[2+a], _t("cfg793", L"Screen adjustment"));
+	m_btnMgr.setText(m_configLbl[1], _t("cfg795", L"User interface"));
+	m_btnMgr.setText(m_configLbl[2], _t("cfg793", L"Screen adjustment"));
 	m_btnMgr.setText(m_configLbl[3], _t("cfg791", L"Startup and shutdown"));
-	m_btnMgr.setText(m_configLbl[4], _t("cfg796", L"Source menu settings"));
+	m_btnMgr.setText(m_configLbl[4-a], _t("cfg796", L"Source menu settings"));
 	m_btnMgr.setText(m_configLbl[5-a], _t("cfg792", L"Music settings"));
 	m_btnMgr.setText(m_configLbl[6-a], _t("cfgd4", L"Path manager"));
 	m_btnMgr.setText(m_configLbl[7-a], _t("cfgg98", L"Network settings"));
@@ -159,7 +159,7 @@ void CMenu::_config(void)
 				_showConfigMain();
 			}
 			//! CHILD LOCK
-			else if(m_btnMgr.selected(m_configBtnGo[m_locked ? 4 : 0+a]))
+			else if(m_btnMgr.selected(m_configBtnGo[m_locked ? 4 : 0]))
 			{
 				char code[4];
 				_hideConfig(true);
@@ -189,14 +189,14 @@ void CMenu::_config(void)
 				_showConfigMain();
 			}
 			//! GUI SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[1+a]))
+			else if(m_btnMgr.selected(m_configBtnGo[1]))
 			{
 				_hideConfig(true);
 				_configGui();
 				_showConfigMain();
 			}
 			//! SCREEN SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[2+a]))
+			else if(m_btnMgr.selected(m_configBtnGo[2]))
 			{
 				_hideConfig(true);
 				_configScreen();
@@ -210,7 +210,7 @@ void CMenu::_config(void)
 				_showConfigMain();
 			}
 			//! SOURCE MENU SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[4]) && !a)
+			else if(m_btnMgr.selected(m_configBtnGo[4-a]))
 			{
 				_hideConfig(true);
 				_configSource();

@@ -1,6 +1,8 @@
 
 #include "menu.hpp"
 
+#define BTNS_DELAY 100
+
 s16 m_cfThemeBtnAlt;
 s16 m_cfThemeBtnSelect;
 s16 m_cfThemeBtnWide;
@@ -352,6 +354,8 @@ bool CMenu::_cfTheme(void)
 
 	SetupInput();
 	_initCF();
+	_getCustomBgTex();
+	_setMainBg();
 	_showCFTheme(curParam, cfVersion, wide);
 	_loadCFLayout(cfVersion, false, wide != m_vid.wide());
 	CoverFlow.applySettings(true);
@@ -370,17 +374,19 @@ bool CMenu::_cfTheme(void)
 					m_coverflow.load(fmt("%s/default.ini", m_coverflowsDir.c_str()));
 				break;
 			}
+			_getCustomBgTex();
+			_setMainBg();
 			_showCFTheme(curParam, cfVersion, wide);
 		}
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 		{
 			m_btnMgr.up();
-			showBtnsDelay = 150;
+			showBtnsDelay = BTNS_DELAY;
 		}
 		else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)
 		{
 			m_btnMgr.down();
-			showBtnsDelay = 150;
+			showBtnsDelay = BTNS_DELAY;
 		}
 
 		bool sel = CoverFlow.selected();
@@ -422,6 +428,8 @@ bool CMenu::_cfTheme(void)
 					m_reload = true;
 					return true;
 				}
+				_getCustomBgTex();
+				_setMainBg();
 				_showCFTheme(curParam, cfVersion, wide);
 			}
 			else if(m_btnMgr.selected(m_cfThemeBtnAlt))
@@ -430,7 +438,7 @@ bool CMenu::_cfTheme(void)
 				_showCFTheme(curParam, cfVersion, wide);
 				_loadCFLayout(cfVersion, false, wide != m_vid.wide());
 				CoverFlow.applySettings(true);
-				showBtnsDelay = 150;
+				showBtnsDelay = BTNS_DELAY;
 			}
 			else if(m_btnMgr.selected(m_cfThemeBtnSelect))
 			{
@@ -441,7 +449,7 @@ bool CMenu::_cfTheme(void)
 				_showCFTheme(curParam, cfVersion, wide);
 				_loadCFLayout(cfVersion, true, wide != m_vid.wide());
 				CoverFlow.applySettings(true);
-				showBtnsDelay = 150;
+				showBtnsDelay = BTNS_DELAY;
 			}
 			else if(m_btnMgr.selected(m_cfThemeBtnWide))
 			{
@@ -449,7 +457,7 @@ bool CMenu::_cfTheme(void)
 				_showCFTheme(curParam, cfVersion, wide);
 				_loadCFLayout(cfVersion, true, wide != m_vid.wide());
 				CoverFlow.applySettings(true);
-				showBtnsDelay = 150;
+				showBtnsDelay = BTNS_DELAY;
 			}
 			else if(m_btnMgr.selected(m_cfThemeBtnParamP) || m_btnMgr.selected(m_cfThemeBtnParamM))
 			{
@@ -458,7 +466,7 @@ bool CMenu::_cfTheme(void)
 				if (CMenu::_cfParams[curParam].domain == CMenu::SCFParamDesc::PDD_SELECTED)
 					CoverFlow.select();
 				_showCFTheme(curParam, cfVersion, wide);
-				showBtnsDelay = 150;
+				showBtnsDelay = BTNS_DELAY;
 			}
 			else if(m_btnMgr.selected(m_cfThemeBtnCopy))
 			{
@@ -511,7 +519,7 @@ bool CMenu::_cfTheme(void)
 					_showCFTheme(curParam, cfVersion, wide);
 					_loadCFLayout(cfVersion, true, wide != m_vid.wide());
 					CoverFlow.applySettings(true);
-					showBtnsDelay = 150;
+					showBtnsDelay = BTNS_DELAY;
 					break;
 				}
 		}
@@ -519,7 +527,7 @@ bool CMenu::_cfTheme(void)
 		{
 			if(WPadIR_Valid(chan) || m_show_pointer[chan])
 			{
-				showBtnsDelay = 150;
+				showBtnsDelay = BTNS_DELAY;
 				break;
 			}
 		}

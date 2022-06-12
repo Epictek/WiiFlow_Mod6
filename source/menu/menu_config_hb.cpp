@@ -137,8 +137,6 @@ void CMenu::_configHB(u8 startPage)
 						m_current_view = COVERFLOW_HOMEBREW;
 						_showCF(true);
 						_hideMain(true); // quick fix
-						_getCustomBgTex();
-						_setMainBg();
 						if(_cfTheme())
 						{
 							m_exit = true;
@@ -146,7 +144,6 @@ void CMenu::_configHB(u8 startPage)
 							break; // reboot if CF was modified due to possible memory leak with cf_theme
 						}
 						m_current_view = m_prev_view;
-						_getCustomBgTex();
 						_showCF(true);
 						_hideMain(true); // quick fix
 						_setBg(m_configBg, m_configBg); // reset background after adjusting CF
