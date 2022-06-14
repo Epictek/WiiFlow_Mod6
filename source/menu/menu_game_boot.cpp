@@ -832,7 +832,6 @@ void CMenu::_launchChannel(dir_discHdr *hdr)
 	
 	//! RETURN TO PATCH
 	u32 returnTo = 0;
-	// const char *rtrn = isWiiVC ? "" : m_cfg.getString(channel_domain, "returnto", "").c_str();
 	const char *rtrn = isWiiVC ? "" : neek2o() ? WFID4 : m_cfg.getString(channel_domain, "returnto", "").c_str();
 	if(strlen(rtrn) == 4)
 		returnTo = rtrn[0] << 24 | rtrn[1] << 16 | rtrn[2] << 8 | rtrn[3];

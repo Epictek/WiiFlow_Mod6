@@ -459,21 +459,17 @@ void CMenu::_configWii(u8 startPage)
 				else if(m_btnMgr.selected(m_configBtn[5]) || m_btnMgr.selected(m_configBtn[6]))
 				{
 					bool all = m_btnMgr.selected(m_configBtn[5]);
-					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, m_cfg.getString(wii_domain, "current_save_emunand").c_str());
-					if(error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), currentNand), true))
+					m_prev_view = m_current_view;
+					if(m_prev_view != COVERFLOW_WII)
 					{
-						m_prev_view = m_current_view;
-						if(m_prev_view != COVERFLOW_WII)
-						{
-							m_current_view = COVERFLOW_WII; // it might be COVERFLOW_PLUGIN
-							_loadList();
-						}
-						_NandDump(1 + all); // 1 = MISSING saves, 2 = ALL saves
-						if(m_prev_view != m_current_view)
-						{
-							m_current_view = m_prev_view;
-							m_refreshGameList = true;
-						}
+						m_current_view = COVERFLOW_WII; // it might be COVERFLOW_PLUGIN
+						_loadList();
+					}
+					_NandDump(1 + all); // 1 = MISSING saves, 2 = ALL saves
+					if(m_prev_view != m_current_view)
+					{
+						m_current_view = m_prev_view;
+						m_refreshGameList = true;
 					}
 					_showConfigWii();
 				}

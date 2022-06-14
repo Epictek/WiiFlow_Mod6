@@ -667,6 +667,7 @@ private:
 	char *_keyboard(bool search = false); //
 	void _setPluginPath(u8 pos, u8 mode); //
 	void _CategoryConfig(void); //
+	wstringEx _sortLabel(int sort); //
 	
 	void _config(void);
 	void _configGui(void);

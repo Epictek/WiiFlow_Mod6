@@ -1873,6 +1873,10 @@ void CCoverFlow::_updateTarget(int i, bool instant)
 				cvr.targetShadowColor.a = 0;
 			}
 		}
+	//! instant title positioning	
+	cvr.txtAngle = cvr.txtTargetAngle;
+	cvr.txtPos = cvr.txtTargetPos;
+	
 	if (instant)
 		_instantTarget(i);
 }

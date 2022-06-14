@@ -1044,18 +1044,15 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 				{
 					bool extract = m_btnMgr.selected(m_configBtn[6]);
 					bool nosave = false;
-					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(wii_domain, "savepartition")], emu_nands_dir, m_cfg.getString(wii_domain, "current_save_emunand").c_str());
 					if(extract) // extract save from nand to saves emunand
 					{
-						if(error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), currentNand), true))
-							if(!_AutoExtractSave(GameHdr->id))
-								nosave = true;
+						if(_AutoExtractSave(GameHdr->id) < 0) // -1
+							nosave = true;
 					}
 					else // flash save from saves emunand to nand
 					{
-						if(error(wfmt(_fmt("errcfg13", L"Flash save from %s?"), currentNand), true))
-							if(!_FlashSave(GameHdr->id))
-								nosave = true;
+						if(_FlashSave(GameHdr->id) < 0) // -1
+							nosave = true;
 					}
 					if(nosave)
 						error(_t("cfgmc10", L"File not found!"));

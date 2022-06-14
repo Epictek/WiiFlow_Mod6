@@ -429,12 +429,8 @@ bool CMenu::_configNandEmu(u8 startPage)
 				//! Extract nand to emunand
 				else if(m_btnMgr.selected(m_configBtn[7]))
 				{
-					const char *currentNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(channel_domain, "partition")], emu_nands_dir, emuNands[curEmuNand].c_str());
-					if(error(wfmt(_fmt("errcfg4", L"Extract nand to %s?"), currentNand), true))
-					{
-						if(_NandDump(0)) // 0 = Full nand dump
-							ExtNand = true;
-					}
+					if(_NandDump(0)) // 0 = Full nand dump
+						ExtNand = true;
 					_showNandEmu();
 				}
 				//! Dump Wii channel coverflow list
@@ -845,6 +841,17 @@ bool CMenu::_NandDump(int DumpType)
 		return 0;
 	}
 	
+	if(m_nanddump)
+	{
+		if(!error(wfmt(_fmt("errcfg4", L"Extract nand to %s?"), NandHandle.GetPath()), true))
+			return 0;
+	}
+	else
+	{
+		if(!error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), NandHandle.GetPath()), true))
+			return 0;
+	}
+	
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_wbfsPBar);
 	m_btnMgr.show(m_wbfsLblMessage);
@@ -876,9 +883,9 @@ bool CMenu::_NandDump(int DumpType)
 			if(!m_thrdWorking)
 			{
 				if(m_sgdump) // save game dump
-					m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne14", L"Processed: %d save(s) / %d block(s)"), m_nandexentry, (m_dumpsize / 0x8000) >> 2));
+					m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne14", L"Processed: %d save(s) / %d block(s)"), m_nandexentry, ((m_dumpsize / 0x8000) >> 2) + 1)); // + 1 to round the sum up
 				else // nand dump
-					m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne15", L"Processed: %d files, %d folders, %d %sB, %d blocks"), m_filesdone, m_foldersdone, (m_dumpsize / 0x400 > 0x270f) ? (m_dumpsize / 0x100000) : (m_dumpsize / 0x400), (m_dumpsize / 0x400 > 0x270f) ? "M" : "K", (m_dumpsize / 0x8000) >> 2));
+					m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne15", L"Processed: %d files, %d folders, %d %sB, %d blocks"), m_filesdone, m_foldersdone, (m_dumpsize / 0x400 > 0x270f) ? (m_dumpsize / 0x100000) : (m_dumpsize / 0x400), (m_dumpsize / 0x400 > 0x270f) ? "M" : "K", ((m_dumpsize / 0x8000) >> 2) + 1)); // + 1 to round the sum up
 				m_btnMgr.show(m_configBtnBack);
 			}
 		}
@@ -889,10 +896,13 @@ bool CMenu::_NandDump(int DumpType)
 
 int CMenu::_FlashSave(string gameId)
 {
-	if(_FindEmuPart(SAVES_NAND, true) < 0) //
-		return 0;
+	if(_FindEmuPart(SAVES_NAND, true) < 0) // if emunand folder does not exist
+		return -1;
 
 	if(!_checkSave(gameId, SAVES_NAND)) // if save not on saves emunand
+		return -1;
+			
+	if(!error(wfmt(_fmt("errcfg13", L"Flash save from %s?"), NandHandle.GetPath()), true))
 		return 0;
 
 	lwp_t thread = 0;
@@ -930,7 +940,7 @@ int CMenu::_FlashSave(string gameId)
 
 			if(!m_thrdWorking)
 			{
-				m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne14", L"Processed: %d save(s), %d block(s)"), m_nandexentry, (m_dumpsize / 0x8000) >> 2));
+				m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne14", L"Processed: %d save(s), %d block(s)"), m_nandexentry, ((m_dumpsize / 0x8000) >> 2) + 1)); // + 1 to round the sum up
 				m_btnMgr.show(m_configBtnBack);
 			}
 		}
@@ -942,14 +952,17 @@ int CMenu::_FlashSave(string gameId)
 
 /** Extract a gamesave from real nand to savesnand, used in _gameSettings() **/
 int CMenu::_AutoExtractSave(string gameId)
-{
+{		
 	if(_FindEmuPart(SAVES_NAND, false) < 0) // make emunand folder if it doesn't exist
 	{
 		error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
 		return 0;
 	}
-	
+
 	if(!_checkSave(gameId, REAL_NAND)) // if save not on real nand
+		return -1;
+			
+	if(!error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), NandHandle.GetPath()), true))
 		return 0;
 
 	lwp_t thread = 0;
@@ -990,7 +1003,7 @@ int CMenu::_AutoExtractSave(string gameId)
 			if(!m_thrdWorking)
 			{
 				finished = true;
-				m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne14", L"Processed: %d save(s), %d block(s)"), m_nandexentry, (m_dumpsize / 0x8000) >> 2));
+				m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgne14", L"Processed: %d save(s), %d block(s)"), m_nandexentry, ((m_dumpsize / 0x8000) >> 2) + 1)); // + 1 to round the sum up
 				m_btnMgr.show(m_configBtnBack);
 			}
 		}
@@ -1091,7 +1104,7 @@ void * CMenu::_NandDumper(void *obj)
 				}
 			}
 		}
-		/* One gamesave extract from game config menu or launching wii game */
+		/* One gamesave extract from game config menu */
 		else 
 		{
 			m.m_nandexentry = 1;

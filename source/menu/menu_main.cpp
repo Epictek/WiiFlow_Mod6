@@ -33,6 +33,8 @@ s16 m_mainLblLetter;
 s16 m_mainLblNotice;
 s16 m_mainLblView;
 
+s16 m_mainLblTitle;
+
 s16 m_mainLblUser[4];
 
 static inline int loopNum(int i, int s)
@@ -59,7 +61,9 @@ void CMenu::_hideMain(bool instant)
 	m_btnMgr.hide(m_mainLblLetter, instant);
 	m_btnMgr.hide(m_mainLblNotice, instant);
 	m_btnMgr.hide(m_mainLblView, instant);
-	
+
+	m_btnMgr.hide(m_mainLblTitle);
+	m_snapshot_loaded = false; // in case timer is still running
 	m_btnMgr.hide(m_configLblDialog, instant);
 	m_btnMgr.hide(m_configLbl[7], true);
 	m_btnMgr.hide(m_configBtnGo[7], true);
@@ -174,7 +178,7 @@ void CMenu::_showCF(bool refreshList)
 	/* Display view name */
 	if(!m_sourceflow)
 	{
-		wstringEx view;
+		wstringEx view = L"";
 		switch(m_current_view)
 		{
 			case COVERFLOW_WII:
@@ -196,18 +200,12 @@ void CMenu::_showCF(bool refreshList)
 					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
 					view = m_plugin.GetPluginName(i);
 				}
-				else
-					view = m_loc.getWString(m_curLanguage, "plugins", L"Plugins");
 				break;
 		}
 		//! settings icon info
 		m_btnMgr.setText(m_mainLblInfo[6], wfmt(_fmt("infomain7", L"%s settings"), m_current_view == COVERFLOW_PLUGIN ? "Plugin" : view.toUTF8().c_str()));
-		//! upper left screen view name
-		if(neek2o())
-			view += L" - Neek2o";
-		if(isWiiVC)
-			view += L" - WiiU VC";
-		m_btnMgr.setText(m_mainLblView, view);
+		//! view name
+		m_btnMgr.setText(m_mainLblTitle, view);
 	}
 
 	if(refreshList)
@@ -269,12 +267,11 @@ void CMenu::_showCF(bool refreshList)
 			Msg.append(wstringEx(' ' + Pth));
 			m_btnMgr.setText(m_configLblDialog, Msg);
 			m_btnMgr.show(m_configLblDialog);
-			m_showtimer = 480;
+			m_btnMgr.show(m_mainLblTitle);
 			//! Show shortcut to game location settings
 			m_btnMgr.setText(m_configLbl[7], _t("cfg801", L"Manage game list"));
 			m_btnMgr.show(m_configLbl[7]);
 			m_btnMgr.show(m_configBtnGo[7]);
-			m_btnMgr.show(m_mainLblView);
 			
 			return;
 		}
@@ -422,13 +419,23 @@ void CMenu::_showCF(bool refreshList)
 	if(m_sourceflow)
 		return;
 	m_showtimer = 240;
+	m_snapshot_loaded = true; // hide coverflow title
 	u32 totalGames = CoverFlow.size();
 	if(totalGames > 0)
-		m_btnMgr.setText(m_mainLblNotice, wfmt(_fmt("main7", L"%i games"), totalGames));
+		m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 	else
-		m_btnMgr.setText(m_mainLblNotice, _t("main5", L"No items found"));
+		m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+	wstringEx curSort;
+	curSort = _sortLabel(m_cfg.getInt(_domainFromView(), "sort", 0));
+	m_btnMgr.setText(m_mainLblNotice, curSort);
+	if(neek2o())
+	{
+		m_btnMgr.setText(m_mainLblLetter, L"Neek2o");
+		m_btnMgr.show(m_mainLblLetter);
+	}
 	m_btnMgr.show(m_mainLblNotice);
 	m_btnMgr.show(m_mainLblView);
+	m_btnMgr.show(m_mainLblTitle);
 }
 
 /********************************************************************************************************/
@@ -700,10 +707,10 @@ int CMenu::main(void)
 					m_showtimer = 240;
 					u32 totalGames = CoverFlow.size();
 					if(totalGames > 0)
-						m_btnMgr.setText(m_mainLblNotice, wfmt(_fmt("main7", L"%i games"), totalGames));
+						m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 					else
-						m_btnMgr.setText(m_mainLblNotice, _t("main5", L"No items found"));
-					m_btnMgr.show(m_mainLblNotice);
+						m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+					m_btnMgr.show(m_mainLblView);
 				}
 			}
 			
@@ -718,10 +725,10 @@ int CMenu::main(void)
 				m_showtimer = 240;
 				u32 totalGames = CoverFlow.size();
 				if(totalGames > 0)
-					m_btnMgr.setText(m_mainLblNotice, wfmt(_fmt("main7", L"%i games"), totalGames));
+					m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 				else
-					m_btnMgr.setText(m_mainLblNotice, _t("main5", L"No items found"));
-				m_btnMgr.show(m_mainLblNotice);
+					m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+				m_btnMgr.show(m_mainLblView);
 			}
 			
 			/** Boot DVD in drive **/
@@ -816,8 +823,8 @@ int CMenu::main(void)
 						}
 						else
 						{
-							m_btnMgr.setText(m_mainLblNotice, _t("main5", L"No items found"));
-							m_btnMgr.show(m_mainLblNotice);
+							m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+							m_btnMgr.show(m_mainLblView);
 						}
 					}
 				}
@@ -825,20 +832,7 @@ int CMenu::main(void)
 				if(sortChange)
 				{
 					wstringEx curSort;
-					if(sort == SORT_ALPHA)
-						curSort = m_loc.getWString(m_curLanguage, "alphabetically", L"Alphabetically");
-					else if(sort == SORT_PLAYCOUNT)
-						curSort = m_loc.getWString(m_curLanguage, "byplaycount", L"By play count");
-					else if(sort == SORT_LASTPLAYED)
-						curSort = m_loc.getWString(m_curLanguage, "bylastplayed", L"By last played");
-					else if(sort == SORT_GAMEID)
-						curSort = m_loc.getWString(m_curLanguage, "bygameid", L"By game ID");
-					else if(sort == SORT_WIFIPLAYERS)
-						curSort = m_loc.getWString(m_curLanguage, "bywifiplayers", L"By wifi players");
-					else if(sort == SORT_PLAYERS)
-						curSort = m_loc.getWString(m_curLanguage, "byplayers", L"By players");
-					else if(sort == SORT_BTN_NUMBERS)
-						curSort = m_loc.getWString(m_curLanguage, "bybtnnumbers", L"By button numbers");
+					curSort = _sortLabel(sort);
 					m_showtimer = 240;
 					m_btnMgr.setText(m_mainLblNotice, curSort);
 					m_btnMgr.show(m_mainLblNotice);
@@ -1028,6 +1022,8 @@ int CMenu::main(void)
 				m_btnMgr.hide(m_mainLblLetter);
 				m_btnMgr.hide(m_mainLblNotice);
 				m_btnMgr.hide(m_mainLblView);
+				m_btnMgr.hide(m_mainLblTitle);
+				m_snapshot_loaded = false;
 			}
 		}
 		
@@ -1172,7 +1168,9 @@ void CMenu::_initMainMenu()
 	m_mainLblCurMusic = _addLabel("MAIN/MUSIC", theme.lblFont, L"", 20, 50, 620, 20, theme.lblFontColor, FTGX_JUSTIFY_LEFT | FTGX_ALIGN_MIDDLE, emptyTex);
 	m_mainLblLetter = _addLabel("MAIN/LETTER", theme.lblFont, L"", 340, 50, 280, 20, theme.lblFontColor, FTGX_JUSTIFY_RIGHT | FTGX_ALIGN_MIDDLE, emptyTex);
 	m_mainLblNotice = _addLabel("MAIN/NOTICE", theme.lblFont, L"", 340, 20, 280, 20, theme.lblFontColor, FTGX_JUSTIFY_RIGHT | FTGX_ALIGN_MIDDLE, emptyTex);
-	m_mainLblView = _addLabel("MAIN/VIEW", theme.lblFont, L"", 20, 20, 280, 20, theme.lblFontColor, FTGX_JUSTIFY_LEFT | FTGX_ALIGN_MIDDLE, emptyTex);	
+	m_mainLblView = _addLabel("MAIN/VIEW", theme.lblFont, L"", 20, 20, 280, 20, theme.lblFontColor, FTGX_JUSTIFY_LEFT | FTGX_ALIGN_MIDDLE, emptyTex);
+	
+	m_mainLblTitle = _addTitle("MAIN/TITLE", theme.titleFont, L"", 0, 10, 640, 60, theme.titleFontColor, FTGX_JUSTIFY_CENTER | FTGX_ALIGN_MIDDLE);
 
 	m_mem1FreeSize = _addLabel("MEM1", theme.btnFont, L"", 20, 10, 400, 20, theme.btnFontColor, FTGX_JUSTIFY_LEFT, emptyTex);
 	m_mem2FreeSize = _addLabel("MEM2", theme.btnFont, L"", 420, 10, 200, 20, theme.btnFontColor, FTGX_JUSTIFY_LEFT, emptyTex);
@@ -1219,6 +1217,8 @@ void CMenu::_initMainMenu()
 	_setHideAnim(m_mainBtnPrev, "MAIN/PREV_BTN", 0, 0, 0.f, 0.f);
 	_setHideAnim(m_mainBtnNext, "MAIN/NEXT_BTN", 0, 0, 0.f, 0.f);
 	
+	_setHideAnim(m_mainLblTitle, "MAIN/TITLE", 0, 0, -2.f, 0.f);
+	
 	_setHideAnim(m_mainLblCurMusic, "MAIN/MUSIC", 0, 0, 0.f, 0.f);
 	_setHideAnim(m_mainLblLetter, "MAIN/LETTER", 0, 0, 0.f, 0.f);
 	_setHideAnim(m_mainLblNotice, "MAIN/NOTICE", 0, 0, 0.f, 0.f);
@@ -1241,6 +1241,25 @@ void CMenu::_textInfoMain(void)
 }
 
 /*******************************************************************************************************/
+
+wstringEx CMenu::_sortLabel(int sort)
+{
+	if(sort == SORT_ALPHA)
+		return m_loc.getWString(m_curLanguage, "alphabetically", L"Alphabetically");
+	else if(sort == SORT_PLAYCOUNT)
+		return m_loc.getWString(m_curLanguage, "byplaycount", L"By play count");
+	else if(sort == SORT_LASTPLAYED)
+		return m_loc.getWString(m_curLanguage, "bylastplayed", L"By last played");
+	else if(sort == SORT_GAMEID)
+		return m_loc.getWString(m_curLanguage, "bygameid", L"By game ID");
+	else if(sort == SORT_WIFIPLAYERS)
+		return m_loc.getWString(m_curLanguage, "bywifiplayers", L"By wifi players");
+	else if(sort == SORT_PLAYERS)
+		return m_loc.getWString(m_curLanguage, "byplayers", L"By players");
+	else if(sort == SORT_BTN_NUMBERS)
+		return m_loc.getWString(m_curLanguage, "bybtnnumbers", L"By button numbers");
+	return L"";
+}
 
 void CMenu::_setPartition(s8 direction, bool m_emuSaveNand)
 {

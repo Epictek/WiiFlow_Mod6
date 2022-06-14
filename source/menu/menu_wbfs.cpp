@@ -35,6 +35,25 @@ bool CMenu::_wbfsOp(u8 op)
 	bool done = false;
 	bool delCover = false;
 	const dir_discHdr *CF_Hdr = CoverFlow.getHdr();
+	
+	const char *nandPath = NULL;
+	if(CF_Hdr->type == TYPE_EMUCHANNEL || CF_Hdr->type == TYPE_WII_GAME)
+	{
+		if(CF_Hdr->type == TYPE_WII_GAME && op == WO_RESTORE_EMUSAVE)
+		{
+			if(_FindEmuPart(SAVES_NAND, false) < 0) // make emunand folder if needed
+			{
+				error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
+				return 0;
+			}
+		}
+		else if(_FindEmuPart(CF_Hdr->type == TYPE_WII_GAME, true) < 0)
+		{
+			error(_t("cfgmc10", L"File not found!"));
+			return 0;
+		}
+		nandPath = NandHandle.GetPath();
+	}
 		
 	SetupInput();
 	_showWBFS(op);
@@ -54,21 +73,23 @@ bool CMenu::_wbfsOp(u8 op)
 		if(CF_Hdr->type == TYPE_GC_GAME)
 			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgmc8", L"Copy %s:/saves/%s.raw virtual MemCard to %s?"), DeviceName[currentPartition], fmt("%.4s", CF_Hdr->id), m_backupDir.c_str()));
 		else
-			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave4", L"Copy %s emunand save to %s?"), CoverFlow.getTitle().toUTF8().c_str(), m_backupDir.c_str()));
+			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave4", L"Copy %s save from %s to %s?"), CoverFlow.getTitle().toUTF8().c_str(), nandPath, m_backupDir.c_str()));
 	}
 	else if(op == WO_REMOVE_EMUSAVE)
 	{
 		if(CF_Hdr->type == TYPE_GC_GAME)
 			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgmc6", L"Delete %s:/saves/%s.raw virtual MemCard?"), DeviceName[currentPartition], fmt("%.4s", CF_Hdr->id)));
 		else
-			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave5", L"Delete %s save from emunand?"), CoverFlow.getTitle().toUTF8().c_str()));
+		{
+			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave5", L"Delete %s save from %s?"), CoverFlow.getTitle().toUTF8().c_str(), nandPath));
+		}
 	}
 	else if(op == WO_RESTORE_EMUSAVE)
 	{
 		if(CF_Hdr->type == TYPE_GC_GAME)
-			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgmc7", L"Restore %s:/saves/%s.raw? virtual MemCard"), DeviceName[currentPartition], fmt("%.4s", CF_Hdr->id)));
+			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgmc7", L"Restore virtual MemCard from %s to %s:/saves/%s.raw?"), m_backupDir.c_str(), DeviceName[currentPartition], fmt("%.4s", CF_Hdr->id)));
 		else
-			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave6", L"Restore %s save to emunand?"), CoverFlow.getTitle().toUTF8().c_str()));
+			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave6", L"Restore %s save from %s to %s?"), CoverFlow.getTitle().toUTF8().c_str(), m_backupDir.c_str(), nandPath));
 	}
 
 	m_thrdStop = false;
@@ -169,10 +190,8 @@ bool CMenu::_wbfsOp(u8 op)
 						}
 						else
 						{
-							_FindEmuPart(EMU_NAND, true);
-							const char *nand_base = NandHandle.GetPath();
-							fsop_deleteFolder(fmt("%s/title/%08x/%08x", nand_base, CF_Hdr->settings[0], CF_Hdr->settings[1]));
-							fsop_deleteFile(fmt("%s/ticket/%08x/%08x.tik", nand_base, CF_Hdr->settings[0], CF_Hdr->settings[1]));
+							fsop_deleteFolder(fmt("%s/title/%08x/%08x", nandPath, CF_Hdr->settings[0], CF_Hdr->settings[1]));
+							fsop_deleteFile(fmt("%s/ticket/%08x/%08x.tik", nandPath, CF_Hdr->settings[0], CF_Hdr->settings[1]));
 							m_cfg.setBool(channel_domain, "update_cache", true);
 						}
 					}
@@ -232,12 +251,12 @@ bool CMenu::_wbfsOp(u8 op)
 						if(CF_Hdr->type == TYPE_WII_GAME) // Wii emunand save
 						{
 							int wiiSaveID = CF_Hdr->id[0] << 24 | CF_Hdr->id[1] << 16 | CF_Hdr->id[2] << 8 | CF_Hdr->id[3];
-							savePath = fmt("%s:%s/title/00010000/%08x", DeviceName[_FindEmuPart(SAVES_NAND, true)], NandHandle.Get_NandPath(), wiiSaveID);
+							savePath = fmt("%s/title/00010000/%08x", nandPath, wiiSaveID);
 							backupPath = fmt("%s/wii/title/00010000/%08x", m_backupDir.c_str(), wiiSaveID);
 						}
 						else // Channel emunand save
 						{
-							savePath = fmt("%s:%s/title/00010001/%08x/data", DeviceName[_FindEmuPart(EMU_NAND, true)], NandHandle.Get_NandPath(), CF_Hdr->settings[1]);
+							savePath = fmt("%s/title/00010001/%08x/data", nandPath, CF_Hdr->settings[1]);
 							backupPath = fmt("%s/emunand/title/00010001/%08x/data", m_backupDir.c_str(), CF_Hdr->settings[1]);
 						}
 						exist = fsop_FolderExist(op == WO_RESTORE_EMUSAVE ? backupPath : savePath);
