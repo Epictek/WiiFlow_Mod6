@@ -7,7 +7,7 @@
 #include "loader/fs.h"
 #include "network/https.h"
 #include "unzip/ZipFile.h"
-#include "network/FTP_Dir.hpp" // -ftp-
+#include "network/FTP_Dir.hpp"
 // #include "loader/wbfs.h"
 // #include "loader/wdvd.h"
 // #include "types.h"
@@ -229,7 +229,7 @@ void CMenu::_download(string gameId, int dl_type)
 
 void CMenu::_netInit(void) // init network + wifi gecko debug and/or ftp thread
 {
-	if(networkInit || !(m_use_wifi_gecko || m_init_ftp) || m_exit) // -ftp-
+	if(networkInit || !(m_use_wifi_gecko || m_init_ftp) || m_exit)
 		return;
 	if(_initNetwork() < 0)
 		return;
@@ -242,7 +242,7 @@ void CMenu::_netInit(void) // init network + wifi gecko debug and/or ftp thread
 		if(ip.size() > 0 && port != 0)
 			WiFiDebugger.Init(ip.c_str(), port);
 	}
-	if(m_init_ftp) // -ftp-
+	if(m_init_ftp)
 		m_ftp_inited = ftp_startThread();
 }
 

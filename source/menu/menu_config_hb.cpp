@@ -15,7 +15,7 @@ void CMenu::_showConfigHB(bool instant)
 	/** MAIN PAGE **/
 	if(curPage == MAIN_SETTINGS)
 	{
-		m_btnMgr.setText(m_configLblTitle, _t("homebrew", L"Homebrew apps"));
+		m_btnMgr.setText(m_configLblTitle, _t("homebrew", L"Homebrew"));
 		m_btnMgr.show(m_configLblTitle);
 		
 		//! File browser

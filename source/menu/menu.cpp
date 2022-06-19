@@ -22,8 +22,8 @@
 #include "network/gcard.h"
 #include "unzip/U8Archive.h"
 #include "network/proxysettings.h"
-#include "network/FTP_Dir.hpp" // -ftp-
-#include "network/ftp.h" // -ftp-
+#include "network/FTP_Dir.hpp"
+#include "network/ftp.h"
 // #include "types.h"
 // #include "channel/nand_save.hpp"
 // #include "loader/alt_ios.h"
@@ -49,7 +49,7 @@ const u32 CMenu::downloadStackSize = 8192;
 
 CMenu::CMenu()
 {
-	m_ftp_inited = false; // -ftp-
+	m_ftp_inited = false;
 	m_init_ftp = false;
 	m_aa = 0;
 	m_thrdWorking = false;
@@ -176,7 +176,7 @@ bool CMenu::init(bool usb_mounted)
 	}
 
 	/* Check if we want FTP */
-	m_init_ftp = m_cfg.getBool("FTP", "auto_start", false); // -ftp-
+	m_init_ftp = m_cfg.getBool("FTP", "auto_start", false);
 	ftp_allow_active = m_cfg.getBool("FTP", "allow_active_mode", false);
 	ftp_server_port = min(65535u, m_cfg.getUInt("FTP", "server_port", 21));
 	set_ftp_password(m_cfg.getString("FTP", "password", "").c_str());	
@@ -513,7 +513,7 @@ void CMenu::cleanup()
 {
 	if(cleaned_up)
 		return;
-	m_btnMgr.hide(m_mainLblCurMusic);
+	// m_btnMgr.hide(m_mainLblCurMusic);
 	_stopSounds();
 	MusicPlayer.Cleanup();
 	_cleanupDefaultFont();
@@ -1088,15 +1088,15 @@ void CMenu::_buildMenus(void)
 	_initGameMenu();
 	_initSourceMenu();
 	_initExplorer();
+	_initCheatSettingsMenu();
 	_initConfigMenu();
 	_initCodeMenu();
 	_initAboutMenu();
 	_initCFThemeMenu();
 	_initGameInfoMenu();
 	_initHomeAndExitToMenu();
-	_initFTP(); // -ftp-
+	_initFTP();
 	_initWBFSMenu();
-	_initCheatSettingsMenu();
 	_initKeyboardMenu();
 	
 	/* Load coverflow config */
@@ -1622,19 +1622,19 @@ void CMenu::_mainLoopCommon(bool withCF, bool adjusting)
 						(m_gameSelected && m_gamesound_changed))) ||  m_gameSound.IsPlaying());
 
 	/* Set song title and display it if music info is allowed */
-	if(MusicPlayer.SongChanged() && m_music_info && !MusicPlayer.OneSong && withCF)
-	{
-		m_btnMgr.setText(m_mainLblCurMusic, MusicPlayer.GetFileName(), false); // false for word wrap
-		m_btnMgr.show(m_mainLblCurMusic);
-		MusicPlayer.DisplayTime = time(NULL);
-	}
+	// if(MusicPlayer.SongChanged() && m_music_info && !MusicPlayer.OneSong && withCF)
+	// {
+		// m_btnMgr.setText(m_mainLblCurMusic, MusicPlayer.GetFileName(), false); // false for word wrap
+		// m_btnMgr.show(m_mainLblCurMusic);
+		// MusicPlayer.DisplayTime = time(NULL);
+	// }
 	/* Hide song title if it's displaying and been >3 seconds */
-	else if(MusicPlayer.DisplayTime > 0 && time(NULL) - MusicPlayer.DisplayTime > 3)
-	{
-		MusicPlayer.DisplayTime = 0;
-		m_btnMgr.hide(m_mainLblCurMusic);
-		if(MusicPlayer.OneSong) m_music_info = false;
-	}
+	// else if(MusicPlayer.DisplayTime > 0 && time(NULL) - MusicPlayer.DisplayTime > 3)
+	// {
+		// MusicPlayer.DisplayTime = 0;
+		// m_btnMgr.hide(m_mainLblCurMusic);
+		// if(MusicPlayer.OneSong) m_music_info = false;
+	// }
 #ifdef SCREENSHOT	
 	/* Take Screenshot */
 	if(WBTN_Z_PRESSED || GBTN_Z_PRESSED)
@@ -1645,7 +1645,7 @@ void CMenu::_mainLoopCommon(bool withCF, bool adjusting)
 
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
-		strftime(buffer,80,"%b-%d-20%y-%Hh%Mm%Ss.png",timeinfo);
+		strftime(buffer,80,"%Y-%m-%d-%Hh%Mm%Ss.png",timeinfo);
 		// gprintf("Screenshot taken and saved to: %s/%s\n", m_screenshotDir.c_str(), buffer);
 		m_vid.TakeScreenshot(fmt("%s/%s", m_screenshotDir.c_str(), buffer));
 		if(theme.cameraSound != NULL)

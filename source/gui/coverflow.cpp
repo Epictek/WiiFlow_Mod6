@@ -1874,8 +1874,8 @@ void CCoverFlow::_updateTarget(int i, bool instant)
 			}
 		}
 	//! instant title positioning	
-	cvr.txtAngle = cvr.txtTargetAngle;
-	cvr.txtPos = cvr.txtTargetPos;
+	// cvr.txtAngle = cvr.txtTargetAngle;
+	// cvr.txtPos = cvr.txtTargetPos;
 	
 	if (instant)
 		_instantTarget(i);

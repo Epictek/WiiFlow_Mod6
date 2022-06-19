@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update June 10, 2022.
+Update June 15, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -113,14 +113,14 @@ Emulators must be installed on your drive. Some emulators have specific Wiiflow 
 Each plugin must have a [plugin name].ini file in dev:/wiiflow/plugins.
 Read "plugins_readme.txt" to know more about plugins setup.
 
-To see your games in coverflow, select "[plugin name]" in Plugin settings:
-> Plugin settings > Select plugins > (choose plugin)
+To see your games in coverflow, select "[plugin name]" in Plugins settings:
+> Plugins settings > Select plugins > (choose plugin)
  
 Or create a source menu entry for each source (source=plugin + magic=[magic#]).
 Read "source_menu_readme.txt" to know more about source menu setup.
 
 Refresh coverflow list each time a new game is added outside of Wiiflow:
-> Plugin settings > Manage Plugin game list > Refresh coverflow list
+> Plugins settings > Manage Plugin game list > Refresh coverflow list
 
 
 ==================================================================================
@@ -194,7 +194,7 @@ Update your dev:/wiiflow/plugins/[plugin name].ini files "coverfolder" field:
 coverfolder=[folder name]
 
 Once in Wiiflow, you may need to cache your new images by refreshing coverflow list:
-> Plugin settings > Manage Plugin game list > Refresh coverflow list
+> Plugins settings > Manage Plugin game list > Refresh coverflow list
 
 Once cached, PNG files can be removed from your drive.
 
@@ -629,7 +629,7 @@ servers=AltWFC|NewWFC
 [server_name]_url=newwfc.xyz
 
 
-Proxy settings under [PROXY] domain
+Custom proxy settings under [PROXY] domain
 -----------------------------------
 
 - Proxy IP address:

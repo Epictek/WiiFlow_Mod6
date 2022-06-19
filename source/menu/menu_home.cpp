@@ -179,14 +179,17 @@ bool CMenu::_ExitTo(void)
 				if(IsOnWiiU())
 					exitHandler(EXIT_TO_WIIU);
 				else if(neek2o())
-					exitHandler(POWEROFF_CONSOLE);
+					break;
 				else
 					exitHandler(EXIT_TO_PRIILOADER);
 				break;
 			}
 			else if(m_btnMgr.selected(m_homeBtnExitToBootmii))
 			{
-				exitHandler(EXIT_TO_BOOTMII);
+				if(IsOnWiiU() || neek2o())
+					exitHandler(POWEROFF_CONSOLE);
+				else
+					exitHandler(EXIT_TO_BOOTMII);
 				break;
 			}
 		}
@@ -216,10 +219,9 @@ void CMenu::_showHome(void)
 void CMenu::_showExitTo(void)
 {
 	m_btnMgr.show(m_homeBtnExitToMenu);
-	m_btnMgr.show(m_homeBtnExitToHBC);
-	m_btnMgr.show(m_homeBtnExitToPriiloader); // exit to WiiU if vWii - Power off if neek
-	if(!IsOnWiiU() && !neek2o())
-		m_btnMgr.show(m_homeBtnExitToBootmii);
+	m_btnMgr.show(m_homeBtnExitToHBC); // restart if neek
+	m_btnMgr.show(m_homeBtnExitToPriiloader); // exit to WiiU if vWii - back if neek
+	m_btnMgr.show(m_homeBtnExitToBootmii); // shutdown to WiiU if vWii or neek
 	
 	/* Keep header and footer */
 	m_btnMgr.show(m_homeLblHeaderOff);
@@ -340,21 +342,12 @@ void CMenu::_textHome(void)
 
 void CMenu::_textExitTo(void)
 {
-	if(neek2o())
-	{
-		m_btnMgr.setText(m_homeBtnExitToMenu, _t("neek2", L"Neek2o system menu"));
-		m_btnMgr.setText(m_homeBtnExitToHBC, _t("neek3", L"Restart Wii"));
-		m_btnMgr.setText(m_homeBtnExitToPriiloader, _t("shutdown", L"Shutdown"));
-	}
-	else
-	{
-		m_btnMgr.setText(m_homeBtnExitToMenu, _t("menu", L"Wii Menu"));
-		m_btnMgr.setText(m_homeBtnExitToHBC, _t("hbc", L"Homebrew Channel"));
-		if(IsOnWiiU())
-			m_btnMgr.setText(m_homeBtnExitToPriiloader, _t("wiiu", L"WiiU"));
-		else
-			m_btnMgr.setText(m_homeBtnExitToPriiloader, _t("prii", L"Priiloader"));
-		m_btnMgr.setText(m_homeBtnExitToBootmii, _t("bootmii", L"Bootmii"));
-	}
+	bool nk = neek2o();
+	bool wu = IsOnWiiU();
+
+	m_btnMgr.setText(m_homeBtnExitToMenu, nk ? _t("neek2", L"Neek2o system menu") : _t("menu", L"Wii Menu"));
+	m_btnMgr.setText(m_homeBtnExitToHBC, nk ? _t("neek3", L"Restart Wii") : _t("hbc", L"Homebrew Channel"));
+	m_btnMgr.setText(m_homeBtnExitToPriiloader, nk ? _t("back", L"Back") : wu ? _t("wiiu", L"WiiU") : _t("prii", L"Priiloader"));
+	m_btnMgr.setText(m_homeBtnExitToBootmii, (nk || wu) ? _t("shutdown", L"Shutdown") : _t("bootmii", L"Bootmii"));
 }
 

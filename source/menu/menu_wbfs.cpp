@@ -80,9 +80,7 @@ bool CMenu::_wbfsOp(u8 op)
 		if(CF_Hdr->type == TYPE_GC_GAME)
 			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgmc6", L"Delete %s:/saves/%s.raw virtual MemCard?"), DeviceName[currentPartition], fmt("%.4s", CF_Hdr->id)));
 		else
-		{
 			m_btnMgr.setText(m_configLblDialog, wfmt(_fmt("cfgsave5", L"Delete %s save from %s?"), CoverFlow.getTitle().toUTF8().c_str(), nandPath));
-		}
 	}
 	else if(op == WO_RESTORE_EMUSAVE)
 	{

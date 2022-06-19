@@ -181,7 +181,7 @@ private:
 	u8 m_bgCrossFade;
 
 	/* Main menu */
-	s16 m_mainLblCurMusic;
+	// s16 m_mainLblCurMusic;
 
 	s16 m_mem1FreeSize;
 	s16 m_mem2FreeSize;
@@ -668,6 +668,7 @@ private:
 	void _setPluginPath(u8 pos, u8 mode); //
 	void _CategoryConfig(void); //
 	wstringEx _sortLabel(int sort); //
+	void _sortCF(bool previous = false); //
 	
 	void _config(void);
 	void _configGui(void);
@@ -881,7 +882,7 @@ private:
 	void _initFTP();
 	void _showFTP(void);
 	void _updateFTP(void);
-	void _FTP(); // -ftp-
+	void _FTP();
 	bool m_init_ftp;
 	bool m_ftp_inited;
 };

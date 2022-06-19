@@ -32,9 +32,9 @@ s16 m_mainBtnNext;
 s16 m_mainLblLetter;
 s16 m_mainLblNotice;
 s16 m_mainLblView;
+s16 m_mainLblCurMusic;
 
 s16 m_mainLblTitle;
-
 s16 m_mainLblUser[4];
 
 static inline int loopNum(int i, int s)
@@ -61,6 +61,7 @@ void CMenu::_hideMain(bool instant)
 	m_btnMgr.hide(m_mainLblLetter, instant);
 	m_btnMgr.hide(m_mainLblNotice, instant);
 	m_btnMgr.hide(m_mainLblView, instant);
+	m_btnMgr.hide(m_mainLblCurMusic, instant);
 
 	m_btnMgr.hide(m_mainLblTitle);
 	m_snapshot_loaded = false; // in case timer is still running
@@ -173,7 +174,7 @@ void CMenu::_showMain()
 void CMenu::_showCF(bool refreshList)
 {
 	m_refreshGameList = false;
-	_hideMain(true);
+	_hideMain();
 
 	/* Display view name */
 	if(!m_sourceflow)
@@ -200,10 +201,12 @@ void CMenu::_showCF(bool refreshList)
 					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
 					view = m_plugin.GetPluginName(i);
 				}
+				else
+					view = m_loc.getWString(m_curLanguage, "plugins", L"Plugins");
 				break;
 		}
 		//! settings icon info
-		m_btnMgr.setText(m_mainLblInfo[6], wfmt(_fmt("infomain7", L"%s settings"), m_current_view == COVERFLOW_PLUGIN ? "Plugin" : view.toUTF8().c_str()));
+		m_btnMgr.setText(m_mainLblInfo[6], wfmt(_fmt("infomain7", L"%s settings"), m_current_view == COVERFLOW_PLUGIN ? m_loc.getWString(m_curLanguage, "plugins", L"Plugins").toUTF8().c_str() : view.toUTF8().c_str()));
 		//! view name
 		m_btnMgr.setText(m_mainLblTitle, view);
 	}
@@ -267,6 +270,7 @@ void CMenu::_showCF(bool refreshList)
 			Msg.append(wstringEx(' ' + Pth));
 			m_btnMgr.setText(m_configLblDialog, Msg);
 			m_btnMgr.show(m_configLblDialog);
+			m_showtimer = 0;
 			m_btnMgr.show(m_mainLblTitle);
 			//! Show shortcut to game location settings
 			m_btnMgr.setText(m_configLbl[7], _t("cfg801", L"Manage game list"));
@@ -286,7 +290,6 @@ void CMenu::_showCF(bool refreshList)
 				switch(m_autoboot_hdr.type)
 				{
 					case TYPE_CHANNEL:
-					case TYPE_EMUCHANNEL:
 					case TYPE_WII_GAME:
 					case TYPE_GC_GAME:
 						if(strcmp(m_autoboot_hdr.id, element->id) == 0)
@@ -308,7 +311,7 @@ void CMenu::_showCF(bool refreshList)
 			}
 			if(game_found) // title found - launch it
 			{
-				gprintf("Game found, autobooting...\n");
+				// gprintf("Game found, autobooting...\n");
 				_launch(&m_autoboot_hdr);
 			}
 			//! fail
@@ -425,14 +428,10 @@ void CMenu::_showCF(bool refreshList)
 		m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 	else
 		m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
-	wstringEx curSort;
-	curSort = _sortLabel(m_cfg.getInt(_domainFromView(), "sort", 0));
+	wstringEx curSort = _sortLabel(m_cfg.getInt(_domainFromView(), "sort", 0));
 	m_btnMgr.setText(m_mainLblNotice, curSort);
-	if(neek2o())
-	{
-		m_btnMgr.setText(m_mainLblLetter, L"Neek2o");
-		m_btnMgr.show(m_mainLblLetter);
-	}
+	m_btnMgr.setText(m_mainLblLetter, neek2o() ? L"Neek2o" : isWiiVC ? L"WiiU VC" : L"");
+	m_btnMgr.show(m_mainLblLetter);
 	m_btnMgr.show(m_mainLblNotice);
 	m_btnMgr.show(m_mainLblView);
 	m_btnMgr.show(m_mainLblTitle);
@@ -442,12 +441,12 @@ void CMenu::_showCF(bool refreshList)
 
 int CMenu::main(void)
 {
-	bool neek = neek2o();
-	bool m_source_on_start = (m_cfg.getBool(general_domain, "source_on_start", false) && m_use_source && !neek);
+	bool m_source_on_start = (m_cfg.getBool(general_domain, "source_on_start", false) && m_use_source && !neek2o());
 	bool bheld = false; // bheld to indicate btn b was pressed or held
 	bool bUsed = false; // bused to indicate that it was actually used for something
 	bool menuBar = false; // for menu bar with D-Pad
 	bool change = false;
+	bool cancel_bheld = false; // cancel potential return from a menu with btn b
 
 	m_reload = false;
 	u32 disc_check = 0;
@@ -455,7 +454,7 @@ int CMenu::main(void)
 	
 	if(isWiiVC)
 		m_current_view = COVERFLOW_GAMECUBE;
-	else if(neek)
+	else if(neek2o())
 	{
 		m_clearCats = true;
 		m_current_view = COVERFLOW_CHANNEL;
@@ -492,7 +491,7 @@ int CMenu::main(void)
 
 	SetupInput(true);
 
-	/* Show explorer if last game was launched using explorer */
+	/* Show explorer if last game was launched using explorer in source menu */
 	if(m_explorer_on_start)
 	{
 		u32 plmagic = strtoul(m_cfg.getString(plugin_domain, "cur_magic", "4E574949").c_str(), NULL, 16);
@@ -506,14 +505,16 @@ int CMenu::main(void)
 	while(!m_exit)
 	{
 		/* Check if a disc is inserted */
-		if(!isWiiVC && !neek)
+		if(!isWiiVC && !neek2o())
 			WDVD_GetCoverStatus(&disc_check);
 		
 		/* Main Loop */
 		_mainLoopCommon(true);
 		
+		cancel_bheld = false; // reset
+		
 		/* This will make the source menu/flow display, what happens when a sourceflow cover is selected is taken care of later */
-		if(((bheld && !BTN_B_OR_1_HELD) || m_source_on_start) && !neek) // if button b was held and now released
+		if(((bheld && !BTN_B_OR_1_HELD) || m_source_on_start) && !neek2o()) // if button b was held and now released
 		{
 			menuBar = false;
 			bheld = false;
@@ -542,16 +543,16 @@ int CMenu::main(void)
 						_setMainBg();
 						m_clearCats = false;
 						_showCF(true);
+						continue;
 					}
 					else // show source menu
 					{
 						m_refreshGameList = _Source() || m_source_on_start || m_gameList.empty();
-						if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; } // required each time we launch a menu from main coverflow
+						cancel_bheld = true; // required each time we launch a menu from main coverflow
 						_getCustomBgTex();
 						_showMain();
 					}
 					m_source_on_start = false;
-					continue;
 				}
 			}
 		}
@@ -574,80 +575,24 @@ int CMenu::main(void)
 				_hideMain();
 				if(_Home())
 					break; // exit wiiflow
-				if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+				cancel_bheld = true;
 				m_refreshGameList = m_refreshGameList || m_gameList.empty();
 				_showMain();
 			}
 		}
 		
-		/** Jump to next letter **/
-		else if((BTN_A_OR_2_PRESSED && (m_btnMgr.selected(m_mainBtnNext) || m_btnMgr.selected(m_mainBtnPrev))) ||
-		(BTN_PLUS_PRESSED && !ShowPointer())) // will also work in sourceflow
-		{
-			const char *domain = _domainFromView();
-			int sorting = m_cfg.getInt(domain, "sort", SORT_ALPHA);
-			if(sorting != SORT_ALPHA && sorting != SORT_PLAYERS && sorting != SORT_WIFIPLAYERS && sorting != SORT_GAMEID)
-			{
-				CoverFlow.setSorting((Sorting)SORT_ALPHA);
-				sorting = SORT_ALPHA;
-			}
-			wchar_t c[3] = {0, 0, 0}; //
-			(m_btnMgr.selected(m_mainBtnPrev)) ? CoverFlow.prevLetter(c) : CoverFlow.nextLetter(c);
-			wstringEx curLetter;
-			curLetter = wstringEx(c);
-			if(sorting != SORT_ALPHA)
-			{
-				if(sorting == SORT_PLAYERS)
-				{
-					curLetter += ' ';
-					curLetter += m_loc.getWString(m_curLanguage, "players", L"players");
-				}
-				else if(sorting == SORT_WIFIPLAYERS)
-				{
-					curLetter += ' ';
-					curLetter += m_loc.getWString(m_curLanguage, "wifiplayers", L"wifi players");
-				}
-				else if(sorting == SORT_GAMEID && (m_current_view & COVERFLOW_CHANNEL)) // only if coverflow channel
-				{
-					if(curLetter[0] == L'C')
-						curLetter = m_loc.getWString(m_curLanguage, "commodore", L"Commodore 64");
-					else if(curLetter[0] == L'E')
-						curLetter = m_loc.getWString(m_curLanguage, "neogeo", L"Arcade / Neo-Geo");
-					else if(curLetter[0] == L'F')
-						curLetter = m_loc.getWString(m_curLanguage, "nes", L"NES");
-					else if(curLetter[0] == L'J')
-						curLetter = m_loc.getWString(m_curLanguage, "snes", L"Super NES");
-					else if(curLetter[0] == L'L')
-						curLetter = m_loc.getWString(m_curLanguage, "mastersystem", L"Master System");
-					else if(curLetter[0] == L'M')
-						curLetter = m_loc.getWString(m_curLanguage, "genesis", L"Genesis");
-					else if(curLetter[0] == L'N')
-						curLetter = m_loc.getWString(m_curLanguage, "nintendo64", L"Nintendo 64");
-					else if(curLetter[0] == L'P')
-						curLetter = m_loc.getWString(m_curLanguage, "turbografx16", L"TurboGrafx-16");
-					else if(curLetter[0] == L'Q')
-						curLetter = m_loc.getWString(m_curLanguage, "turbografxcd", L"TurboGrafx-CD");
-					else if(curLetter[0] == L'X')
-						curLetter = m_loc.getWString(m_curLanguage, "msx", L"MSX");
-					else if(curLetter[0] == L'W')
-						curLetter = m_loc.getWString(m_curLanguage, "wiiware", L"WiiWare");
-					else if(curLetter[0] == L'H')
-						curLetter = m_loc.getWString(m_curLanguage, "wiichannels", L"Wii channels");
-					else
-						curLetter = m_loc.getWString(m_curLanguage, "homebrew", L"Homebrew"); //
-				}
-			}
-			m_showtimer = 240;
-			m_btnMgr.setText(m_mainLblLetter, curLetter);
-			m_btnMgr.show(m_mainLblLetter);
-		}
 		else if(BTN_A_OR_2_PRESSED)
 		{
-			/** Change view **/
-			if(m_btnMgr.selected(m_mainBtnHome))
+			/** Jump to next letter **/
+			if(m_btnMgr.selected(m_mainBtnNext) || m_btnMgr.selected(m_mainBtnPrev))
 			{
-				//! shortcut to home menu if neek2o
-				if(neek)
+				_sortCF(m_btnMgr.selected(m_mainBtnPrev));
+			}
+			/** Change coverflow view **/
+			else if(m_btnMgr.selected(m_mainBtnHome))
+			{
+				//! home menu if neek
+				if(neek2o())
 				{
 					_hideMain();
 					if(_Home())
@@ -666,20 +611,20 @@ int CMenu::main(void)
 						_setMainBg();
 						m_clearCats = false;
 						_showCF(true);
+						continue;
 					}
 					else // show source menu
 					{
 						m_refreshGameList = _Source(true) || m_gameList.empty(); // true: first tier
-						if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+						cancel_bheld = true;
 						_getCustomBgTex();
 						_showMain();
-					}
-					continue;				
+					}			
 				}
 				//! cycle coverflow views
 				else
 				{
-					bheld = true; bUsed = true;
+					bUsed = true;
 					m_current_view = (m_current_view == COVERFLOW_HOMEBREW ? (isWiiVC ? COVERFLOW_GAMECUBE : COVERFLOW_WII) : m_current_view * 2);
 					m_cfg.remove(sourceflow_domain, "numbers");
 					m_cfg.remove(sourceflow_domain, "tiers");
@@ -697,7 +642,7 @@ int CMenu::main(void)
 			{
 				_hideMain();
 				_CategorySettings();
-				if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+				cancel_bheld = true;
 				_setMainBg();
 				if(m_refreshGameList)
 				{
@@ -741,6 +686,7 @@ int CMenu::main(void)
 				// memcpy(&hdr.id, "dvddvd", 6); // this used to be set for neek2o
 				/* Boot the disc */
 				_launchWii(&hdr, true, !BTN_B_OR_1_HELD); // immediately if btn B held, otherwise settings
+				cancel_bheld = true;
 				_showCF(false);
 			}
 			
@@ -768,7 +714,7 @@ int CMenu::main(void)
 					_game(false);
 					if(m_exit)
 						break;
-					if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+					cancel_bheld = true;
 					if(m_refreshGameList) // if changes were made to favorites, parental lock, or categories
 					{
 						_initCF();
@@ -786,11 +732,11 @@ int CMenu::main(void)
 				const char *domain = _domainFromView();
 				int sort = m_cfg.getInt(domain, "sort", SORT_ALPHA);
 				bool sortChange = false;
-				bheld = true;
-				bUsed = true;
+				cancel_bheld = true;
 				
 				if(BTN_B_OR_1_HELD) // cycle sort modes
 				{
+					bUsed = true;
 					if(m_current_view == COVERFLOW_PLUGIN || m_current_view == COVERFLOW_HOMEBREW) // alpha, playcount & lastplayed only
 						sort = loopNum(sort + 1, SORT_GAMEID);
 					else // change all other coverflow sort mode
@@ -831,10 +777,8 @@ int CMenu::main(void)
 				//! set sort mode text and display it
 				if(sortChange)
 				{
-					wstringEx curSort;
-					curSort = _sortLabel(sort);
 					m_showtimer = 240;
-					m_btnMgr.setText(m_mainLblNotice, curSort);
+					m_btnMgr.setText(m_mainLblNotice, _sortLabel(sort));
 					m_btnMgr.show(m_mainLblNotice);
 				}
 			}
@@ -861,7 +805,7 @@ int CMenu::main(void)
 					{
 						if(page == GAME_LIST && enabledPluginsCount == 0)
 						{
-							_setBg(m_configBg, m_configBg); // quick fix, not sure if really needed
+							_setBg(m_configBg, m_configBg);
 							_PluginSettings();
 						}
 						else if(page == GAME_LIST && enabledPluginsCount == 1)
@@ -876,7 +820,7 @@ int CMenu::main(void)
 					error(_t("errgame15", L"Unlock parental control to use this feature!"));
 				if(m_exit) // end loop immediately to fix green flash on reboot or neek2o launch
 					break;
-				if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+				cancel_bheld = true;
 				m_refreshGameList = m_refreshGameList || m_gameList.empty();
 				_showMain();				
 			}
@@ -888,7 +832,7 @@ int CMenu::main(void)
 				if(m_sourceflow)
 				{
 					_sourceFlow(); // set the source selected
-					if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+					cancel_bheld = true;
 					_getCustomBgTex();
 					_setMainBg();
 					_showCF(true);
@@ -899,7 +843,7 @@ int CMenu::main(void)
 					_game(BTN_B_OR_1_HELD);
 					if(m_exit)
 						break;
-					if(BTN_B_OR_1_HELD) { bheld = true; bUsed = true; }
+					cancel_bheld = true;
 					_setMainBg();
 					if(m_refreshGameList) // // if changes were made to favorites, parental lock, or categories
 					{
@@ -921,7 +865,57 @@ int CMenu::main(void)
 			bUsed = true;
 			CoverFlow.right();
 		}
-		else if(!BTN_B_OR_1_HELD)
+
+		if(BTN_B_OR_1_HELD) // not else if
+		{
+			bheld = true;
+			if(cancel_bheld)
+				bUsed = true;
+			else
+			{
+				/** Change song (music player) **/
+				if(BTN_MINUS_PRESSED) // previous song
+				{
+					bUsed = true;
+					MusicPlayer.Previous();
+				}
+				else if(BTN_PLUS_PRESSED) // next song
+				{
+					bUsed = true;
+					MusicPlayer.Next();
+				}
+				
+				/** Change coverflow layout **/
+				else if((BTN_UP_PRESSED || BTN_DOWN_PRESSED) && !CoverFlow.empty())
+				{
+					bUsed = true;
+					u32 curPos = CoverFlow._currentPos();				
+					s8 direction = BTN_DOWN_PRESSED ? 1 : -1;
+					int cfVersion = 1 + loopNum((_getCFVersion() - 1) + direction, m_numCFVersions);
+					_setCFVersion(cfVersion);
+					_loadCFLayout(cfVersion);
+					CoverFlow._setCurPos(curPos);
+					CoverFlow.applySettings(false);
+				}
+				
+				/** Change emunand **/
+				else if((BTN_LEFT_PRESSED || BTN_RIGHT_PRESSED) && !m_sourceflow)
+				{
+					bUsed = true;
+					s8 direction =  BTN_RIGHT_PRESSED ? 1 : -1;
+					string new_nand = _SetEmuNand(direction);
+					if(new_nand != "")
+					{
+						if(m_refreshGameList)
+							_showCF(true);
+						m_showtimer = 240;
+						m_btnMgr.setText(m_mainLblLetter, new_nand);
+						m_btnMgr.show(m_mainLblLetter);
+					}
+				}
+			}
+		}
+		else // btn B NOT held
 		{
 			/** Move coverflow up **/
 			if(BTN_MINUS_PRESSED)
@@ -944,8 +938,10 @@ int CMenu::main(void)
 			/** Move coverflow down **/
 			else if(BTN_PLUS_PRESSED)
 			{
-				if(ShowPointer()) // (if no showpointer jump to next letter)
+				if(ShowPointer())
 					CoverFlow.pageDown();
+				else // jump to next letter (also in sourceflow)
+					_sortCF();
 			}
 			
 			/** Move coverflow **/
@@ -968,53 +964,8 @@ int CMenu::main(void)
 					m_btnMgr.down();
 			}
 		}
-		else /** BUTTON B HELD **/
-		{
-			bheld = true;
-
-			/** Change song (music player) **/
-			if(BTN_MINUS_PRESSED) // previous song
-			{
-				bUsed = true;
-				MusicPlayer.Previous();
-			}
-			else if(BTN_PLUS_PRESSED) // next song
-			{
-				bUsed = true;
-				MusicPlayer.Next();
-			}
-			
-			/** Change coverflow layout **/
-			else if((BTN_UP_PRESSED || BTN_DOWN_PRESSED) && !CoverFlow.empty())
-			{
-				bUsed = true;
-				u32 curPos = CoverFlow._currentPos();				
-				s8 direction = BTN_DOWN_PRESSED ? 1 : -1;
-				int cfVersion = 1 + loopNum((_getCFVersion() - 1) + direction, m_numCFVersions);
-				_setCFVersion(cfVersion);
-				_loadCFLayout(cfVersion);
-				CoverFlow._setCurPos(curPos);
-				CoverFlow.applySettings(false);
-			}
-			
-			/** Change emunand **/
-			else if((BTN_LEFT_PRESSED || BTN_RIGHT_PRESSED) && !m_sourceflow)
-			{
-				bUsed = true;
-				s8 direction =  BTN_RIGHT_PRESSED ? 1 : -1;
-				string new_nand = _SetEmuNand(direction);
-				if(new_nand != "")
-				{
-					if(m_refreshGameList)
-						_showCF(true);
-					m_showtimer = 240;
-					m_btnMgr.setText(m_mainLblLetter, new_nand);
-					m_btnMgr.show(m_mainLblLetter);
-				}
-			}
-		}
 		
-		/* Hide Notice or Letter if times up */	
+		/* Hide all labels if times up */	
 		if(m_showtimer > 0)
 		{
 			if(--m_showtimer == 0)
@@ -1022,11 +973,13 @@ int CMenu::main(void)
 				m_btnMgr.hide(m_mainLblLetter);
 				m_btnMgr.hide(m_mainLblNotice);
 				m_btnMgr.hide(m_mainLblView);
+				m_btnMgr.hide(m_mainLblCurMusic);
 				m_btnMgr.hide(m_mainLblTitle);
-				m_snapshot_loaded = false;
+				m_snapshot_loaded = false; // show coverflow title
 			}
 		}
 		
+		/* Display icons */
 		if(!m_sourceflow)
 		{
 			if(!m_gameList.empty() && m_show_zone_prev)
@@ -1070,6 +1023,15 @@ int CMenu::main(void)
 		else
 			_hideMain();
 		
+		/* Set song title and display it if music info is allowed */
+		if(m_music_info && MusicPlayer.SongChanged() && !MusicPlayer.OneSong)
+		{
+			if(m_showtimer == 0)
+				m_showtimer = 240;
+			m_btnMgr.setText(m_mainLblCurMusic, MusicPlayer.GetFileName(), false); // false for word wrap
+			m_btnMgr.show(m_mainLblCurMusic);
+		}
+
 		if(menuBar && ShowPointer())
 			menuBar = !menuBar;
 		
@@ -1259,6 +1221,67 @@ wstringEx CMenu::_sortLabel(int sort)
 	else if(sort == SORT_BTN_NUMBERS)
 		return m_loc.getWString(m_curLanguage, "bybtnnumbers", L"By button numbers");
 	return L"";
+}
+
+void CMenu::_sortCF(bool previous)
+{
+	int sorting = m_cfg.getInt(_domainFromView(), "sort", SORT_ALPHA);
+	if(sorting != SORT_ALPHA && sorting != SORT_PLAYERS && sorting != SORT_WIFIPLAYERS && sorting != SORT_GAMEID)
+	{
+		CoverFlow.setSorting((Sorting)SORT_ALPHA);
+		sorting = SORT_ALPHA;
+	}
+	wchar_t c[3] = {0, 0, 0};
+	if(previous)
+		CoverFlow.prevLetter(c);
+	else
+		CoverFlow.nextLetter(c);
+	wstringEx curLetter = wstringEx(c);
+	if(sorting != SORT_ALPHA)
+	{
+		if(sorting == SORT_PLAYERS)
+		{
+			curLetter += ' ';
+			curLetter += m_loc.getWString(m_curLanguage, "players", L"players");
+		}
+		else if(sorting == SORT_WIFIPLAYERS)
+		{
+			curLetter += ' ';
+			curLetter += m_loc.getWString(m_curLanguage, "wifiplayers", L"wifi players");
+		}
+		else if(sorting == SORT_GAMEID && (m_current_view & COVERFLOW_CHANNEL)) // only if coverflow channel
+		{
+			if(curLetter[0] == L'C')
+				curLetter = m_loc.getWString(m_curLanguage, "commodore", L"Commodore 64");
+			else if(curLetter[0] == L'E')
+				curLetter = m_loc.getWString(m_curLanguage, "neogeo", L"Arcade / Neo-Geo");
+			else if(curLetter[0] == L'F')
+				curLetter = m_loc.getWString(m_curLanguage, "nes", L"NES");
+			else if(curLetter[0] == L'J')
+				curLetter = m_loc.getWString(m_curLanguage, "snes", L"Super NES");
+			else if(curLetter[0] == L'L')
+				curLetter = m_loc.getWString(m_curLanguage, "mastersystem", L"Master System");
+			else if(curLetter[0] == L'M')
+				curLetter = m_loc.getWString(m_curLanguage, "genesis", L"Genesis");
+			else if(curLetter[0] == L'N')
+				curLetter = m_loc.getWString(m_curLanguage, "nintendo64", L"Nintendo 64");
+			else if(curLetter[0] == L'P')
+				curLetter = m_loc.getWString(m_curLanguage, "turbografx16", L"TurboGrafx-16");
+			else if(curLetter[0] == L'Q')
+				curLetter = m_loc.getWString(m_curLanguage, "turbografxcd", L"TurboGrafx-CD");
+			else if(curLetter[0] == L'X')
+				curLetter = m_loc.getWString(m_curLanguage, "msx", L"MSX");
+			else if(curLetter[0] == L'W')
+				curLetter = m_loc.getWString(m_curLanguage, "wiiware", L"WiiWare");
+			else if(curLetter[0] == L'H')
+				curLetter = m_loc.getWString(m_curLanguage, "wiichannels", L"Wii channels");
+			else
+				curLetter = m_loc.getWString(m_curLanguage, "homebrew", L"Homebrew"); //
+		}
+	}
+	m_showtimer = 240;
+	m_btnMgr.setText(m_mainLblLetter, curLetter);
+	m_btnMgr.show(m_mainLblLetter);	
 }
 
 void CMenu::_setPartition(s8 direction, bool m_emuSaveNand)

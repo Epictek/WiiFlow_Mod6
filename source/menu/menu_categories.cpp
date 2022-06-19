@@ -440,18 +440,10 @@ void CMenu::_CategoryConfig(void)
 				}
 				_showCategoryConfig();
 			}
-			else if(m_btnMgr.selected(m_configBtn[3])) // gameTDB categories for this game
+			else if(m_btnMgr.selected(m_configBtn[3]) || m_btnMgr.selected(m_checkboxBtn[4])) // gameTDB categories
 			{
-				if(error(_t("errcfg11", L"Categories that don't exist will be automatically added."), true))
-				{
-					_setTDBCategories(CoverFlow.getHdr());
-					break;
-				}
-				_showCategoryConfig();
-			}
-			else if(m_btnMgr.selected(m_checkboxBtn[4])) // gameTDB categories for all games
-			{
-				if(!tdb_genres && !fsop_FileExist(fmt("%s/wiitdb.xml", m_settingsDir.c_str())))
+				bool all = m_btnMgr.selected(m_checkboxBtn[4]);
+				if((!all || !tdb_genres) && !fsop_FileExist(fmt("%s/wiitdb.xml", m_settingsDir.c_str())))
 				{
 					error(_t("errtdb", L"Download GameTDB to use this feature."));
 					_download();
@@ -459,13 +451,22 @@ void CMenu::_CategoryConfig(void)
 				}
 				else
 				{
-					if(!tdb_genres)
+					if(!all || !tdb_genres)
 						error(_t("errcfg11", L"Categories that don't exist will be automatically added."));
-					tdb_genres = !tdb_genres;
-					m_cfg.setBool(general_domain, "tdb_genres", tdb_genres);
-					_showCategoryConfig(true);
+					if(all) // gameTDB categories for all games
+					{
+						tdb_genres = !tdb_genres;
+						m_cfg.setBool(general_domain, "tdb_genres", tdb_genres);
+						_showCategoryConfig(true);
+					}
+					else // gameTDB categories for this game
+					{
+						_setTDBCategories(CoverFlow.getHdr());
+						break;
+					}
 				}
-				m_btnMgr.setSelected(m_checkboxBtn[4]);
+				if(all)
+					m_btnMgr.setSelected(m_checkboxBtn[4]);
 			}
 			else if(m_btnMgr.selected(m_configBtnGo[5])) // add new category
 			{
