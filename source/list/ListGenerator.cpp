@@ -207,20 +207,20 @@ static void Add_Homebrew_Dol(char *FullPath)
 /** Add plugin rom, song, or video to the list. **/
 static void Add_Plugin_Game(char *FullPath)
 {
+	/* Skip subfolder if required */
+	vector<string> foldersToSkip = stringToVector(m_plugin.GetFoldersToSkip(m_cacheList.Magic), '|');
+	for(vector<string>::iterator itr = foldersToSkip.begin(); itr != foldersToSkip.end(); itr++)
+		if(strcasestr(FullPath, (*itr).c_str()) != 0)
+			return;
+	
 	/* Only add disc 1 of multi disc games */
-	bool found = false;
 	for(u8 i = 2; i < 10; ++i) // "disk2", "disk3", ..., "disk10"
 	{
 		string s(FullPath);
 		s = removeSpaceDash(lowerCase(s));
 		if(s.find("disk" + std::to_string(i)) != string::npos)
-		{
-			found = true;
-			break;
-		}
+			return;
 	}
-	if(found)
-		return;
 	
 	/* Get rom's ID */
 	string romID = "";

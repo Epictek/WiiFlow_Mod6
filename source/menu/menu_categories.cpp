@@ -443,28 +443,21 @@ void CMenu::_CategoryConfig(void)
 			else if(m_btnMgr.selected(m_configBtn[3]) || m_btnMgr.selected(m_checkboxBtn[4])) // gameTDB categories
 			{
 				bool all = m_btnMgr.selected(m_checkboxBtn[4]);
-				if((!all || !tdb_genres) && !fsop_FileExist(fmt("%s/wiitdb.xml", m_settingsDir.c_str())))
+				bool accept = false;
+				if(!all || !tdb_genres)
+					if(error(_t("errcfg11", L"GameTDB and/or plugin database are required. Missing categories will be automatically added. This cannot be undone."), true))
+						accept = true;
+				if(all && (tdb_genres || accept)) // gameTDB categories for all games
 				{
-					error(_t("errtdb", L"Download GameTDB to use this feature."));
-					_download();
-					_showCategoryConfig();
+					tdb_genres = !tdb_genres;
+					m_cfg.setBool(general_domain, "tdb_genres", tdb_genres);
 				}
-				else
+				else if(accept) // gameTDB categories for this game
 				{
-					if(!all || !tdb_genres)
-						error(_t("errcfg11", L"Categories that don't exist will be automatically added."));
-					if(all) // gameTDB categories for all games
-					{
-						tdb_genres = !tdb_genres;
-						m_cfg.setBool(general_domain, "tdb_genres", tdb_genres);
-						_showCategoryConfig(true);
-					}
-					else // gameTDB categories for this game
-					{
-						_setTDBCategories(CoverFlow.getHdr());
-						break;
-					}
+					_setTDBCategories(CoverFlow.getHdr());
+					break;	
 				}
+				_showCategoryConfig(true);
 				if(all)
 					m_btnMgr.setSelected(m_checkboxBtn[4]);
 			}
@@ -517,7 +510,7 @@ void CMenu::_CategoryConfig(void)
 		const char *domains[] = {WII_DOMAIN, GC_DOMAIN, CHANNEL_DOMAIN, PLUGIN_DOMAIN};
 		for(u8 i = 0; i < 4; i++)
 			m_cfg.setBool(domains[i], "update_cache", true);
-	}	
+	}
 
 	_hideConfig(true);
 }

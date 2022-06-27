@@ -92,7 +92,7 @@ void CMenu::_configNet(void)
 				bool setPass = false;
 				if(s != "") // a password is already set, suggest removing it
 				{
-					if(error(_t("cfg840", L"Remove FTP password?"), true))
+					if(error(_t("cfg840", L"Enter current password to remove it."), true))
 					{
 						char *c = NULL;
 						c = _keyboard();

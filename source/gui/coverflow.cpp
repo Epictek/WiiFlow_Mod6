@@ -2180,9 +2180,10 @@ bool CCoverFlow::mouseOver(int x, int y)
 void CCoverFlow::setSelected(int i)
 {
 	LockMutex lock(m_mutex);
+	m_delay = m_minDelay; // small fix to load covers twice by setting m_cover = true twice
 	m_moved = true;
 	_loadAllCovers(i);
-	_updateAllTargets(); // not true
+	_updateAllTargets(true);
 	select();
 }
 
@@ -2622,7 +2623,12 @@ void CCoverFlow::tick(void)
 	LockMutex lock(m_mutex);
 	++m_tickCount;
 	if (m_delay > 0)
-		--m_delay;
+	{
+		// --m_delay;
+		//! Q&D fix to set m_moved true twice (thus run cover loader loop thread twice) in case the first call failed with no cover update, when using left(), right(), and setSelected()
+		if(--m_delay == 0)
+			m_moved = true;
+	}
 	else
 		_jump();
 	for (u32 i = 0; i < m_range; ++i)
@@ -2953,8 +2959,6 @@ void * CCoverFlow::_coverLoader(void *obj)
 	bool cur_pos_hq = false;
 	u32 bufferSize = min(cf->m_numBufCovers * max(2u, cf->m_rows), 80u);
 
-	/** 3 passes alternative method (slower) **/
-	/**
 	while(cf->m_loadingCovers)
 	{
 		update = cf->m_moved;
@@ -2972,6 +2976,25 @@ void * CCoverFlow::_coverLoader(void *obj)
 			}
 		}
 		ret = CL_OK;
+		/**/
+		for(j = 0; j <= bufferSize && !cf->m_moved && update && ret != CL_NOMEM; ++j)
+		{
+			i = loopNum((j & 1) ? firstItem - (j + 1) / 2 : firstItem + j / 2, cf->m_items.size());
+			cur_pos_hq = (hq_req && i == firstItem);
+			if((!hq_req || !cur_pos_hq) && cf->m_items[i].state != STATE_Loading)
+				continue;
+			if((ret = cf->_loadCoverTex(i, cf->m_box, cur_pos_hq, false)) == CL_ERROR)
+			{
+				if((ret = cf->_loadCoverTex(i, !cf->m_box, cur_pos_hq, false)) == CL_ERROR)
+				{
+					if((ret = cf->_loadCoverTex(i, cf->m_box, cur_pos_hq, true)) == CL_ERROR)
+						cf->m_items[i].state = STATE_NoCover;
+				}
+			}
+		}
+		/**/
+		/** 3 passes alternative method **/
+		/**
 		bool hq_done = false;
 		// we try 3 passes to get the full cover. because the cover loader randomly skips the wfc file for unknown reasons 
 		// first time is full cover only 
@@ -2998,49 +3021,10 @@ void * CCoverFlow::_coverLoader(void *obj)
 				hq_done = (hq_done == false && ret == CL_OK && cur_pos_hq);
 			}
 		}
+		**/
 		if(ret == CL_NOMEM && bufferSize > 3)
 			bufferSize -= 2;
 	}
-	**/
-	
-	/** No 3 passes method **/
-	/**/
-	while(cf->m_loadingCovers)
-	{
-		update = cf->m_moved;
-		cf->m_moved = false;
-		firstItem = cf->m_covers[cf->m_range / 2].index;
-		for(j = cf->m_items.size(); j >= bufferSize && !cf->m_moved && update; --j)
-		{
-			i = loopNum((j & 1) ? firstItem - (j + 1) / 2 : firstItem + j / 2, cf->m_items.size());
-			if(cf->m_items[i].state != STATE_Loading)
-			{
-				LWP_MutexLock(cf->m_mutex);
-				TexHandle.Cleanup(cf->m_items[i].texture);
-				cf->m_items[i].state = STATE_Loading;
-				LWP_MutexUnlock(cf->m_mutex);
-			}
-		}
-		ret = CL_OK;
-		for(j = 0; j <= bufferSize && !cf->m_moved && update && ret != CL_NOMEM; ++j)
-		{
-			i = loopNum((j & 1) ? firstItem - (j + 1) / 2 : firstItem + j / 2, cf->m_items.size());
-			cur_pos_hq = (hq_req && i == firstItem);
-			if((!hq_req || !cur_pos_hq) && cf->m_items[i].state != STATE_Loading)
-				continue;
-			if((ret = cf->_loadCoverTex(i, cf->m_box, cur_pos_hq, false)) == CL_ERROR)
-			{
-				if((ret = cf->_loadCoverTex(i, !cf->m_box, cur_pos_hq, false)) == CL_ERROR)
-				{
-					if((ret = cf->_loadCoverTex(i, cf->m_box, cur_pos_hq, true)) == CL_ERROR)
-						cf->m_items[i].state = STATE_NoCover;
-				}
-			}
-		}
-		if(ret == CL_NOMEM && bufferSize > 3)
-			bufferSize -= 2;
-	}
-	/**/
 
 	cf->m_coverThrdBusy = false;
 	return 0;

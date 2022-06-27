@@ -110,7 +110,8 @@ void Plugin::AddPlugin(Config &plugin, const string &iniPath)
 		PluginName.erase(PluginName.end() - 4, PluginName.end());
 	}
 	NewPlugin.DisplayName.fromUTF8(PluginName.c_str());
-	NewPlugin.consoleCoverID = plugin.getString(PLUGIN,"consoleCoverID");
+	// NewPlugin.consoleCoverID = plugin.getString(PLUGIN,"consoleCoverID");
+	NewPlugin.foldersToSkip = plugin.getString(PLUGIN, "foldersToSkip"); // used in list generator
 	NewPlugin.explorerPath = plugin.getString(PLUGIN, "explorerPath"); // used for text browser view
 	NewPlugin.fileNamesAsTitles = plugin.getBool(PLUGIN, "fileNamesAsTitles", false); // used in coverflow to force the use of file names as game titles
 	NewPlugin.guideName = plugin.getString(PLUGIN, "guideName"); // used in game selection to display a controller input guide for the plugin
@@ -210,13 +211,20 @@ bool Plugin::GetFileNamesAsTitles(u32 magic) //
 {
 	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
 		return Plugins[Plugin_Pos].fileNamesAsTitles;
-	return NULL;
+	return false;
 }
 
 string Plugin::GetGuideName(u32 magic) // 
 {
 	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
 		return Plugins[Plugin_Pos].guideName;
+	return "";
+}
+
+const string& Plugin::GetFoldersToSkip(u32 magic) // 
+{
+	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
+		return Plugins[Plugin_Pos].foldersToSkip;
 	return NULL;
 }
 

@@ -2202,7 +2202,7 @@ void CMenu::_initCF(bool dumpGameList)
 		CoverFlow.setSmallBoxMode(m_cfg.getBool(SOURCEFLOW_DOMAIN, "smallbox", false));
 	}
 /*********************************** Setup coverflow covers settings ***********************************/
-	CoverFlow.setBufferSize(m_cfg.getInt(general_domain, "cover_buffer", 14)); // 14 instead of 20
+	CoverFlow.setBufferSize(m_cfg.getInt(general_domain, "cover_buffer", 20));
 	CoverFlow.setHQcover(m_cfg.getBool(general_domain, "cover_use_hq", true));
 	CoverFlow.start();
 /**************************** Get and set game list current item to center cover ***********************/

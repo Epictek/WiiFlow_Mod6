@@ -54,7 +54,8 @@ struct PluginOptions
 	string fileTypes;	
 	string DolName;
 	string coverFolder;
-	string consoleCoverID;
+	// string consoleCoverID;
+	string foldersToSkip; //
 	string BannerSound;
 	u32 BannerSoundSize;
 	vector<string> Args;
@@ -77,6 +78,7 @@ public:
 	void SetExplorerPath(u8 pos, const string &ep); //
 	bool GetFileNamesAsTitles(u32 magic); //
 	string GetGuideName(u32 magic); //
+	const string& GetFoldersToSkip(u32 magic); //
 	string GetRomName(const char *FullPath);
 	string GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *datadir, const char *platform, const char *name);
 	int GetRomPartition(u8 pos);

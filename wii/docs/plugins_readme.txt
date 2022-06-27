@@ -1,5 +1,5 @@
  
- Update June 10, 2022
+ Update June 26, 2022
 
  PLUGIN SETUP:
  =============
@@ -72,7 +72,10 @@ filenamesastitles=
 # optional (emulators only) - force WiiFlow to use rom file names as titles instead of Wiimpathy's database (yes/no - default to no)
 
 guidename=
-# optional - background image (e.g. "atari_guide.png") to use for the plugin controller input guide (PNG or JPG must be placed in wiiflow/plugins/inputs/), default to "[platform_name].png" (platform_name from platform.ini)
+# optional - background image (e.g. atari_guide.png) to use for the plugin controller input guide (PNG or JPG must be placed in wiiflow/plugins/inputs/), default to "[platform_name].png" (platform_name from platform.ini)
+
+folderstoskip=
+# optional - romdir's subfolders to skip when generating coverflow cache list, separated by pipes (e.g: folder 1|folder 2)
 
 
  EXAMPLES:
