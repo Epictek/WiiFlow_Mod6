@@ -76,7 +76,7 @@ public:
 	void SetRomDir(u8 pos, const string &rd);
 	const char *GetExplorerPath(u32 magic); //
 	void SetExplorerPath(u8 pos, const string &ep); //
-	bool GetFileNamesAsTitles(u32 magic); //
+	bool GetFileNamesAsTitles(u8 pos); //
 	string GetGuideName(u32 magic); //
 	const string& GetFoldersToSkip(u32 magic); //
 	string GetRomName(const char *FullPath);

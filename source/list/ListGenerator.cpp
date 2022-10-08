@@ -247,22 +247,20 @@ static void Add_Plugin_Game(char *FullPath)
 	*strrchr(RomFilename, '.') = '\0'; // remove extension
 
 	string customTitle = CustomTitles.getString(m_plugin.PluginMagicWord, RomFilename, "");
-
-	const char *gameTDB_Title = NULL;
-	if(gameTDB.IsLoaded() && customTitle.empty())
-		gameTDB.GetTitle(ListElement.id, gameTDB_Title, true);
-
 	/* Set the roms title */
 	if(!customTitle.empty())
 		mbstowcs(ListElement.title, customTitle.c_str(), 63);
-	else if((gameTDB_Title != NULL && gameTDB_Title[0] != '\0') 
-		&& !m_plugin.GetFileNamesAsTitles(m_cacheList.Magic) // plugin database titles can be turned off in plugin ini file...
-		&& m_cacheList.usePluginDBTitles) // ...or in plugin global settings
-		mbstowcs(ListElement.title, gameTDB_Title, 63);
 	else
-		mbstowcs(ListElement.title, RomFilename, 63);
+	{
+		const char *gameTDB_Title = NULL;
+		if(gameTDB.IsLoaded() && m_cacheList.usePluginDBTitles)
+			gameTDB.GetTitle(ListElement.id, gameTDB_Title, true);
+		if(gameTDB_Title != NULL && gameTDB_Title[0] != '\0')
+			mbstowcs(ListElement.title, gameTDB_Title, 63);
+		else
+			mbstowcs(ListElement.title, RomFilename, 63);
+	}
 	Asciify(ListElement.title);
-
 	ListElement.settings[0] = m_cacheList.Magic; // plugin magic
 	ListElement.casecolor = m_cacheList.Color;
 	ListElement.type = TYPE_PLUGIN;
@@ -302,6 +300,7 @@ void ListGenerator::ParseScummvmINI(Config &ini, const char *Device, const char 
 		if(gameTDB.IsLoaded())
 			gameTDB.SetLanguageCode(gameTDB_Language.c_str());
 	}
+	CustomTitles.load(CustomTitlesPath.c_str());
 
 	const char *GameDomain = ini.firstDomain().c_str();
 	while(1)
@@ -334,13 +333,21 @@ void ListGenerator::ParseScummvmINI(Config &ini, const char *Device, const char 
 
 		memset((void*)&ListElement, 0, sizeof(dir_discHdr));
 		memcpy(ListElement.id, GameID.c_str(), 6);
-		const char *gameTDB_Title = NULL;
-		if(gameTDB.IsLoaded() && m_cacheList.usePluginDBTitles)
-			gameTDB.GetTitle(ListElement.id, gameTDB_Title, true);
-		if(gameTDB_Title != NULL && gameTDB_Title[0] != '\0')
-			mbstowcs(ListElement.title, gameTDB_Title, 63);
+
+		string customTitle = CustomTitles.getString(m_plugin.PluginMagicWord, GameDomain, "");
+		/* Set the roms title */
+		if(!customTitle.empty())
+			mbstowcs(ListElement.title, customTitle.c_str(), 63);
 		else
-			mbstowcs(ListElement.title, GameName, 63);
+		{
+			const char *gameTDB_Title = NULL;
+			if(gameTDB.IsLoaded() && m_cacheList.usePluginDBTitles)
+				gameTDB.GetTitle(ListElement.id, gameTDB_Title, true);
+			if(gameTDB_Title != NULL && gameTDB_Title[0] != '\0')
+				mbstowcs(ListElement.title, gameTDB_Title, 63);
+			else
+				mbstowcs(ListElement.title, GameName, 63);
+		}
 		Asciify(ListElement.title);
 		strcpy(ListElement.path, GameDomain);
 		ListElement.settings[0] = m_cacheList.Magic; // scummvm magic

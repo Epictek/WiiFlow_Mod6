@@ -207,11 +207,9 @@ void Plugin::SetExplorerPath(u8 pos, const string &ep) //
 	Plugins[pos].explorerPath = ep;
 }
 
-bool Plugin::GetFileNamesAsTitles(u32 magic) // 
+bool Plugin::GetFileNamesAsTitles(u8 pos) // 
 {
-	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
-		return Plugins[Plugin_Pos].fileNamesAsTitles;
-	return false;
+	return Plugins[pos].fileNamesAsTitles;
 }
 
 string Plugin::GetGuideName(u32 magic) // 
