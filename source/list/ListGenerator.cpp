@@ -317,16 +317,15 @@ void ListGenerator::ParseScummvmINI(Config &ini, const char *Device, const char 
 		}
 
 		/* Get shortName */
-		char *cp;
-		if((cp = strstr(GameName, " (")) != NULL)
-			*cp = '\0';
+		string ShortName(GameName);
+		ShortName = ShortName.substr(0, ShortName.find(" ("));
 
 		/* Get Game ID */
 		string GameID = "PLUGIN";
 		/* Get game ID based on GameName */
-		if(m_crc.loaded() && m_crc.has(platform, GameName))
+		if(m_crc.loaded() && m_crc.has(platform, ShortName.c_str()))
 		{
-			vector<string> searchID = m_crc.getStrings(platform, GameName, '|');
+			vector<string> searchID = m_crc.getStrings(platform, ShortName.c_str(), '|');
 			if(!searchID[0].empty())
 				GameID = searchID[0];
 		}
