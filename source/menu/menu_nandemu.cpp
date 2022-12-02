@@ -400,11 +400,11 @@ bool CMenu::_configNandEmu(u8 startPage)
 					if(strlen(c) > 0)
 					{
 						const char *newNand = fmt("%s:/%s/%s", DeviceName[m_cfg.getInt(channel_domain, "partition")], emu_nands_dir, lowerCase(c).c_str());
-						if(error(wfmt(_fmt("errcfg3", L"Create %s?"), newNand), true))
+						if(_error(wfmt(_fmt("errcfg3", L"Create %s?"), newNand), true))
 						{
 							fsop_MakeFolder(newNand);
 							_checkEmuNandSettings(EMU_NAND);
-							error(_t("dlmsg14", L"Done."));
+							_error(_t("dlmsg14", L"Done."));
 						}
 					}
 					_showNandEmu();
@@ -837,18 +837,18 @@ bool CMenu::_NandDump(int DumpType)
 
 	if(_FindEmuPart(!m_nanddump, false) < 0) // make emunand folder if it doesn't exist
 	{
-		error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
+		_error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
 		return 0;
 	}
 	
 	if(m_nanddump)
 	{
-		if(!error(wfmt(_fmt("errcfg4", L"Extract nand to %s?"), NandHandle.GetPath()), true))
+		if(!_error(wfmt(_fmt("errcfg4", L"Extract nand to %s?"), NandHandle.GetPath()), true))
 			return 0;
 	}
 	else
 	{
-		if(!error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), NandHandle.GetPath()), true))
+		if(!_error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), NandHandle.GetPath()), true))
 			return 0;
 	}
 	
@@ -902,7 +902,7 @@ int CMenu::_FlashSave(string gameId)
 	if(!_checkSave(gameId, SAVES_NAND)) // if save not on saves emunand
 		return -1;
 			
-	if(!error(wfmt(_fmt("errcfg13", L"Flash save from %s?"), NandHandle.GetPath()), true))
+	if(!_error(wfmt(_fmt("errcfg13", L"Flash save from %s?"), NandHandle.GetPath()), true))
 		return 0;
 
 	lwp_t thread = 0;
@@ -955,14 +955,14 @@ int CMenu::_AutoExtractSave(string gameId)
 {		
 	if(_FindEmuPart(SAVES_NAND, false) < 0) // make emunand folder if it doesn't exist
 	{
-		error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
+		_error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
 		return 0;
 	}
 
 	if(!_checkSave(gameId, REAL_NAND)) // if save not on real nand
 		return -1;
 			
-	if(!error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), NandHandle.GetPath()), true))
+	if(!_error(wfmt(_fmt("errcfg6", L"Extract save(s) to %s?"), NandHandle.GetPath()), true))
 		return 0;
 
 	lwp_t thread = 0;
@@ -1161,7 +1161,7 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 	{
 		if(emupart != SD && emupart != USB1) // required
 		{
-			error(_t("errneek4", L"Emunand must be on SD or USB1!"));
+			_error(_t("errneek4", L"Emunand must be on SD or USB1!"));
 			return false;
 		}
 		
@@ -1199,7 +1199,7 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 		
 		if(m_gameList.size() > 48) // max number of channels displayed in system menu
 		{
-			if(!error(wfmt(_fmt("errneek6", L"Neek2o may fail to launch %i channels, try anyway?"), m_gameList.size()), true))
+			if(!_error(wfmt(_fmt("errneek6", L"Neek2o may fail to launch %i channels, try anyway?"), m_gameList.size()), true))
 			{
 				if(nand_type == SAVES_NAND)
 					_loadList();
@@ -1212,7 +1212,7 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 	{
 		if(emupart != USB1)
 		{
-			error(_t("errneek3", L"Emunand must be on USB1!"));
+			_error(_t("errneek3", L"Emunand must be on USB1!"));
 			return false;
 		}
 		else
@@ -1226,7 +1226,7 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 			if(!NandHandle.GetTMD(TITLE_ID(0x00010001, 0x44574641), &size)) // DWFA
 #endif
 			{
-				error(_t("errneek2", L"Channel not found on emunand!"));
+				_error(_t("errneek2", L"Channel not found on emunand!"));
 				NANDemuView = curNANDemuView;
 				return false;
 			}
@@ -1238,7 +1238,7 @@ bool CMenu::_launchNeek2oChannel(int ExitTo, int nand_type)
 	/* make sure neek2o kernel exists */
 	if(!Load_Neek2o_Kernel(emupart))
 	{
-		error(_t("errneek1", L"Neek2o kernel not found!"));
+		_error(_t("errneek1", L"Neek2o kernel not found!"));
 		return false;
 	}
 	else

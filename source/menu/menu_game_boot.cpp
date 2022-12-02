@@ -79,6 +79,21 @@ static u8 GetRequestedGameIOS(dir_discHdr *hdr)
 	return IOS;
 }
 
+/* Used to load gameconfig.txt and cheats .gct */
+bool CMenu::_loadFile(u8 * &buffer, u32 &size, const char *path, const char *file)
+{
+	u32 fileSize = 0;
+	u8 *fileBuf = fsop_ReadFile(file == NULL ? path : fmt("%s/%s", path, file), &fileSize);
+	if(fileBuf == NULL)
+		return false;
+
+	if(buffer != NULL)
+		MEM2_free(buffer);
+	buffer = fileBuf;
+	size = fileSize;
+	return true;
+}
+
 /* Direct launch from boot arg for wii game only */
 void CMenu::directlaunch(const char *GameID)
 {
@@ -103,7 +118,7 @@ void CMenu::directlaunch(const char *GameID)
 			}
 		}
 	}
-	error(wfmt(_fmt("errgame1", L"Launching game %s failed!"), GameID));
+	_error(wfmt(_fmt("errgame1", L"Launching game %s failed!"), GameID));
 }
 
 void CMenu::_launchShutdown()
@@ -414,7 +429,7 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 {
 	if(!m_nintendont_installed)
 	{
-		error(_t("errgame11", L"GameCube loader not found!"));
+		_error(_t("errgame11", L"GameCube loader not found!"));
 		return;
 	}
 	
@@ -989,7 +1004,7 @@ void CMenu::_launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg)
 	if(emulate_mode == 3 && !dvd)
 	{
 		if(currentPartition != USB1)
-			error(_t("errgame98", L"Game must be on USB1!"));
+			_error(_t("errgame98", L"Game must be on USB1!"));
 		else
 			_launchNeek2oChannel(EXIT_TO_SMNK2O, SAVES_NAND);
 		return;
@@ -1003,7 +1018,7 @@ void CMenu::_launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg)
 		if(Disc_Open(true) < 0)
 		{
 			WDVD_Eject();
-			error(_t("wbfsoperr2", L"Reading disc failed!"));
+			_error(_t("wbfsoperr2", L"Reading disc failed!"));
 			return;
 		}
 		else
@@ -1047,7 +1062,7 @@ void CMenu::_launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg)
 		/* SD can't be used to launch Wii game after enabling emu (d2x cIOS issue?) */
 		if(emuPart == SD && currentPartition == SD)
 		{
-			error(_t("errgame99", L"Game and gamesave can't be both on SD card!"));
+			_error(_t("errgame99", L"Game and gamesave can't be both on SD card!"));
 			return;
 		}
 	}

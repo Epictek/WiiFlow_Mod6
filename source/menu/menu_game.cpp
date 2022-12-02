@@ -503,7 +503,7 @@ void CMenu::_game(bool launch)
 				if(m_locked)
 				{
 					m_banner.SetShowBanner(false);
-					error(_t("errgame15", L"Unlock parental control to use this feature!"));
+					_error(_t("errgame15", L"Unlock parental control to use this feature!"));
 					m_banner.SetShowBanner(true);
 				}
 				else
@@ -622,7 +622,7 @@ void CMenu::_game(bool launch)
 				if(m_locked)
 				{
 					m_banner.SetShowBanner(false);
-					error(_t("errgame15", L"Unlock parental control to use this feature!"));
+					_error(_t("errgame15", L"Unlock parental control to use this feature!"));
 					m_banner.SetShowBanner(true);
 				}
 				else

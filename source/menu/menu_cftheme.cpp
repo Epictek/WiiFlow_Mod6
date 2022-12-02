@@ -365,7 +365,7 @@ bool CMenu::_cfTheme(void)
 		_mainLoopCommon(true);
 		if(BTN_HOME_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_cfThemeBtnCancel)))
 		{
-			if(error(_t("errcfg9", L"Quit without saving?"), true))
+			if(_error(_t("errcfg9", L"Quit without saving?"), true))
 			{
 				m_coverflow.clear();
 				m_coverflow.unload();
@@ -419,11 +419,11 @@ bool CMenu::_cfTheme(void)
 			if(m_btnMgr.selected(m_cfThemeBtnSave))
 			{
 				const char *cfCfgFile = fmt("%s/%s.ini", m_coverflowsDir.c_str(), m_themeName.c_str());
-				if(error(wfmt(_fmt("errcfg8", L"Save changes to %s?"), cfCfgFile), true))
+				if(_error(wfmt(_fmt("errcfg8", L"Save changes to %s?"), cfCfgFile), true))
 				{
 					CoverFlow.stopCoverLoader();
 					m_coverflow.save();
-					error(_t("errboot8", L"Wiiflow needs rebooting to apply changes."));
+					_error(_t("errboot8", L"Wiiflow needs rebooting to apply changes."));
 					m_exit = true;
 					m_reload = true;
 					return true;

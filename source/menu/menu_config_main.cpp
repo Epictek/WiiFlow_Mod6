@@ -180,10 +180,10 @@ void CMenu::_config(void)
 						{
 							m_refreshGameList = true;
 							m_locked = false;
-							error(_t("errcfg12",L"WiiFlow unlocked until next reboot."));
+							_error(_t("errcfg12",L"WiiFlow unlocked until next reboot."));
 						}
 						else
-							error(_t("cfgg25",L"Password incorrect."));
+							_error(_t("cfgg25",L"Password incorrect."));
 					}
 				}
 				_showConfigMain();

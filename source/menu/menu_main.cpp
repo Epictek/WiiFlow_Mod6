@@ -817,7 +817,7 @@ int CMenu::main(void)
 						_configHB(page);
 				}
 				else // locked
-					error(_t("errgame15", L"Unlock parental control to use this feature!"));
+					_error(_t("errgame15", L"Unlock parental control to use this feature!"));
 				if(m_exit) // end loop immediately to fix green flash on reboot or neek2o launch
 					break;
 				cancel_bheld = true;

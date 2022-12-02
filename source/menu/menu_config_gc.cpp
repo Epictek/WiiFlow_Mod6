@@ -191,7 +191,7 @@ void CMenu::_showConfigGC(bool instant)
 void CMenu::_configGC(u8 startPage)
 {
 	if(!m_nintendont_installed)
-		error(_t("errgame11", L"GameCube loader not found!"));
+		_error(_t("errgame11", L"GameCube loader not found!"));
 	
 	curPage = startPage;
 	

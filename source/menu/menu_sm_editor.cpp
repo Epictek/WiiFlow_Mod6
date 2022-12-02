@@ -240,7 +240,7 @@ void CMenu::_checkboxesMenu(u8 md)
 						else if(source != "plugin")
 						{
 							_hideConfig();
-							error(_t("smediterr", L"Not allowed!"));
+							_error(_t("smediterr", L"Not allowed!"));
 							_showCheckboxesMenu();
 						}
 						else
@@ -308,7 +308,7 @@ void CMenu::_checkboxesMenu(u8 md)
 							//! no wii or gc either for romdir
 							not_allowed = not_allowed || magic == 0x4E574949 || magic == 0x4E47434D;
 						if(not_allowed)
-							error(_t("smediterr", L"Not allowed!"));
+							_error(_t("smediterr", L"Not allowed!"));
 						else
 							_setPluginPath(pos, mode);
 						_showCheckboxesMenu();

@@ -238,7 +238,7 @@ void CMenu::_configGui(void)
 		for(m_current_view = COVERFLOW_WII; m_current_view <= COVERFLOW_HOMEBREW; m_current_view = m_current_view * 2)
 			_setCFVersion(1);
 		// _setSrcFlow(1); // not sure if really needed
-		error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
+		_error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
 		m_exit = true;
 		m_reload = true;
 	}

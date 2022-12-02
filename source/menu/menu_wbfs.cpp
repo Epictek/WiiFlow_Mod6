@@ -43,13 +43,13 @@ bool CMenu::_wbfsOp(u8 op)
 		{
 			if(_FindEmuPart(SAVES_NAND, false) < 0) // make emunand folder if needed
 			{
-				error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
+				_error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
 				return 0;
 			}
 		}
 		else if(_FindEmuPart(CF_Hdr->type == TYPE_WII_GAME, true) < 0)
 		{
-			error(_t("cfgmc10", L"File not found!"));
+			_error(_t("cfgmc10", L"File not found!"));
 			return 0;
 		}
 		nandPath = NandHandle.GetPath();
@@ -165,7 +165,7 @@ bool CMenu::_wbfsOp(u8 op)
 						else // Scummvm or CD-ROM file not in a specific folder
 						{
 							_stop_pThread();
-							error(_t("wbfsoperr99", L"Can't delete game! Removing cached cover only."));
+							_error(_t("wbfsoperr99", L"Can't delete game! Removing cached cover only."));
 							done = true;
 							break;
 						}						
@@ -182,7 +182,7 @@ bool CMenu::_wbfsOp(u8 op)
 						if(CF_Hdr->settings[0] != 0x00010001)
 						{
 							_stop_pThread();
-							error(_t("wbfsoperr5", L"Deleting this channel is not allowed!"));
+							_error(_t("wbfsoperr5", L"Deleting this channel is not allowed!"));
 							done = true;
 							break;
 						}

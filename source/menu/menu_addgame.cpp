@@ -288,13 +288,13 @@ void CMenu::_addGame(u8 game_type)
 
 				if(Disc_Wait() < 0)
 				{
-					error(_t("wbfsoperr1", L"Disc wait failed!"));
+					_error(_t("wbfsoperr1", L"Disc wait failed!"));
 					break;
 				}
 				if(Disc_Open(false) < 0)
 				{
 					WDVD_Eject();
-					error(_t("wbfsoperr2", L"Reading disc failed!"));
+					_error(_t("wbfsoperr2", L"Reading disc failed!"));
 					break;
 				}
 				else
@@ -312,7 +312,7 @@ void CMenu::_addGame(u8 game_type)
 					_loadList();
 					if(_searchGamesByID(GameID))
 					{
-						error(_t("wbfsoperr4", L"Game already installed!"));
+						_error(_t("wbfsoperr4", L"Game already installed!"));
 						break;
 					}
 					CoverFlow.clear();
@@ -336,7 +336,7 @@ void CMenu::_addGame(u8 game_type)
 					_loadList();
 					if(_searchGamesByID(GameID))
 					{
-						error(_t("wbfsoperr4", L"Game already installed!"));
+						_error(_t("wbfsoperr4", L"Game already installed!"));
 						break;
 					}
 					CoverFlow.clear();
@@ -387,7 +387,7 @@ void CMenu::_addGame(u8 game_type)
 
 	if(rb || game_installed) // safety reboot due to possible memory leak
 	{
-		error(_t("wbfsop98", L"Refreshing game list and rebooting"));
+		_error(_t("wbfsop98", L"Refreshing game list and rebooting"));
 		_loadList(); // in case preffered_partition at boot is different from install partition
 		m_exit = true;
 		m_reload = true;

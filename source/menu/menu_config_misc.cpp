@@ -102,7 +102,7 @@ void CMenu::_configMisc(void)
 			else if(m_btnMgr.selected(m_configBtn[1])) // dump theme
 			{
 				m_theme.save(true);
-				error(wfmt(_fmt("errdump2", L"%s/%s.ini saved"), m_themeDir.c_str(), m_themeName.c_str()));
+				_error(wfmt(_fmt("errdump2", L"%s/%s.ini saved"), m_themeDir.c_str(), m_themeName.c_str()));
 				_showConfigMisc();
 			}
 			else if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])) // FSAA
@@ -168,7 +168,7 @@ void CMenu::_configMisc(void)
 	if(rb || ((cur_vwiinands != prev_vwiinands) && IsOnWiiU()))
 	{
 		if(show_error)
-			error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
+			_error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
 		m_exit = true;
 		m_reload = true;
 	}

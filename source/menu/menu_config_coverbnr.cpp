@@ -67,10 +67,10 @@ void CMenu::_CoverBanner(void)
 			}
 			else if(m_btnMgr.selected(m_configBtn[3])) // delete cover
 			{
-				if(error(_t("errcfg5", L"Are you sure?"), true))
+				if(_error(_t("errcfg5", L"Are you sure?"), true))
 				{
 					RemoveCover(id);
-					error(_t("dlmsg14", L"Done."));
+					_error(_t("dlmsg14", L"Done."));
 				}
 				_showCoverBanner();
 			}
@@ -83,13 +83,13 @@ void CMenu::_CoverBanner(void)
 			}
 			else if(m_btnMgr.selected(m_configBtn[5])) // delete custom banner
 			{
-				if(error(_t("errcfg5", L"Are you sure?"), true))
+				if(_error(_t("errcfg5", L"Are you sure?"), true))
 				{
 					fsop_deleteFile(fmt("%s/%s.bnr", m_bnrCacheDir.c_str(), id));
 					fsop_deleteFile(fmt("%s/%s.bnr", m_customBnrDir.c_str(), id));
 					fsop_deleteFile(fmt("%s/%.3s.bnr", m_bnrCacheDir.c_str(), id));
 					fsop_deleteFile(fmt("%s/%.3s.bnr", m_customBnrDir.c_str(), id));
-					error(_t("dlmsg14", L"Done."));
+					_error(_t("dlmsg14", L"Done."));
 					m_newGame = true;
 				}
 				_showCoverBanner();
@@ -102,10 +102,10 @@ void CMenu::_CoverBanner(void)
 			}
 			else if(m_btnMgr.selected(m_configBtn[7])) // delete disc label
 			{
-				if(error(_t("errcfg5", L"Are you sure?"), true))
+				if(_error(_t("errcfg5", L"Are you sure?"), true))
 				{
 					fsop_deleteFile(fmt("%s/%s.png", m_cartDir.c_str(), id));
-					error(_t("dlmsg14", L"Done."));
+					_error(_t("dlmsg14", L"Done."));
 				}
 				_showCoverBanner();
 			}

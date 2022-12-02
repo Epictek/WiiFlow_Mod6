@@ -268,7 +268,7 @@ void CMenu::_Wad(const char *wad_path, bool folder)
 
 	if(_FindEmuPart(EMU_NAND, false) < 0)
 	{
-		error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
+		_error(_t("cfgne8", L"No valid FAT partition found for nand emulation!"));
 		return;
 	}
 

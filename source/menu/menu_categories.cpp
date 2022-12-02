@@ -256,7 +256,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		
 		else if((BTN_MINUS_PRESSED && m_max_categories > 11) || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnPageM)))
 		{
-			m_btnMgr.noHover(true);
+			// m_btnMgr.noHover(true);
 			curPage = curPage == 1 ? ((m_max_categories - 2) / 10) + 1 : curPage - 1;
 			if(BTN_MINUS_PRESSED)
 				m_btnMgr.click(m_configBtnPageM);
@@ -264,7 +264,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		}
 		else if((BTN_PLUS_PRESSED && m_max_categories > 11) || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnPageP)))
 		{
-			m_btnMgr.noHover(true);
+			// m_btnMgr.noHover(true);
 			curPage = curPage == ((m_max_categories - 2) / 10) + 1 ? 1 : curPage + 1;
 			if(BTN_PLUS_PRESSED)
 				m_btnMgr.click(m_configBtnPageP);
@@ -350,7 +350,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 					if(strlen(c) > 0)
 					{
 						string s = capitalize(lowerCase(c));
-						if(error(wfmt(_fmt("errcfg10", L"Categories used by GameTDB will be recreated if renamed. Rename category to: %s?"), s.c_str()), true))
+						if(_error(wfmt(_fmt("errcfg10", L"Categories used by GameTDB will be recreated if renamed. Rename category to: %s?"), s.c_str()), true))
 						{
 							int j = i + 1 + ((curPage - 1) * 10);
 							m_cat.setString(general_domain, fmt("cat%d", j), s);
@@ -431,7 +431,7 @@ void CMenu::_CategoryConfig(void)
 				break;
 			else if(m_btnMgr.selected(m_configBtn[2])) // erase categories for this game
 			{
-				if(error(_t("errcfg5", L"Are you sure?"), true))
+				if(_error(_t("errcfg5", L"Are you sure?"), true))
 				{
 					m_refreshGameList = true;
 					m_categories.assign(m_max_categories, '0');
@@ -445,7 +445,7 @@ void CMenu::_CategoryConfig(void)
 				bool all = m_btnMgr.selected(m_checkboxBtn[4]);
 				bool accept = false;
 				if(!all || !tdb_genres)
-					if(error(_t("errcfg11", L"GameTDB and/or plugin database are required. Missing categories will be automatically added. This cannot be undone."), true))
+					if(_error(_t("errcfg11", L"GameTDB and/or plugin database are required. Missing categories will be automatically added. This cannot be undone."), true))
 						accept = true;
 				if(all && (tdb_genres || accept)) // gameTDB categories for all games
 				{
@@ -469,7 +469,7 @@ void CMenu::_CategoryConfig(void)
 				if(strlen(c) > 0)
 				{
 					string s = capitalize(lowerCase(c));
-					if(error(wfmt(_fmt("cfg824", L"This cannot be undone. Are you sure you want to add category: %s?"), s.c_str()), true))
+					if(_error(wfmt(_fmt("cfg824", L"This cannot be undone. Are you sure you want to add category: %s?"), s.c_str()), true))
 					{
 						m_cat.setString(general_domain, fmt("cat%d", m_max_categories), s);
 						m_max_categories++;

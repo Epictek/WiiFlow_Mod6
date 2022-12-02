@@ -471,7 +471,7 @@ bool CMenu::init(bool usb_mounted)
 
 	/* Set sound volumes */
 	CoverFlow.setSoundVolume(m_cfg.getInt(general_domain, "sound_volume_coverflow", 255));
-	m_btnMgr.setSoundVolume(m_cfg.getInt(general_domain, "sound_volume_gui", 255));
+	// m_btnMgr.setSoundVolume(m_cfg.getInt(general_domain, "sound_volume_gui", 255));
 	m_bnrSndVol = m_cfg.getInt(general_domain, "sound_volume_bnr", 255);
 	m_bnr_settings = m_cfg.getBool(general_domain, "banner_in_settings", true);	
 	
@@ -998,6 +998,7 @@ void CMenu::_buildMenus(void)
 	const char *galDomain = "GENERAL";
 	
 	m_btnMgr.init();
+	m_btnMgr.setSoundVolume(m_cfg.getInt(general_domain, "sound_volume_gui", 255));
 	m_btnMgr.setRumble(m_cfg.getBool(general_domain, "rumble", true));
 	
 	/* Default fonts */
@@ -1869,7 +1870,7 @@ void CMenu::_dumpGameList(void)
 	if(m_cfg.getBool(general_domain, "overwrite_dump_list", false))
 		fsop_deleteFile(dumpFile);
 	_initCF(true);
-	error(wfmt(_fmt("errdump1", L"%s saved. To make it a custom title file, rename it to %s."), dumpFile, CTITLES_FILENAME));
+	_error(wfmt(_fmt("errdump1", L"%s saved. To make it a custom title file, rename it to %s."), dumpFile, CTITLES_FILENAME));
 }
 
 void CMenu::_initCF(bool dumpGameList)
@@ -2575,19 +2576,6 @@ void CMenu::_stopSounds(void)
 	m_gameSound.Stop();
 }
 
-bool CMenu::_loadFile(u8 * &buffer, u32 &size, const char *path, const char *file)
-{
-	u32 fileSize = 0;
-	u8 *fileBuf = fsop_ReadFile(file == NULL ? path : fmt("%s/%s", path, file), &fileSize);
-	if(fileBuf == NULL)
-		return false;
-
-	if(buffer != NULL)
-		MEM2_free(buffer);
-	buffer = fileBuf;
-	size = fileSize;
-	return true;
-}
 /* Wiiflow creates a map<u8, u8> _installed_cios list for slots 200 to 253 and slot 0
 	the first u8 is the slot and the second u8 is the base if its a d2x cios otherwise the slot number again.
 	slot 0 is set to 1 - first = 0 and second = 1

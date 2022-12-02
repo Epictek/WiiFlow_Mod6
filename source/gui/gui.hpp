@@ -61,7 +61,7 @@ public:
 	void draw(void);
 	void tick(void);
 	void noClick(bool noclick = false);
-	void noHover(bool nohover = false);
+	// void noHover(bool nohover = false);
 	void click(s16 id = -1);
 	bool selected(s16 button = -1);
 	void setSelected(s16 button);
@@ -154,7 +154,7 @@ private:
 	GuiSound *m_sndClick;
 	u8 m_soundVolume;
 	bool m_noclick;
-	bool m_nohover;
+	// bool m_nohover;
 	bool m_mouse;
 private:
 	void _drawBtn(SButton &b, bool selected, bool click);

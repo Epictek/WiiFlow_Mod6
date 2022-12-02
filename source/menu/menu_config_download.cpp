@@ -117,7 +117,7 @@ void CMenu::_configDownload(bool fromGameSet)
 			else if(m_btnMgr.selected(m_configBtn[6]) || m_btnMgr.selected(m_configBtn[7])) // remove replace flags
 			{
 				bool disc = m_btnMgr.selected(m_configBtn[7]);
-				if(error(_t("errcfg7", L"All artwork from current coverflow will be marked as not replaced!"), true))
+				if(_error(_t("errcfg7", L"All artwork from current coverflow will be marked as not replaced!"), true))
 				{
 					for(u32 i = 0; i < m_gameList.size(); ++i)
 					{
@@ -125,7 +125,7 @@ void CMenu::_configDownload(bool fromGameSet)
 							continue;
 						m_gcfg2.remove(m_gameList[i].id, disc ? "alt_disc" : "alt_cover");
 					}
-					error(_t("dlmsg14", L"Done."));
+					_error(_t("dlmsg14", L"Done."));
 				}
 				_showConfigDownload();
 			}

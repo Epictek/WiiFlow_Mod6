@@ -77,7 +77,7 @@ void CMenu::_PluginSettings()
 	/* Only use Plugin Settings if plugins are found */
 	if(maxPage == 0)
 	{
-		error(_t("errplugin", L"No plugin files found!"));
+		_error(_t("errplugin", L"No plugin files found!"));
 		return;
 	}
 	

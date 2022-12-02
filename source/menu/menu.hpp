@@ -41,12 +41,25 @@ public:
 	CMenu();
 	int main(void);
 	bool init(bool usb_mounted);
-	bool error(const wstringEx &msg, bool dialog = false);
-	// void terror(const char *key, const wchar_t *msg) { error(_fmt(key, msg)); }
-	void cleanup(void);
 	void directlaunch(const char *GameID);
+	void _hideWaitMessage();
+	void GC_Messenger(int message, int info, char *cinfo); // used by gc disc dumper
+	const char *getBlankCoverPath(const dir_discHdr *element); // used by coverflow
+	// void terror(const char *key, const wchar_t *msg) { error(_fmt(key, msg)); }
 	// void TempLoadIOS(int IOS = 0);
-	const char *getBlankCoverPath(const dir_discHdr *element);
+	
+	/* Proxy settings */
+	bool proxyUseSystem;
+	char proxyAddress[256];
+	u16 proxyPort;
+	char proxyUsername[33];
+	char proxyPassword[33];
+
+	/* General thread updating stuff */
+	u64 m_thrdTotal;
+	void update_pThread(u64 amount, bool add = true);
+	
+	/* Controller stuff */
 	u8 activeChan = 0; // last WPAD chan used
 	
 private:
@@ -109,7 +122,8 @@ private:
 	u8 m_max_source_btn;
 	u8 curCustBg;
 	s16 m_showtimer;
-	char cf_domain[16];	
+	char cf_domain[16];
+	volatile bool m_exit;
 	bool m_use_source; // source_menu.ini found & ok to use source menu/flow
 	bool m_sourceflow; // in sourceflow view
 	bool m_refreshGameList;
@@ -129,6 +143,7 @@ private:
 	string m_curLanguage;
 	string m_themeName;
 
+	/* Directories */
 	string m_appDir;
 	string m_dataDir;
 	string m_cacheDir;
@@ -320,15 +335,6 @@ private:
 		GAME_LIST
 	};
 	
-	/* Menu WBFS */
-	enum // don't change order
-	{
-		WO_REMOVE_GAME = 0,
-		WO_BACKUP_EMUSAVE,
-		WO_REMOVE_EMUSAVE,
-		WO_RESTORE_EMUSAVE
-	};
-
 	/* Game boot */
 	enum
 	{
@@ -453,9 +459,8 @@ private:
 
 	time_t no_input_time;
 	u32 NoInputTime(void);
-
+	
 	/* Threads */
-	volatile bool m_exit;
 	volatile bool m_thrdStop;
 	volatile bool m_thrdWorking;
 	float m_thrdStep;
@@ -518,43 +523,38 @@ private:
 		GuiSound *cameraSound;
 		GuiSound *homeSound; // added
 	};
-	
 	SThemeData theme;
+
+	void _buildMenus(void);
+	SFont _dfltFont(u32 fontSize, u32 lineSpacing, u32 weight, u32 index, const char *genKey);
+	SFont _font(const char *domain, const char *key, SFont def_font);
+	TexData _texture(const char *domain, const char *key, TexData &def, bool freeDef = true);
+	vector<TexData> _textures(const char *domain, const char *key);	
+	GuiSound *_sound(CMenu::SoundSet &soundSet, const char *filename, const u8 * snd, u32 len, const char *name, bool isAllocated);
+	GuiSound *_sound(CMenu::SoundSet &soundSet, const char *domain, const char *key, const char *name);
+	u16 _textStyle(const char *domain, const char *key, u16 def, bool coverflow = false);
+	s16 _addButton(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color);
+	s16 _addPicButton(const char *domain, TexData &texNormal, TexData &texSelected, int x, int y, u32 width, u32 height);
+	s16 _addTitle(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style);
+	s16 _addText(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style);
+	s16 _addLabel(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style);
+	s16 _addLabel(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style, TexData &bg);
+	s16 _addProgressBar(const char *domain, int x, int y, u32 width, u32 height);
+	void _setHideAnim(s16 id, const char *domain, int dx, int dy, float scaleX, float scaleY);
+	void _addUserLabels(s16 *ids, u32 size, const char *domain);
+	void _addUserLabels(s16 *ids, u32 start, u32 size, const char *domain);
+
+	/* Main coverflow functions */
+	void _loadCFCfg();
+	void _loadCFLayout(int version, bool forceAA = false, bool otherScrnFmt = false);
+	Vector3D _getCFV3D(const string &domain, const string &key, const Vector3D &def, bool otherScrnFmt = false);
+	int _getCFInt(const string &domain, const string &key, int def, bool otherScrnFmt = false);
+	float _getCFFloat(const string &domain, const string &key, float def, bool otherScrnFmt = false);
+	void _setAA(int aa);
+	void _setCFVersion(int version);
+	int _getCFVersion(void);
 	
-	/* Adjust coverflow */
-	struct SCFParamDesc
-	{
-		enum
-		{
-			PDT_EMPTY,
-			PDT_FLOAT,
-			PDT_V3D,
-			PDT_COLOR,
-			PDT_BOOL,
-			PDT_INT, 
-			PDT_TXTSTYLE,
-		} paramType[4];
-		enum
-		{
-			PDD_BOTH,
-			PDD_NORMAL, 
-			PDD_SELECTED,
-		} domain;
-		bool scrnFmt;
-		const char name[32];
-		const char valName[4][64];
-		const char key[4][48];
-		float step[4];
-		float minMaxVal[4][2];
-	};
-	bool _loadList(void);
-	bool _loadWiiList(void);
-	bool _loadGamecubeList(void);
-	bool _loadChannelList(void);
-	bool _loadPluginList(void);
-	bool _loadHomebrewList(const char *HB_Dir);
-	
-	void _initCF(bool dumpGameList = false);
+	/* Menu inits */
 	void _initMainMenu(void);
 	void _initConfigMenu(void);
 	void _initGameMenu(void);
@@ -570,6 +570,7 @@ private:
 	void _initTDBCategories(void);
 	void _initKeyboardMenu(void);
 	
+	/* Menus texts */
 	void _textConfig(void);
 	void _textInfoMain(void);
 	void _textInfoGame(void);
@@ -579,6 +580,7 @@ private:
 	void _textHome(void);
 	void _textExitTo(void);
 	
+	/* Menu hides */
 	void _hideCheatSettings(bool instant = false);
 	void _hideMain(bool instant = false);
 	void _hideGame(bool instant = false);
@@ -595,6 +597,7 @@ private:
 	void _hideConfigPage(bool instant = false);
 	void _hideCheckboxes(bool instant = false);
 	
+	/* Menu shows */
 	void _showError(void);
 	void _showMain(void);
 	void _showConfigWii(bool instant = false);
@@ -634,42 +637,9 @@ private:
 	void _showAddGame(void);
 	void _showCF(bool refreshList = false);
 	void _showCategoryConfig(bool instant = false);
-
-	void _updateSourceBtns(void);
-	void _updatePluginText(void);
-	void _updatePluginCheckboxes(bool instant = false); // instead of true
-	void _updateCheckboxesText(void);
-	void _updateCheckboxes(bool instant = false);
-	void _updateCatCheckboxes(void);
-	void _updateText(void);
 	
-	void _setTDBCategories(const dir_discHdr *hdr);
-	void _getGameCategories(const dir_discHdr *hdr);
-	void _setGameCategories(void);
-	
-	void _getCustomBgTex(void);
-	void _setMainBg(void);
-	void _setBg(const TexData &bgTex, const TexData &bglqTex, bool force_change = false);
-	void _updateBg(void);
-	void _drawBg(void);
-
-	void _refreshExplorer(s8 direction = 0);
-	void _setSrcOptions(void);	
-	void _setPartition(s8 direction = 0, bool m_emuSaveNand = false);
-	void _setCFVersion(int version);
-	int _getCFVersion(void);
-	void _getMagicNums(void); //
-	void _getAllPlugins(void); //
-	void _getMaxSourceButton(void); //
-	void _getSourcePage(bool home = false); //
-	void _checkboxesMenu(u8 md);
-	bool _launchNeek2oChannel(int ExitTo, int nand_type);
-	char *_keyboard(bool search = false); //
-	void _setPluginPath(u8 pos, u8 mode); //
-	void _CategoryConfig(void); //
-	wstringEx _sortLabel(int sort); //
-	void _sortCF(bool previous = false); //
-	
+	/* Menu main functions */
+	bool _error(const wstringEx &msg, bool dialog = false);
 	void _config(void);
 	void _configGui(void);
 	void _configMisc(void);
@@ -685,7 +655,6 @@ private:
 	void _configDownload(bool fromGameSet = false);
 	void _configSource(void);
 	void _configBoot(void);
-	
 	void _game(bool launch = false);
 	void _download(string gameId = string(), int dl_type = 0);
 	bool _code(char code[4]);
@@ -701,9 +670,13 @@ private:
 	bool _Source(bool home = false);
 	void _PluginSettings();
 	void _CategorySettings(bool fromGameSet = false);
+	void _checkboxesMenu(u8 md);
+	char *_keyboard(bool search = false); //
+	void _CategoryConfig(void); //
 	bool _Home();
 	bool _ExitTo();
-
+	
+	/* Nand emu functions */
 	string _SetEmuNand(s8 direction); //
 	bool _NandDump(int DumpType); //
 	int _AutoExtractSave(string gameId);
@@ -712,126 +685,9 @@ private:
 	bool _checkSave(string id, int nand_type);
 	void _checkEmuNandSettings(int nand_type);
 	void _FullNandCheck(int nand_type);
-	void _listEmuNands(const char *path, vector<string> &emuNands);
-	// void _downloadUrl(const char *url, u8 **dl_file, u32 *dl_size);
-	void _cacheCovers(void);
-	
-	void _Explorer(void);
-	void _FileExplorer(const char *startPath); //
-	const char *_FolderExplorer(const char *startPath);
-	void _wadExplorer(void);
-	void _pluginExplorer(const char *startPath, u32 magic = 0, bool source = false);
-
-	void _sourceFlow();
-	int _getSrcFlow();
-	void _setSrcFlow(int version);
-	bool _srcTierBack(bool home);
-	void _getSFlowBgTex();
-	
-	void _mainLoopCommon(bool withCF = false, bool adjusting = false);
-	void _netInit();
-	void _loadDefaultFont(void);
-	bool _loadFile(u8 * &buffer, u32 &size, const char *path, const char *file);
-	bool _getNewSource(u8 btn);
-	void _dumpGameList(void);
-	
-	int _loadGameIOS(u8 ios, int userIOS, bool RealNAND_Channels = false);
-	void _launch(const dir_discHdr *hdr);
-	void _launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg = false);
-	void _launchChannel(dir_discHdr *hdr);
-	void _launchHomebrew(const char *filepath, vector<string> arguments);
-	void _launchGC(dir_discHdr *hdr, bool disc);
-	void _launchPlugin(dir_discHdr *hdr);
-	void _launchShutdown();
-	
-	vector<string> _getMetaXML(const char *bootpath);
-	void _extractBnr(const dir_discHdr *hdr);
-	void _setCurrentItem(const dir_discHdr *hdr);
-	void _exitWiiflow();
-	void exitHandler(int ExitTo);
-	void _setAA(int aa);
-	void _loadCFCfg();
-	void _loadCFLayout(int version, bool forceAA = false, bool otherScrnFmt = false);
-	Vector3D _getCFV3D(const string &domain, const string &key, const Vector3D &def, bool otherScrnFmt = false);
-	int _getCFInt(const string &domain, const string &key, int def, bool otherScrnFmt = false);
-	float _getCFFloat(const string &domain, const string &key, float def, bool otherScrnFmt = false);
-	void _cfParam(bool inc, int i, const SCFParamDesc &p, int cfVersion, bool wide);
-	void _buildMenus(void);
-	void _cleanupDefaultFont();
-	void _Theme_Cleanup();
-	const char *_domainFromView(void);
-	const char *_cfDomain(bool selected = false);
-	// void UpdateCache(u32 view = COVERFLOW_MAX);
-	void RemoveCover(const char *id);
-	SFont _dfltFont(u32 fontSize, u32 lineSpacing, u32 weight, u32 index, const char *genKey);
-	SFont _font(const char *domain, const char *key, SFont def_font);
-	TexData _texture(const char *domain, const char *key, TexData &def, bool freeDef = true);
-	vector<TexData> _textures(const char *domain, const char *key);
-	
-public:
-	void _hideWaitMessage();
-	void GC_Messenger(int message, int info, char *cinfo);
-	
-	/* Proxy settings */
-	bool proxyUseSystem;
-	char proxyAddress[256];
-	u16 proxyPort;
-	char proxyUsername[33];
-	char proxyPassword[33];
-
-	/* General thread updating stuff */
-	u64 m_thrdTotal;
-	void update_pThread(u64 amount, bool add = true);
-	
-private:
-	void _cleanupBanner(bool gamechange = false);
-	void _cleanupVideo();
-	bool _startVideo(void);
-	static void * _pThread(void *obj);
-	void _start_pThread(void);
-	void _stop_pThread(void);
-	lwp_t m_thrdPtr;
-	volatile bool m_thrdInstalling;
-	volatile bool m_thrdUpdated;
-	volatile bool m_thrdDone;
-	vu64 m_thrdWritten;
-
-	GuiSound *_sound(CMenu::SoundSet &soundSet, const char *filename, const u8 * snd, u32 len, const char *name, bool isAllocated);
-	GuiSound *_sound(CMenu::SoundSet &soundSet, const char *domain, const char *key, const char *name);
-	u16 _textStyle(const char *domain, const char *key, u16 def, bool coverflow = false);
-	s16 _addButton(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color);
-	s16 _addPicButton(const char *domain, TexData &texNormal, TexData &texSelected, int x, int y, u32 width, u32 height);
-	s16 _addTitle(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style);
-	s16 _addText(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style);
-	s16 _addLabel(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style);
-	s16 _addLabel(const char *domain, SFont font, const wstringEx &text, int x, int y, u32 width, u32 height, const CColor &color, s16 style, TexData &bg);
-	s16 _addProgressBar(const char *domain, int x, int y, u32 width, u32 height);
-	void _setHideAnim(s16 id, const char *domain, int dx, int dy, float scaleX, float scaleY);
-	void _addUserLabels(s16 *ids, u32 size, const char *domain);
-	void _addUserLabels(s16 *ids, u32 start, u32 size, const char *domain);
-
-	const wstringEx _t(const char *key, const wchar_t *def = L"") { return m_loc.getWString(m_curLanguage, key, def); }
-	const wstringEx _fmt(const char *key, const wchar_t *def);
-
-	void _setThrdMsg(const wstringEx &msg, float progress);
-	void _setDumpMsg(const wstringEx &msg, float progress, float fileprog);
-	void _downloadProgress(void *obj, int size, int position);
-	int _coverDownloader(bool disc = false);
-	int _gametdbDownloaderAsync();
-	int _bannerDownloader();
-
-	// static s32 _networkComplete(s32 result, void *usrData);
-	bool _isNetworkAvailable();
-	int _initNetwork();
-	static void _addDiscProgress(int status, int total, void *user_data);
-	static void _ShowProgress(int dumpstat, int dumpprog, int filestat, int fileprog, int files, int folders, const char *tmess, void *user_data);
-	static void * _gameInstaller(void *obj);
+	void _listEmuNands(const char *path, vector<string> &emuNands);	
 	static void * _NandDumper(void *obj);
 	static void * _NandFlasher(void *obj);
-	static void * _ImportFolder(void *obj);
-	// static void * _GCcopyGame(void *obj);
-	bool _searchGamesByID(const char *gameId);
-	int _GCgameInstaller();
 	float m_progress;
 	float m_fprogress;
 	int m_fileprog;
@@ -840,21 +696,183 @@ private:
 	int m_filesdone;
 	int m_foldersdone;
 	int m_nandexentry;
-	wstringEx _optBoolToString(int b);
-	void _stopSounds(void);
-	int _downloadCheatFileAsync(const char *id);
-	// static void * _downloadUrlAsync(void *obj);
+	
+	/* Explorer menu */
+	void _refreshExplorer(s8 direction = 0);
+	void _Explorer(void);
+	void _FileExplorer(const char *startPath); //
+	const char *_FolderExplorer(const char *startPath);
+	void _wadExplorer(void);
+	void _pluginExplorer(const char *startPath, u32 magic = 0, bool source = false);
 
+	/* Source menu + Source menu editor */
+	void _setSrcOptions(void);
+	void _updateSourceBtns(void);
+	void _getMagicNums(void); //
+	void _getAllPlugins(void); //
+	void _getMaxSourceButton(void); //
+	void _getSourcePage(bool home = false); //
+	bool _getNewSource(u8 btn);
+	void _setPluginPath(u8 pos, u8 mode); //
+	
+	/* Plugins */
+	void _updatePluginText(void);
+	void _updatePluginCheckboxes(bool instant = false); // instead of true	
+	
+	/* Checkboxes */
+	void _updateCheckboxesText(void);
+	void _updateCheckboxes(bool instant = false);
+	void _updateCatCheckboxes(void);
+	
+	/* Categories */
+	void _setTDBCategories(const dir_discHdr *hdr);
+	void _getGameCategories(const dir_discHdr *hdr);
+	void _setGameCategories(void);	
+	
+	/* Adjust coverflow */
+	struct SCFParamDesc
+	{
+		enum
+		{
+			PDT_EMPTY,
+			PDT_FLOAT,
+			PDT_V3D,
+			PDT_COLOR,
+			PDT_BOOL,
+			PDT_INT, 
+			PDT_TXTSTYLE,
+		} paramType[4];
+		enum
+		{
+			PDD_BOTH,
+			PDD_NORMAL, 
+			PDD_SELECTED,
+		} domain;
+		bool scrnFmt;
+		const char name[32];
+		const char valName[4][64];
+		const char key[4][48];
+		float step[4];
+		float minMaxVal[4][2];
+	};
+	void _cfParam(bool inc, int i, const SCFParamDesc &p, int cfVersion, bool wide);
+	const char *_cfDomain(bool selected = false);
+
+	/* Download */
+	void _setThrdMsg(const wstringEx &msg, float progress);
+	void _setDumpMsg(const wstringEx &msg, float progress, float fileprog);
+	void _downloadProgress(void *obj, int size, int position);
+	int _coverDownloader(bool disc = false);
+	int _gametdbDownloaderAsync();
+	int _bannerDownloader();
+	int _downloadCheatFileAsync(const char *id);
+	bool _isNetworkAvailable();
+	int _initNetwork();
+	void _netInit();
+	// static void * _downloadUrlAsync(void *obj);
+	// void _downloadUrl(const char *url, u8 **dl_file, u32 *dl_size);
+	// static s32 _networkComplete(s32 result, void *usrData);
+	
+	static void * _pThread(void *obj);
+	void _start_pThread(void);
+	void _stop_pThread(void);
+	lwp_t m_thrdPtr;
+	volatile bool m_thrdInstalling;
+	volatile bool m_thrdUpdated;
+	volatile bool m_thrdDone;
+	vu64 m_thrdWritten;
+	
+	/* WBFS functions */
+	static void _addDiscProgress(int status, int total, void *user_data);
+	static void _ShowProgress(int dumpstat, int dumpprog, int filestat, int fileprog, int files, int folders, const char *tmess, void *user_data);
+	static void * _gameInstaller(void *obj);
+	static void * _ImportFolder(void *obj);
+	bool _searchGamesByID(const char *gameId);
+	int _GCgameInstaller();
+	// static void * _GCcopyGame(void *obj);
+	
+	enum // don't change order
+	{
+		WO_REMOVE_GAME = 0,
+		WO_BACKUP_EMUSAVE,
+		WO_REMOVE_EMUSAVE,
+		WO_RESTORE_EMUSAVE
+	};
+	
+	/* Game selected functions */
+	void _cleanupBanner(bool gamechange = false);
+	void _cleanupVideo();
+	bool _startVideo(void);
+	void _extractBnr(const dir_discHdr *hdr);
+	void _setCurrentItem(const dir_discHdr *hdr);
 	void _playGameSound(void);
 	void _stopGameSoundThread(void);
 	static void * _gameSoundThread(void *obj);
 
+	/* Gamelist functions */
+	bool _loadList(void);
+	bool _loadWiiList(void);
+	bool _loadGamecubeList(void);
+	bool _loadChannelList(void);
+	bool _loadPluginList(void);
+	bool _loadHomebrewList(const char *HB_Dir);
+	void _initCF(bool dumpGameList = false);
+	
+	/* Background handling functions */
+	void _getCustomBgTex(void);
+	void _setMainBg(void);
+	void _setBg(const TexData &bgTex, const TexData &bglqTex, bool force_change = false);
+	void _updateBg(void);
+	void _drawBg(void);
+
+	/* Sourceflow functions */
+	void _sourceFlow();
+	int _getSrcFlow();
+	void _setSrcFlow(int version);
+	bool _srcTierBack(bool home);
+	void _getSFlowBgTex();
+	
+	/* Misc functions */
+	void RemoveCover(const char *id);
+	void _setPartition(s8 direction = 0, bool m_emuSaveNand = false);
+	void _cacheCovers(void);
+	void _mainLoopCommon(bool withCF = false, bool adjusting = false);
+	void _loadDefaultFont(void);
+	void _cleanupDefaultFont();
+	void cleanup(void);
+	void _Theme_Cleanup();
+	void _stopSounds(void);
+	void exitHandler(int ExitTo);
+	const char *_domainFromView(void);
+	void _updateText(void);
+	const wstringEx _t(const char *key, const wchar_t *def = L"") { return m_loc.getWString(m_curLanguage, key, def); }
+	const wstringEx _fmt(const char *key, const wchar_t *def);
+	wstringEx _optBoolToString(int b);
 	void _load_installed_cioses();
 	std::map<u8, u8> _installed_cios;
 	typedef std::map<u8, u8>::iterator CIOSItr;
+	void _dumpGameList(void);
+	bool _launchNeek2oChannel(int ExitTo, int nand_type);
+	wstringEx _sortLabel(int sort); //
+	void _sortCF(bool previous = false); //	
+	// void UpdateCache(u32 view = COVERFLOW_MAX);
+	
+	/* Game boot functions */
+	void _launch(const dir_discHdr *hdr);
+	void _launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg = false);
+	void _launchChannel(dir_discHdr *hdr);
+	void _launchHomebrew(const char *filepath, vector<string> arguments);
+	void _launchGC(dir_discHdr *hdr, bool disc);
+	void _launchPlugin(dir_discHdr *hdr);
+	void _launchShutdown();
+	vector<string> _getMetaXML(const char *bootpath);
+	int _loadGameIOS(u8 ios, int userIOS, bool RealNAND_Channels = false);
+	bool _loadFile(u8 * &buffer, u32 &size, const char *path, const char *file); // gameconfig.txt and cheats.gct
+	void _exitWiiflow();
 
+	/* Option arrays */
 	struct SOption { const char id[11]; const wchar_t text[16]; };
-
+	
 	static const SOption _VideoModes[7];
 	static const SOption _languages[12];
 	static const SOption _GCvideoModes[7];

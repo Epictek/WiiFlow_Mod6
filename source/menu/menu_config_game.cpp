@@ -654,7 +654,7 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 						_hideConfig(true);
 						if(GameHdr->type == TYPE_CHANNEL)
 						{
-							error(_t("errgame17", L"Can't delete real nand channels!"));
+							_error(_t("errgame17", L"Can't delete real nand channels!"));
 							_showGameSettings(false, dvd);
 						}
 						else if(_wbfsOp(WO_REMOVE_GAME))
@@ -744,13 +744,13 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 				//! DELETE CHEATS
 				if(m_btnMgr.selected(m_configBtn[4]))
 				{
-					if(error(_t("errcfg5", L"Are you sure?"), true))
+					if(_error(_t("errcfg5", L"Are you sure?"), true))
 					{
 						fsop_deleteFile(fmt("%s/%s.gct", m_cheatDir.c_str(), GameHdr->id));
 						fsop_deleteFile(fmt("%s/%s.txt", m_txtCheatDir.c_str(), GameHdr->id));
 						m_gcfg2.remove(GameHdr->id, "cheat");
 						m_gcfg2.remove(GameHdr->id, "hooktype");
-						error(_t("dlmsg14", L"Done."));
+						_error(_t("dlmsg14", L"Done."));
 					}
 					_showGameSettings(false, dvd);
 				}
@@ -1055,7 +1055,7 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 							nosave = true;
 					}
 					if(nosave)
-						error(_t("cfgmc10", L"File not found!"));
+						_error(_t("cfgmc10", L"File not found!"));
 					_showGameSettings(false, dvd);
 				}
 				//! BACKUP - REMOVE - RESTORE EMUNAND MEMCARD OR SAVE

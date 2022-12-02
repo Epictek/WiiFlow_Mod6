@@ -92,12 +92,12 @@ void CMenu::_configNet(void)
 				bool setPass = false;
 				if(s != "") // a password is already set, suggest removing it
 				{
-					if(error(_t("cfg840", L"Enter current password to remove it."), true))
+					if(_error(_t("cfg840", L"Enter current password to remove it."), true))
 					{
 						char *c = NULL;
 						c = _keyboard();
 						if(strcmp(c, s.c_str()) != 0)
-							error(_t("cfgg25",L"Password incorrect."));
+							_error(_t("cfgg25",L"Password incorrect."));
 						else
 						{
 							s = "";
@@ -112,8 +112,8 @@ void CMenu::_configNet(void)
 					if(strlen(c) > 0)
 					{
 						if(c[0] == ' ' || c[strlen(c)-1] == ' ')
-							error(_t("cfg842", L"Password can't begin or end with a space!"));
-						else if(error(wfmt(_fmt("cfg839", L"Set %s as FTP password?"), c), true))
+							_error(_t("cfg842", L"Password can't begin or end with a space!"));
+						else if(_error(wfmt(_fmt("cfg839", L"Set %s as FTP password?"), c), true))
 						{
 							s = c;
 							setPass = true;
@@ -134,7 +134,7 @@ void CMenu::_configNet(void)
 				c = _keyboard();
 				if(strlen(c) > 0)
 				{
-					if(error(wfmt(_fmt("cfg841", L"Set %s as Wifi gecko IP?"), c), true))
+					if(_error(wfmt(_fmt("cfg841", L"Set %s as Wifi gecko IP?"), c), true))
 					{
 						string s(c);
 						m_cfg.setString("DEBUG", "wifi_gecko_ip", s);
@@ -183,7 +183,7 @@ void CMenu::_configNet(void)
 	if(prev_gamercard != cur_gamercard || prev_proxy != cur_proxy || rb) // gamercard, proxy or wifi IP values changed
 	{
 		if(show_error)
-			error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
+			_error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
 		m_exit = true;
 		m_reload = true;
 	}

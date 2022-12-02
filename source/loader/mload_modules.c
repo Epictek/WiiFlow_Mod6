@@ -165,7 +165,7 @@ int load_ehc_module()
 #define IOCTL_FAT_UMOUNTUSB	0xF3
 
 #define IOCTL_FFS_MODE		0x80
-
+/*
 void disable_ffs_patch(void)
 {
 	
@@ -231,14 +231,14 @@ s32 ret;
 		}
 	usleep(350*1000);
 
-	/* Create heap */
+	// Create heap
 	if (hid < 0) {
 		hid = iosCreateHeap(0x100);
 		if (hid < 0)
 			return -1; 
 	}
 
-	/* Open USB device */
+	// Open USB device
 	fd = IOS_Open(fs, 0);
 	
 	if (fd < 0)
@@ -291,14 +291,14 @@ static char fs[] ATTRIBUTE_ALIGN(32) = "fat";
  s32 hid = -1, fd = -1;
 s32 ret;
 
-	/* Create heap */
+	// Create heap
 	if (hid < 0) {
 		hid = iosCreateHeap(0x100);
 		if (hid < 0)
 			return -1; 
 	}
 
-	/* Open USB device */
+	// Open USB device
 	fd = IOS_Open(fs, 0);
 	
 	if (fd < 0)
@@ -330,7 +330,7 @@ s32 ret;
 
 return ret;
 }
-
+*/
 void enable_ES_ioctlv_vector(void)
 {
 	patch_datas[0]=*((u32 *) (odip_frag+16*4));
@@ -344,7 +344,7 @@ void Set_DIP_BCA_Datas(u8 *bca_data)
 	mload_write(bca_data, 64);
 	mload_close();
 }
-
+/*
 void test_and_patch_for_port1()
 {
 	// test for port 1
@@ -391,7 +391,7 @@ void free_usb_ports()
 	if((dat & 0x2001)==1) mload_setw((void *) (addr+0x48), 0x2000);
 	
 }
-
+*/
 #endif
 
 u8 *search_for_ehcmodule_cfg(u8 *p, int size)

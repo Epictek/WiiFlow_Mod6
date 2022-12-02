@@ -1,8 +1,7 @@
 
 #include "menu.hpp"
 
-// void CMenu::error(const wstringEx &msg)
-bool CMenu::error(const wstringEx &msg, bool dialog)
+bool CMenu::_error(const wstringEx &msg, bool dialog)
 {
 	_setBg(m_configBg, m_configBg);
 	SetupInput();

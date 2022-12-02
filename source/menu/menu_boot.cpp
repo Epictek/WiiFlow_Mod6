@@ -167,9 +167,9 @@ void CMenu::_configBoot(void)
 	if(prev_load != cur_load || prev_ios != cur_ios || set_port != currentPort || prev_sd != cur_sd)
 	{
 		if(prev_sd != cur_sd)
-			error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
+			_error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
 		else
-			error(_t("errboot99", L"Delete WiiFlow Wii save if it doesn't reboot."));
+			_error(_t("errboot99", L"Delete WiiFlow Wii save if it doesn't reboot."));
 		m_exit = true;
 		m_reload = true;
 	}
