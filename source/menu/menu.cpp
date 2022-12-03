@@ -196,6 +196,9 @@ bool CMenu::init(bool usb_mounted)
 	memset(proxyPassword, 0, sizeof(proxyPassword));
 	strncpy(proxyPassword, m_cfg.getString("PROXY", "proxy_password", "").c_str(), sizeof(proxyPassword) - 1);
 	getProxyInfo();
+
+	/* Set default homebrew partition for first boot */
+	m_cfg.getInt(homebrew_domain, "partition", strcmp(drive, "sd") == 0 ? 0 : 1); // drive is device where wiiflow is
 	
 	/* Set SD only to off if any usb device is attached and format is FAT, NTFS, WBFS, or LINUX */
 	m_cfg.getBool(general_domain, "sd_only", true); // will only set it true if this doesn't already exist
@@ -471,7 +474,7 @@ bool CMenu::init(bool usb_mounted)
 
 	/* Set sound volumes */
 	CoverFlow.setSoundVolume(m_cfg.getInt(general_domain, "sound_volume_coverflow", 255));
-	// m_btnMgr.setSoundVolume(m_cfg.getInt(general_domain, "sound_volume_gui", 255));
+	// "sound_volume_gui" is set in _buildMenus()
 	m_bnrSndVol = m_cfg.getInt(general_domain, "sound_volume_bnr", 255);
 	m_bnr_settings = m_cfg.getBool(general_domain, "banner_in_settings", true);	
 	

@@ -248,18 +248,17 @@ void CMenu::_config(void)
 			else if(m_btnMgr.selected(m_configBtnP[9-a]) || m_btnMgr.selected(m_configBtnM[9-a]))
 			{
 				s8 direction = m_btnMgr.selected(m_configBtnP[9-a]) ? 1 : -1;
-				curLang = loopNum(curLang + direction, (u32)languages_available.size());
-				m_curLanguage = languages_available[curLang];					
-				if(!m_loc.load(fmt("%s/%s.ini", m_languagesDir.c_str(), m_curLanguage.c_str())))
+				if(languages_available.size() > 1)
 				{
-					m_curLanguage = "Default";
-					m_cfg.setString(general_domain, "language", m_curLanguage);
 					m_loc.unload();
-				}
-				else
+					curLang = loopNum(curLang + direction, (u32)languages_available.size());
+					m_curLanguage = languages_available[curLang];
+					if(m_curLanguage != "Default")
+						m_loc.load(fmt("%s/%s.ini", m_languagesDir.c_str(), m_curLanguage.c_str()));
 					m_cfg.setString(general_domain, "language", m_curLanguage);
-				_updateText();
-				_showConfigMain(true);
+					_updateText();
+					_showConfigMain(true);
+				}
 			}
 		}
 	}

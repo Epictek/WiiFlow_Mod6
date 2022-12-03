@@ -1,5 +1,6 @@
 
 #include <fcntl.h>
+#include <ogc/lwp_watchdog.h>
 // #include <ogc/machine/processor.h>
 
 #include "menu.hpp"
@@ -299,6 +300,10 @@ void CMenu::_launchPlugin(dir_discHdr *hdr)
 	/* Update Playcount and Lastplayed */
 	m_gcfg1.setInt("PLAYCOUNT", id, m_gcfg1.getInt("PLAYCOUNT", id, 0) + 1);
 	m_gcfg1.setUInt("LASTPLAYED", id, time(NULL));
+	
+	/* Date fixes for specific plugins */
+	if(hdr->settings[0] == 1414875969) // wiituka
+		settime(637962048000000000); // Aug 16, 2022
 	
 	/* Launch plugin with args */
 	// gprintf("launching plugin app\n");
