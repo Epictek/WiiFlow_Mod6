@@ -1,3 +1,3 @@
-This dol has been compiled using DevKitPPC r39 and libogc 2.3.1, whereas the dol in the release pack is still compiled using DevKitPPC r30 and libogc 1.8.19.
+This dol has been compiled using DevKitPPC r41 and libogc 2.3.1, whereas the dol in the release pack is still compiled using DevKitPPC r30 and libogc 1.8.19.
 
 It contains latest commits with updates and bug fixes but keep in mind it might be unstable.

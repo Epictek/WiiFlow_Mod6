@@ -79,7 +79,7 @@ static bool compare_ftp_password(char *password_attempt) {
 static s32 write_reply(client_t *client, u16 code, char *msg) {
     u32 msglen = 4 + strlen(msg) + CRLF_LENGTH;
     char msgbuf[msglen + 1];
-    if (msgbuf == NULL) return -ENOMEM;
+    // if (msgbuf == NULL) return -ENOMEM; // address of 'msgbuf' will never be NULL
     strncpy(msgbuf, fmt("%u %s\r\n", code, msg), msglen + 1);
     ftp_dbg_print(fmt("Wrote reply: %s", msgbuf));
     return send_exact(client->socket, msgbuf, msglen);

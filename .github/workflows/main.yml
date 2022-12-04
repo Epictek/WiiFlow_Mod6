@@ -10,18 +10,18 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache
-        id: cache-2
+        id: cache-1
         uses: actions/cache@v2
         with:
           path: cache
-          key: ${{ runner.os }}-cache-2
+          key: ${{ runner.os }}-cache-1
 
-      - name: Download devkitPPC r39, libogc 2.3.1 and required tools
-        if: steps.cache-2.outputs.cache-hit != 'true'
+      - name: Download devkitPPC r41-2, libogc 2.3.1 and required tools
+        if: steps.cache-1.outputs.cache-hit != 'true'
         # general-tools is needed for bin2s and gamecube-tools is needed for elf2dol
         run: | 
           mkdir cache && cd cache
-          wget "https://wii.leseratte10.de/devkitPro/file.php/devkitPPC-r39-2-linux_x86_64.pkg.tar.xz"
+          wget "https://wii.leseratte10.de/devkitPro/file.php/devkitPPC-r41-2-linux_x86_64.pkg.tar.xz"
           wget "https://wii.leseratte10.de/devkitPro/file.php/devkitppc-rules-1.1.1-1-any.pkg.tar.xz"
           wget "https://wii.leseratte10.de/devkitPro/file.php/libogc-2.3.1-1-any.pkg.tar.xz"
           wget "https://wii.leseratte10.de/devkitPro/file.php/general-tools-1.2.0-2-linux_x86_64.pkg.tar.xz"
@@ -31,7 +31,7 @@ jobs:
       - name: Extract downloaded files
         # general-tools is needed for bin2s and gamecube-tools is needed for elf2dol
         run: | 
-          tar -xf cache/devkitPPC-r39-2-linux_x86_64.pkg.tar.xz --strip-components=1
+          tar -xf cache/devkitPPC-r41-2-linux_x86_64.pkg.tar.xz --strip-components=1
           tar -xf cache/devkitppc-rules-1.1.1-1-any.pkg.tar.xz --strip-components=1
           tar -xf cache/libogc-2.3.1-1-any.pkg.tar.xz --strip-components=1
           tar -xf cache/general-tools-1.2.0-2-linux_x86_64.pkg.tar.xz --strip-components=1
@@ -45,12 +45,18 @@ jobs:
         run: |
           cp -r wii/apps apps
           mkdir -p apps/wiiflow/
+          cp -r out/bins apps/wiiflow/bins
+          cp -r out/imgs apps/wiiflow/imgs
           cp out/boot.dol apps/wiiflow/
+          mkdir -p wiiflow
+          cp -r wii/wiiflow/Languages wiiflow/languages
+          cp -r wii/wiiflow/themes_lite wiiflow/themes_lite
           echo "::set-output name=sha::$(echo ${GITHUB_SHA} | head -c 7)"
 
       - name: Upload binaries
         uses: actions/upload-artifact@v2
         with: 
-          name: wiiflow_mod6_${{ steps.pack.outputs.sha }}
+          name: wiiflow_lite_${{ steps.pack.outputs.sha }}
           path: |
             apps
+            wiiflow
