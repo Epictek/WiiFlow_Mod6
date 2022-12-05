@@ -34,6 +34,7 @@ public:
 	void LoadSettings();
 	void SaveIOS();
 	void SavePort(u8 port);
+	void SaveSDOnly();
 private:
 	void WriteFile(const char *file_name, u8 *content, u32 size);
 	s32 fd;

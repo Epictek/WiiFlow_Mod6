@@ -197,68 +197,86 @@ bool CMenu::init(bool usb_mounted)
 	strncpy(proxyPassword, m_cfg.getString("PROXY", "proxy_password", "").c_str(), sizeof(proxyPassword) - 1);
 	getProxyInfo();
 
-	/* Set default homebrew partition for first boot */
+	/* Set default homebrew partition on first boot */
 	m_cfg.getInt(homebrew_domain, "partition", strcmp(drive, "sd") == 0 ? 0 : 1); // drive is device where wiiflow is
-	
-	/* Set SD only to off if any usb device is attached and format is FAT, NTFS, WBFS, or LINUX */
-	m_cfg.getBool(general_domain, "sd_only", true); // will only set it true if this doesn't already exist
-	for(int i = USB1; i <= USB8; i++)
+		
+	int part = 0;
+	/* Set default wii games partition on first boot */
+	part = m_cfg.getInt(wii_domain, "partition", -1);
+	if(part < 0)
 	{
-		if(DeviceHandle.IsInserted(i) && DeviceHandle.GetFSType(i) >= 0)
-			m_cfg.setBool(general_domain, "sd_only", false);
-	}
-	
-	/* Set default wii games partition in case this is the first boot */
-	int wp = m_cfg.getInt(wii_domain, "partition", -1);
-	if(wp < 0)
-	{
-		if(!m_cfg.getBool(general_domain, "sd_only"))
+		if(!sdOnly)
 		{
 			for(int i = SD; i <= USB8; i++) // find first wbfs folder or a partition of wbfs file system
 			{
 				if(DeviceHandle.IsInserted(i) && (DeviceHandle.GetFSType(i) == PART_FS_WBFS || stat(fmt(GAMES_DIR, DeviceName[i]), &dummy) == 0))
 				{
-					wp = i;
+					part = i;
 					break;
 				}
 			}
 		}
-		if(wp < 0) // not found 
+		if(part < 0) // not found 
 		{
 			if(DeviceHandle.IsInserted(SD)) // set to SD if inserted otherwise USB1
-				wp = SD;
+				part = SD;
 			else
-				wp = USB1;
+				part = USB1;
 		}
-		m_cfg.setInt(wii_domain, "partition", wp);
+		m_cfg.setInt(wii_domain, "partition", part);
+	}
+
+	/* Set default gc games partition on first boot */
+	part = m_cfg.getInt(gc_domain, "partition", -1);
+	if(part < 0)
+	{
+		if(!sdOnly)
+		{
+			for(int i = SD; i <= USB8; i++) // find first 'games' folder
+			{
+				if(stat(fmt(DF_GC_GAMES_DIR, DeviceName[i]), &dummy) == 0) // should also check for FAT...
+				{
+					part = i;
+					break;
+				}
+			}
+		}
+		if(part < 0) // not found 
+		{
+			if(DeviceHandle.IsInserted(SD)) // set to SD if inserted otherwise USB1
+				part = SD;
+			else
+				part = USB1;
+		}
+		m_cfg.setInt(gc_domain, "partition", part);
 	}
 
 	/* Preferred partition setting - negative 1 means not set by user so skip this */
-	int pp = m_cfg.getInt(wii_domain, "preferred_partition", -1);
-	if(pp >= 0)
-		m_cfg.setInt(wii_domain, "partition", (usb_mounted && pp > 0) ? pp : SD);
+	part = m_cfg.getInt(wii_domain, "preferred_partition", -1);
+	if(part >= 0)
+		m_cfg.setInt(wii_domain, "partition", (usb_mounted && part > 0) ? part : SD);
 
-	pp = m_cfg.getInt(gc_domain, "preferred_partition", -1);
-	if(pp >= 0)
-		m_cfg.setInt(gc_domain, "partition", (usb_mounted && pp > 0) ? pp : SD); // allow USB > 1
+	part = m_cfg.getInt(gc_domain, "preferred_partition", -1);
+	if(part >= 0)
+		m_cfg.setInt(gc_domain, "partition", (usb_mounted && part > 0) ? part : SD); // allow USB > 1
 
-	pp = m_cfg.getInt(channel_domain, "preferred_partition", -1);
-	if(pp >= 0)
-		m_cfg.setInt(channel_domain, "partition", neek2o() ? USB1 : ((usb_mounted && pp > 0) ? pp : SD));
+	part = m_cfg.getInt(channel_domain, "preferred_partition", -1);
+	if(part >= 0)
+		m_cfg.setInt(channel_domain, "partition", neek2o() ? USB1 : ((usb_mounted && part > 0) ? part : SD));
 	
 	/* Our Wii games dir */
 	memset(wii_games_dir, 0, 64);
 	strncpy(wii_games_dir, m_cfg.getString(wii_domain, "wii_games_dir", GAMES_DIR).c_str(), 63);
 	if(strncmp(wii_games_dir, "%s:/", 4) != 0)
 		strcpy(wii_games_dir, GAMES_DIR);
-	gprintf("Wii Games Directory: %s\n", wii_games_dir);
+	// gprintf("Wii Games Directory: %s\n", wii_games_dir);
 	
 	/* GameCube stuff */
 	memset(gc_games_dir, 0, 64);
 	strncpy(gc_games_dir, m_cfg.getString(gc_domain, "gc_games_dir", DF_GC_GAMES_DIR).c_str(), 63);
 	if(strncmp(gc_games_dir, "%s:/", 4) != 0)
 		strcpy(gc_games_dir, DF_GC_GAMES_DIR);
-	gprintf("GameCube Games Directory: %s\n", gc_games_dir);
+	// gprintf("GameCube Games Directory: %s\n", gc_games_dir);
 	
 	m_nintendont_installed = Nintendont_Installed();
 	m_gc_play_banner_sound = m_cfg.getBool(gc_domain, "play_banner_sound", true);
@@ -2360,7 +2378,7 @@ bool CMenu::_loadHomebrewList(const char *HB_Dir)
 
 bool CMenu::_loadGamecubeList()
 {
-	currentPartition = m_cfg.getInt(gc_domain, "partition", !m_cfg.getBool(general_domain, "sd_only"));
+	currentPartition = m_cfg.getInt(gc_domain, "partition", USB1);
 	if(!DeviceHandle.IsInserted(currentPartition))
 		return false;
 	// gprintf("Adding gamecube list\n");

@@ -54,7 +54,7 @@ void CMenu::_showBoot(bool instant)
 	m_checkboxBtn[5] = cur_load == 0 ? m_configChkOff[5] : m_configChkOn[5];
 	//! Mount SD only
 	m_btnMgr.setText(m_configLbl[6], _t("cfg719", L"Mount SD only"));
-	m_checkboxBtn[6] = m_cfg.getOptBool(general_domain, "sd_only", 0) == 0 ? m_configChkOff[6] : m_configChkOn[6];
+	m_checkboxBtn[6] = sdOnly == 0 ? m_configChkOff[6] : m_configChkOn[6];
 	//! Force standby mode if WC24 enabled (ignore idle)
 	m_btnMgr.setText(m_configLbl[7], _t("cfg725", L"Ignore idle shutdown"));
 	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "force_standby", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
@@ -76,8 +76,7 @@ void CMenu::_configBoot(void)
 	if(isWiiVC)
 		return;
 	
-	bool cur_sd = m_cfg.getBool(general_domain, "sd_only");
-	bool prev_sd = cur_sd;
+	bool prev_sd = sdOnly;
 	bool prev_load = cur_load;
 	u8 prev_ios = cur_ios;
 
@@ -139,8 +138,7 @@ void CMenu::_configBoot(void)
 			}
 			else if(m_btnMgr.selected(m_checkboxBtn[6])) // sd only
 			{
-				cur_sd = !cur_sd;
-				m_cfg.setBool(general_domain, "sd_only", cur_sd);
+				sdOnly = !sdOnly;
 				_showBoot(true);
 				m_btnMgr.setSelected(m_checkboxBtn[6]);
 			}
@@ -156,20 +154,19 @@ void CMenu::_configBoot(void)
 		InternalSave.SaveIOS();
 	if(set_port != currentPort)
 		InternalSave.SavePort(set_port);
+	if(prev_sd != sdOnly)
+		InternalSave.SaveSDOnly();
 
-	if(prev_sd == false && cur_sd == true) // sd only has been turned on, then let's set all partitions to sd
+	if(prev_sd == false && sdOnly == true) // sd only has been turned on, then let's set all partitions to sd
 	{
 		const char *domains[] = {WII_DOMAIN, GC_DOMAIN, CHANNEL_DOMAIN, PLUGIN_DOMAIN, HOMEBREW_DOMAIN};
 		for(int i = 0; i < 5; i++)
 			m_cfg.setInt(domains[i], "partition", SD);
 	}	
 	
-	if(prev_load != cur_load || prev_ios != cur_ios || set_port != currentPort || prev_sd != cur_sd)
+	if(prev_load != cur_load || prev_ios != cur_ios || set_port != currentPort || prev_sd != sdOnly)
 	{
-		if(prev_sd != cur_sd)
-			_error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
-		else
-			_error(_t("errboot99", L"Delete WiiFlow Wii save if it doesn't reboot."));
+		_error(_t("errboot99", L"Delete WiiFlow Wii save if it doesn't reboot."));
 		m_exit = true;
 		m_reload = true;
 	}

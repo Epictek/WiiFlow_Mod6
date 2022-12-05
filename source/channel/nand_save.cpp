@@ -36,6 +36,7 @@ u8 cur_ios = 0;
 #define BANNER_PATH		"/title/00010000/57465346/data/banner.bin"
 #define IOS_SAVE_PATH	"/title/00010000/57465346/data/ios"
 #define PORT_SAVE_PATH	"/title/00010000/57465346/data/port"
+#define SD_SAVE_PATH	"/title/00010000/57465346/data/sdonly"
 
 NandSave::NandSave()
 {
@@ -63,7 +64,7 @@ bool NandSave::CheckSave()
 	u32 banner_bin_size = 0;
 	const u8 *banner_bin = NULL;
 	u32 entries = 0;
-	/* May our banner already exist */
+	/* Maybe our banner already exist */
 	memset(&ISFS_Path, 0, ISFS_MAXPATH);
 	strcpy(ISFS_Path, BANNER_PATH);
 	fd = ISFS_Open(ISFS_Path, ISFS_OPEN_READ);
@@ -73,6 +74,9 @@ bool NandSave::CheckSave()
 		gprintf("Found WiiFlow Save\n");
 		goto done;
 	}
+	// save_bin only contains the tik.bin, tmd.bin, and banner.bin
+	// tik.bin and tmd.bin are used to install "/title/00010000/57465346/data/banner.bin"
+	// "/title/00010000/57465346/data/ios and port" are not written until you change them in startup settings menu.
 	/* Extract our archive */
 	u8_bin = DecompressCopy(save_bin, save_bin_size, &u8_bin_size);
 	if(u8_bin == NULL || u8_bin_size == 0)
@@ -137,13 +141,13 @@ bool NandSave::CheckSave()
 	MEM2_free(certBuffer);
 	if(u8_bin != save_bin)
 		free(u8_bin);
-	gprintf("Created WiiFlow Save\n");
+	gprintf("Created WiiFlow save\n");
 done:
 	loaded = true;
 	return loaded;
 
 error:
-	gprintf("Error while creating WiiFlow Save\n");
+	gprintf("Error while creating WiiFlow save\n");
 	loaded = false;
 	ES_AddTitleCancel();
 	if(certBuffer != NULL)
@@ -165,6 +169,11 @@ void NandSave::LoadSettings()
 
 	u32 size = 0;
 	memset(&ISFS_Path, 0, ISFS_MAXPATH);
+	// on very first boot (no save file exist yet)
+	// "/title/00010000/57465346/data/ios"
+	// "/title/00010000/57465346/data/port"
+	// will not exist. wiiflow will simply use useMainIOS and mainIOS defined in main.cpp
+	// they are only created when you change settings in the startup settings menu.
 
 	if(!useMetaArgIOS) // IOS not forced in meta.xml
 	{
@@ -174,7 +183,7 @@ void NandSave::LoadSettings()
 		{
 			cur_ios = file->cios;
 			cur_load = file->use_cios;
-			gprintf("Loading IOS Settings from wiiflow save\n");
+			gprintf("Using IOS settings from WiiFlow save\n");
 			if(cur_ios > 0)
 				mainIOS = cur_ios;
 			useMainIOS = cur_load;
@@ -187,11 +196,21 @@ void NandSave::LoadSettings()
 	u8 *port = ISFS_GetFile(ISFS_Path, &size, -1);
 	if(port != NULL && size == sizeof(u8))
 	{
-		gprintf("Using Port Settings from wiiflow save\n");
+		gprintf("Using port setting from WiiFlow save\n");
 		currentPort = port[0] & 1;
 	}
 	if(port != NULL)
 		MEM2_free(port);
+	
+	strcpy(ISFS_Path, SD_SAVE_PATH);
+	u8 *sdonly = ISFS_GetFile(ISFS_Path, &size, -1);
+	if(sdonly != NULL && size == sizeof(u8))
+	{
+		gprintf("Using SD only setting from WiiFlow save\n");
+		sdOnly = ((sdonly[0] & 1) == 1);
+	}
+	if(sdonly != NULL)
+		MEM2_free(sdonly);
 }
 
 void NandSave::SaveIOS()
@@ -201,7 +220,7 @@ void NandSave::SaveIOS()
 	memset(&ios_settings, 0, sizeof(ios_settings_t));
 	ios_settings.cios = cur_ios;
 	ios_settings.use_cios = cur_load;
-	gprintf("Saving IOS Settings to wiiflow save\n");
+	gprintf("Saving IOS settings to WiiFlow save\n");
 	WriteFile(IOS_SAVE_PATH, (u8*)&ios_settings, sizeof(ios_settings_t));
 }
 
@@ -209,8 +228,17 @@ void NandSave::SavePort(u8 port)
 {
 	if(loaded == false)
 		return;
-	gprintf("Saving Port Settings to wiiflow save\n");
+	gprintf("Saving port setting to WiiFlow save\n");
 	WriteFile(PORT_SAVE_PATH, &port, sizeof(port));
+}
+
+void NandSave::SaveSDOnly()
+{
+	if(loaded == false)
+		return;
+	gprintf("Saving SD only setting to WiiFlow save\n");
+	u8 sdonly = sdOnly ? 1 : 0;
+	WriteFile(SD_SAVE_PATH, &sdonly, sizeof(sdonly));
 }
 
 void NandSave::WriteFile(const char *file_name, u8 *content, u32 size)
