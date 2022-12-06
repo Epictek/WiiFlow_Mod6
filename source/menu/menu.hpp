@@ -834,7 +834,7 @@ private:
 	
 	/* Misc functions */
 	void RemoveCover(const char *id);
-	void _setPartition(s8 direction = 0, bool m_emuSaveNand = false);
+	void _setPartition(s8 direction, u8 coverflow);
 	void _cacheCovers(void);
 	void _mainLoopCommon(bool withCF = false, bool adjusting = false);
 	void _loadDefaultFont(void);

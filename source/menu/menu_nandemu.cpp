@@ -346,17 +346,11 @@ bool CMenu::_configNandEmu(u8 startPage)
 				//! Wii channel partition
 				if(m_btnMgr.selected(m_configBtnP[0]) || m_btnMgr.selected(m_configBtnM[0]))
 				{
-					m_prev_view = m_current_view;
-					u8 prevPartition = currentPartition;
 					s8 direction = m_btnMgr.selected(m_configBtnP[0]) ? 1 : -1;
-					currentPartition = m_cfg.getInt(channel_domain, "partition");
-					m_current_view = COVERFLOW_CHANNEL;
-					_setPartition(direction);
+					_setPartition(direction, COVERFLOW_CHANNEL);
 					_checkEmuNandSettings(EMU_NAND); // refresh emunands in case the partition was changed
-					if((m_prev_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
+					if((m_current_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
 						m_refreshGameList = true;
-					m_current_view = m_prev_view;
-					currentPartition = prevPartition;
 					_showNandEmu(true);
 				}
 				//! Wii channel preffered partition

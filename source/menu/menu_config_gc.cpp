@@ -296,16 +296,10 @@ void CMenu::_configGC(u8 startPage)
 				//! GC game partition
 				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
 				{
-					m_prev_view = m_current_view;
-					u8 prevPartition = currentPartition;
 					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
-					currentPartition = m_cfg.getInt(gc_domain, "partition");
-					m_current_view = COVERFLOW_GAMECUBE;
-					_setPartition(direction);
-					if(m_prev_view & COVERFLOW_GAMECUBE || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E47434D))))
+					_setPartition(direction, COVERFLOW_GAMECUBE);
+					if(m_current_view & COVERFLOW_GAMECUBE || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E47434D))))
 						m_refreshGameList = true;
-					m_current_view = m_prev_view;
-					currentPartition = prevPartition;
 					_showConfigGC(true);
 				}
 				//! GC preffered partition

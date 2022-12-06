@@ -171,16 +171,10 @@ void CMenu::_configHB(u8 startPage)
 			{
 				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])) // HB partition
 				{
-					m_prev_view = m_current_view;
-					u8 prevPartition = currentPartition;
 					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
-					currentPartition = m_cfg.getInt(homebrew_domain, "partition");
-					m_current_view = COVERFLOW_HOMEBREW;
-					_setPartition(direction);
-					if(m_prev_view & COVERFLOW_HOMEBREW || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
+					_setPartition(direction, COVERFLOW_HOMEBREW);
+					if(m_current_view & COVERFLOW_HOMEBREW || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
 						m_refreshGameList = true;
-					m_current_view = m_prev_view;
-					currentPartition = prevPartition;
 					_showConfigHB(true);
 				}
 				else if(m_btnMgr.selected(m_configBtn[4])) // dump list

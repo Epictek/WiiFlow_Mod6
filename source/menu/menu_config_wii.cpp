@@ -312,16 +312,10 @@ void CMenu::_configWii(u8 startPage)
 			//! Wii partition
 				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
 				{
-					m_prev_view = m_current_view;
-					u8 prevPartition = currentPartition;
 					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
-					currentPartition = m_cfg.getInt(wii_domain, "partition");
-					m_current_view = COVERFLOW_WII;
-					_setPartition(direction);
-					if(m_prev_view & COVERFLOW_WII || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))))
+					_setPartition(direction, COVERFLOW_WII); //
+					if(m_current_view & COVERFLOW_WII || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))))
 						m_refreshGameList = true;
-					m_current_view = m_prev_view;
-					currentPartition = prevPartition;
 					_showConfigWii(true);
 				}
 				//! Wii preffered partition
@@ -412,12 +406,9 @@ void CMenu::_configWii(u8 startPage)
 				//! Wii game saves emunand partition
 				if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
 				{
-					u8 prevPartition = currentPartition;
 					s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
-					currentPartition = m_cfg.getInt(wii_domain, "savepartition");
-					_setPartition(direction, true); // m_emuSaveNand = true
+					_setPartition(direction, COVERFLOW_NONE); // COVERFLOW_NONE is for saves emunand
 					_checkEmuNandSettings(SAVES_NAND); // refresh emunands in case partition was changed
-					currentPartition = prevPartition;
 					_showConfigWii(true);
 				}
 				//! Select saves emunand

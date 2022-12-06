@@ -1284,29 +1284,34 @@ void CMenu::_sortCF(bool previous)
 	m_btnMgr.show(m_mainLblLetter);	
 }
 
-void CMenu::_setPartition(s8 direction, bool m_emuSaveNand)
+void CMenu::_setPartition(s8 direction, u8 coverflow)
 {
+	if((direction != 1 && direction != -1) || coverflow > COVERFLOW_HOMEBREW)
+		return;
+	
+	m_prev_view = m_current_view;
+	m_current_view = coverflow;
+	u8 Partition = m_cfg.getInt(_domainFromView(), m_current_view == COVERFLOW_NONE ? "savepartition" : "partition");
 	int FS_Type = 0;
-	/* Change partition if direction is not zero */
-	if(direction != 0)
+	bool NeedFAT = m_current_view == COVERFLOW_CHANNEL || m_current_view == COVERFLOW_GAMECUBE || m_current_view == COVERFLOW_NONE; // COVERFLOW_NONE is for saves emunand
+	u8 limiter = 0;
+	
+	/* Select next eligible partition */
+	do
 	{
-		bool NeedFAT = m_current_view == COVERFLOW_CHANNEL || m_current_view == COVERFLOW_GAMECUBE || m_emuSaveNand == true;
-		u8 limiter = 0;
-		do
-		{
-			currentPartition = loopNum(currentPartition + direction, 9);
-			FS_Type = DeviceHandle.GetFSType(currentPartition);
-			limiter++;
-		}
-		while(limiter < 9 && (!DeviceHandle.IsInserted(currentPartition) ||
-			(m_current_view != COVERFLOW_WII && FS_Type == PART_FS_WBFS) ||
-			(NeedFAT && FS_Type != PART_FS_FAT)));
+		Partition = loopNum(Partition + direction, 9);
+		FS_Type = DeviceHandle.GetFSType(Partition);
+		limiter++;
 	}
-	/* Set partition to currentPartition */
-	if(m_emuSaveNand)
-		m_cfg.setInt(wii_domain, "savepartition", currentPartition);
-	else if(direction == 0 || (direction != 0 && (m_current_view != COVERFLOW_CHANNEL || (FS_Type != -1 && DeviceHandle.IsInserted(currentPartition)))))
-		m_cfg.setInt(_domainFromView(), "partition", currentPartition);
+	while(limiter < 9 && (!DeviceHandle.IsInserted(Partition) ||
+		(m_current_view != COVERFLOW_WII && FS_Type == PART_FS_WBFS) ||
+		(NeedFAT && FS_Type != PART_FS_FAT)));
+
+	/* Set partition (channel emunand partition will be set with _checkEmuNandSettings()) */
+	if(m_current_view != COVERFLOW_CHANNEL || (FS_Type != -1 && DeviceHandle.IsInserted(Partition)))
+		m_cfg.setInt(_domainFromView(), m_current_view == COVERFLOW_NONE ? "savepartition" : "partition", Partition);
+
+	m_current_view = m_prev_view;
 }
 
 int CMenu::_getCFVersion()

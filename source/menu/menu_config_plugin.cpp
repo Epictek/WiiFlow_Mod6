@@ -298,16 +298,10 @@ void CMenu::_configPlugin(u8 startPage)
 			{
 				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])) // plugin partition
 				{
-					m_prev_view = m_current_view;
-					u8 prevPartition = currentPartition;
 					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
-					currentPartition = m_cfg.getInt(plugin_domain, "partition");
-					m_current_view = COVERFLOW_PLUGIN;
-					_setPartition(direction);
-					if(m_prev_view & COVERFLOW_PLUGIN)
+					_setPartition(direction, COVERFLOW_PLUGIN);
+					if(m_current_view & COVERFLOW_PLUGIN)
 						m_refreshGameList = true;
-					m_current_view = m_prev_view;
-					currentPartition = prevPartition;
 					_showConfigPlugin(true);
 				}
 				else if(m_btnMgr.selected(m_configBtnGo[3])) // custom rom paths
