@@ -264,11 +264,11 @@ s32 WBFS_CheckGame(u8 *discid, char *path)
 	return !!disc;
 }
 
-s32 WBFS_AddGame(progress_callback_t spinner, void *spinner_data)
+s32 WBFS_AddGame(progress_callback_t spinner, void *spinner_data, char *path)
 {
-	if(wbfs_part_fs) 
-		return WBFS_Ext_AddGame(spinner, spinner_data);
-	
+	if(wbfs_part_fs) // if install partition is not a wbfs partition
+		return WBFS_Ext_AddGame(spinner, spinner_data, path);
+
 	/* No device open */
 	if(!hdd) 
 		return -1;

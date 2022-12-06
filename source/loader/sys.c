@@ -22,8 +22,6 @@
 u8 shutdown = 0; // modified
 volatile u8 ExitOption = 0;
 const char *NeekPath = NULL;
-char wii_games_dir[64];
-char gc_games_dir[64];
 
 void __Wpad_PowerCallback()
 {

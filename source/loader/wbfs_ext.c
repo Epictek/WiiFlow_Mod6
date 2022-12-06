@@ -175,7 +175,7 @@ s32 WBFS_Ext_RemoveGame(u8 *discid, char *gamepath)
 	return 0;
 }
 
-s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data)
+s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data, char *path)
 {
 	struct discHdr header ATTRIBUTE_ALIGN(32);
 
@@ -194,7 +194,8 @@ s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data)
 	for(cp = strpbrk(cleantitle, illegal); cp; cp = strpbrk(cp, illegal))
 		*cp = '_';
 
-	memcpy(folder, fmt(wii_games_dir, wbfs_fs_drive), sizeof(folder));
+	// memcpy(folder, fmt(wii_games_dir, wbfs_fs_drive), sizeof(folder));
+	memcpy(folder, path, sizeof(folder)); //
 	fsop_MakeFolder(folder);
 	
 	memcpy(folder, fmt("%s/%s [%s]", folder, cleantitle, header.id), sizeof(folder));

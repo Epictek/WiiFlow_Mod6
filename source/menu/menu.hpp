@@ -63,6 +63,9 @@ public:
 	u8 activeChan = 0; // last WPAD chan used
 	
 private:
+	char wii_games_dir[64];
+	char gc_games_dir[64];
+	
 	u8 m_prev_view;
 	u8 m_current_view;
 	u8 enabledPluginsCount;

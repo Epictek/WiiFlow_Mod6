@@ -138,7 +138,8 @@ void * CMenu::_gameInstaller(void *obj)
 		m._setThrdMsg(L"", 0);
 		LWP_MutexUnlock(m.m_mutex);
 	
-		ret = WBFS_AddGame(_addDiscProgress, obj);
+		char *gamePath = fmt(m.wii_games_dir, DeviceName[currentPartition]);
+		ret = WBFS_AddGame(_addDiscProgress, obj, gamePath);
 
 		LWP_MutexLock(m.m_mutex);
 		if(ret == 0)
