@@ -175,6 +175,7 @@ private:
 	string m_pluginDataDir;
 	string m_cartDir;
 	string m_snapDir;
+	string m_wiiTDBDir;
 
 	/* Nand Emulation */
 	char emu_nands_dir[32];

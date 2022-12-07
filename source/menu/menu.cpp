@@ -282,72 +282,69 @@ bool CMenu::init(bool usb_mounted)
 	m_gc_play_banner_sound = m_cfg.getBool(gc_domain, "play_banner_sound", true);
 
 	/* Init directories */
-	m_cacheDir = m_cfg.getString(general_domain, "dir_cache", fmt("%s/cache", m_dataDir.c_str()));
-	m_listCacheDir = m_cfg.getString(general_domain, "dir_list_cache", fmt("%s/lists", m_cacheDir.c_str()));
+	m_cacheDir = fmt("%s/cache", m_dataDir.c_str());
+	m_listCacheDir = fmt("%s/lists", m_cacheDir.c_str());
+	m_settingsDir = fmt("%s/settings", m_dataDir.c_str());
+	m_languagesDir = fmt("%s/languages", m_dataDir.c_str());
+	m_helpDir = fmt("%s/help", m_dataDir.c_str());
+	m_themeDir = fmt("%s/themes_lite", m_dataDir.c_str());
+	m_coverflowsDir = fmt("%s/coverflows", m_themeDir.c_str());
+	m_bckgrndsDir = fmt("%s/backgrounds", m_dataDir.c_str());
+	m_sourceDir = fmt("%s/source_menu", m_dataDir.c_str());
+	m_pluginsDir = fmt("%s/plugins", m_dataDir.c_str());
+#ifdef SCREENSHOT
+	m_screenshotDir = fmt("%s/screenshots", m_dataDir.c_str());
+#endif
+	
+	/* Init configurable directories */
 	m_bnrCacheDir = m_cfg.getString(general_domain, "dir_banner_cache", fmt("%s/banners", m_cacheDir.c_str()));
 	m_customBnrDir = m_cfg.getString(general_domain, "dir_custom_banners", fmt("%s/custom_banners", m_dataDir.c_str()));
-	
 	m_txtCheatDir = m_cfg.getString(general_domain, "dir_txtcheat", fmt("%s/codes", m_dataDir.c_str()));
 	m_cheatDir = m_cfg.getString(general_domain, "dir_cheat", fmt("%s/gct", m_txtCheatDir.c_str()));
 	m_wipDir = m_cfg.getString(general_domain, "dir_wip", fmt("%s/wip", m_txtCheatDir.c_str()));
-	
-	m_settingsDir = m_cfg.getString(general_domain, "dir_settings", fmt("%s/settings", m_dataDir.c_str()));
-	m_languagesDir = m_cfg.getString(general_domain, "dir_languages", fmt("%s/languages", m_dataDir.c_str()));
-	m_helpDir = m_cfg.getString(general_domain, "dir_help", fmt("%s/help", m_dataDir.c_str()));
 	m_backupDir = m_cfg.getString(general_domain, "dir_backup", fmt("%s/backups", m_dataDir.c_str())); //
-#ifdef SCREENSHOT
-	m_screenshotDir = m_cfg.getString(general_domain, "dir_screenshot", fmt("%s/screenshots", m_dataDir.c_str()));
-#endif
-
 	m_boxPicDir = m_cfg.getString(general_domain, "dir_box_covers", fmt("%s/boxcovers", m_dataDir.c_str()));
 	m_picDir = m_cfg.getString(general_domain, "dir_flat_covers", fmt("%s/covers", m_dataDir.c_str()));
-	m_themeDir = m_cfg.getString(general_domain, "dir_themes_lite", fmt("%s/themes_lite", m_dataDir.c_str()));
-	m_coverflowsDir = m_cfg.getString(general_domain, "dir_coverflows", fmt("%s/coverflows", m_themeDir.c_str()));
 	m_musicDir = m_cfg.getString(general_domain, "dir_music", fmt("%s/music", m_dataDir.c_str())); 
 	m_videoDir = m_cfg.getString(general_domain, "dir_trailers", fmt("%s/trailers", m_dataDir.c_str()));
 	m_fanartDir = m_cfg.getString(general_domain, "dir_fanart", fmt("%s/fanart", m_dataDir.c_str()));
-	m_bckgrndsDir = m_cfg.getString(general_domain, "dir_backgrounds", fmt("%s/backgrounds", m_dataDir.c_str()));
-	
-	m_sourceDir = m_cfg.getString(general_domain, "dir_source", fmt("%s/source_menu", m_dataDir.c_str()));
-	m_pluginsDir = m_cfg.getString(general_domain, "dir_plugins", fmt("%s/plugins", m_dataDir.c_str()));
 	m_pluginDataDir = m_cfg.getString(general_domain, "dir_plugins_data", fmt("%s/plugins_data", m_dataDir.c_str()));
 	m_cartDir = m_cfg.getString(general_domain, "dir_cart", fmt("%s/cart_disk", m_dataDir.c_str()));
 	m_snapDir = m_cfg.getString(general_domain, "dir_snap", fmt("%s/snapshots", m_dataDir.c_str()));
+	m_wiiTDBDir = m_cfg.getString(general_domain, "dir_wiitdb", fmt("%s", m_settingsDir.c_str()));
 	
 	/* Create our Folder Structure */
 	fsop_MakeFolder(m_dataDir.c_str()); // D'OH!
 	
 	fsop_MakeFolder(m_cacheDir.c_str());
 	fsop_MakeFolder(m_listCacheDir.c_str());
+	fsop_MakeFolder(m_settingsDir.c_str());
+	fsop_MakeFolder(m_languagesDir.c_str());
+	fsop_MakeFolder(m_helpDir.c_str());
+	fsop_MakeFolder(m_themeDir.c_str());
+	fsop_MakeFolder(m_coverflowsDir.c_str());
+	fsop_MakeFolder(m_bckgrndsDir.c_str());
+	fsop_MakeFolder(m_sourceDir.c_str());
+	fsop_MakeFolder(m_pluginsDir.c_str());
+#ifdef SCREENSHOT
+	fsop_MakeFolder(m_screenshotDir.c_str());
+#endif	
+	
 	fsop_MakeFolder(m_bnrCacheDir.c_str());
 	fsop_MakeFolder(m_customBnrDir.c_str());
-	
 	fsop_MakeFolder(m_txtCheatDir.c_str());
 	fsop_MakeFolder(m_cheatDir.c_str());
 	fsop_MakeFolder(m_wipDir.c_str());
-
-	fsop_MakeFolder(m_settingsDir.c_str());
-	fsop_MakeFolder(m_languagesDir.c_str());
 	fsop_MakeFolder(m_backupDir.c_str()); //
-#ifdef SCREENSHOT
-	fsop_MakeFolder(m_screenshotDir.c_str());
-#endif
-
-	fsop_MakeFolder(m_helpDir.c_str());
 	fsop_MakeFolder(m_boxPicDir.c_str());
 	fsop_MakeFolder(m_picDir.c_str());
-	fsop_MakeFolder(m_themeDir.c_str());
-	fsop_MakeFolder(m_coverflowsDir.c_str());
 	fsop_MakeFolder(m_musicDir.c_str());
 	fsop_MakeFolder(m_videoDir.c_str());
 	fsop_MakeFolder(m_fanartDir.c_str());
-	fsop_MakeFolder(m_bckgrndsDir.c_str());
-	
-	fsop_MakeFolder(m_sourceDir.c_str());
-	fsop_MakeFolder(m_pluginsDir.c_str());
 	fsop_MakeFolder(m_pluginDataDir.c_str());
 	fsop_MakeFolder(m_cartDir.c_str());
 	fsop_MakeFolder(m_snapDir.c_str());
+	fsop_MakeFolder(m_wiiTDBDir.c_str());
 
 	/* Show wait animation */
 	/* only now for usb splash to last longer on screen */

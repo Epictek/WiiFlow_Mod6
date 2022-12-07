@@ -553,7 +553,7 @@ void CMenu::_textGameInfo(void)
 		/* Get title, synopsis and other fields the same way as roms (set text empty if not found) */
 		m_btnMgr.setText(m_configLblTitle, GameHdr->title);
 		
-		gametdb.OpenFile(fmt("%s/wiitdb.xml", m_settingsDir.c_str()));
+		gametdb.OpenFile(fmt("%s/wiitdb.xml", m_wiiTDBDir.c_str()));
 		tdb_found = gametdb.IsLoaded();
 		if(!tdb_found)
 		{

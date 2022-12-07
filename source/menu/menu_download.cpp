@@ -519,11 +519,8 @@ int CMenu::_coverDownloader(bool disc)
 	vector<string> fmtURL;
 
 	GameTDB c_gameTDB;
-	if(m_settingsDir.size() > 0)
-	{
-		c_gameTDB.OpenFile(fmt("%s/wiitdb.xml", m_settingsDir.c_str()));
-		c_gameTDB.SetLanguageCode(m_curLanguage.c_str());
-	}
+	c_gameTDB.OpenFile(fmt("%s/wiitdb.xml", m_wiiTDBDir.c_str()));
+	c_gameTDB.SetLanguageCode(m_curLanguage.c_str());
 
 	/* Create list of cover ID's that need downloading */
 	if(dl_gameID.empty())
@@ -699,7 +696,7 @@ int CMenu::_gametdbDownloaderAsync()
 		{
 			update_pThread(1); // it's downloaded
 			bool res = false;
-			char *zippath = fmt_malloc("%s/wiitdb.zip", m_settingsDir.c_str());
+			char *zippath = fmt_malloc("%s/wiitdb.zip", m_wiiTDBDir.c_str());
 			if(zippath != NULL)
 			{
 				// gprintf("Writing file to '%s'\n", zippath);
@@ -723,7 +720,7 @@ int CMenu::_gametdbDownloaderAsync()
 				m_thrdMessage = wfmt(_fmt("dlmsg24", L"Extracting %s"), "wiitdb.zip");
 				m_thrdMessageAdded = true;	
 				ZipFile zFile(zippath);
-				zFile.ExtractAll(m_settingsDir.c_str());
+				zFile.ExtractAll(m_wiiTDBDir.c_str());
 				// bool zres = zFile.ExtractAll(m_settingsDir.c_str());
 				// gprintf(zres ? "success\n" : "failed\n");
 				// may add if zres failed return -4 extraction failed
@@ -733,7 +730,7 @@ int CMenu::_gametdbDownloaderAsync()
 				MEM2_free(zippath);
 
 				/* We should always remove the offsets file to make sure it's reloaded */
-				fsop_deleteFile(fmt("%s/gametdb_offsets.bin", m_settingsDir.c_str()));
+				fsop_deleteFile(fmt("%s/gametdb_offsets.bin", m_wiiTDBDir.c_str()));
 				
 				update_pThread(1); // it's extracted
 

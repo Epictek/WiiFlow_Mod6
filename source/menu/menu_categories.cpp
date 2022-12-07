@@ -551,7 +551,7 @@ void CMenu::_setTDBCategories(const dir_discHdr *hdr)
 
 	if(hdr->type != TYPE_PLUGIN)
 	{
-		gametdb.OpenFile(fmt("%s/wiitdb.xml", m_settingsDir.c_str()));
+		gametdb.OpenFile(fmt("%s/wiitdb.xml", m_wiiTDBDir.c_str()));
 		strcpy(GameID, hdr->id);
 	}
 	else // type = plugin

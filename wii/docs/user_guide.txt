@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update June 15, 2022.
+Update December 7, 2022.
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -661,29 +661,11 @@ url_discs=https://art.gametdb.com/{console}/disc/{loc}/{gameid}.png
 url_geckocodes=https://codes.rc24.xyz/txt.php?txt=%s
 - GameTDB URL:
 url_gametdb=http://www.gametdb.com/wiitdb.zip?LANG=%s&FALLBACK=TRUE&WIIWARE=TRUE&GAMECUBE=TRUE
-- Cache folder:
-dir_cache=sd:/wiiflow/cache
-- Game list cache:
-dir_list_cache=sd:/wiiflow/cache/lists
 - Cheat code GCT files folder:
 dir_cheat=sd:/wiiflow/codes/gct
 - Cheat code WIP files folder:
 dir_wip=sd:/wiiflow/codes/wip
-- Background folder:
-dir_backgrounds=sd:/wiiflow/backgrounds
-- Theme config files:
-dir_themes_lite=sd:/wiiflow/themes_lite
-- Coverflow layouts:
-dir_coverflows=sd:/wiiflow/themes_lite/coverflows
-- Help guide translation files:
-dir_help=sd:/wiiflow/help
-- Language files:
-dir_languages=sd:/wiiflow/languages
-- Plugin folder:
-dir_plugins=sd:/wiiflow/plugins
-- Plugin databases ans platform config file:
+- Plugin databases ans platform config file folder:
 dir_plugins_data=sd:/wiiflow/plugins_data
-- Game settings and categories:
-dir_settings=sd:/wiiflow/settings
-- Source menu files and buttons:
-dir_source=sd:/wiiflow/source_menu
+- GameTDB database file folder:
+dir_wiitdb=sd:/wiiflow/settings

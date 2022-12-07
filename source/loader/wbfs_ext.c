@@ -195,10 +195,10 @@ s32 WBFS_Ext_AddGame(progress_callback_t spinner, void *spinner_data, char *path
 		*cp = '_';
 
 	// memcpy(folder, fmt(wii_games_dir, wbfs_fs_drive), sizeof(folder));
-	memcpy(folder, path, sizeof(folder)); //
-	fsop_MakeFolder(folder);
+	// fsop_MakeFolder(folder);
 	
-	memcpy(folder, fmt("%s/%s [%s]", folder, cleantitle, header.id), sizeof(folder));
+	// memcpy(folder, fmt("%s/%s [%s]", folder, cleantitle, header.id), sizeof(folder));
+	memcpy(folder, fmt("%s/%s [%s]", path, cleantitle, header.id), sizeof(folder)); //
 	fsop_MakeFolder(folder);
 	free(cleantitle);
 	
