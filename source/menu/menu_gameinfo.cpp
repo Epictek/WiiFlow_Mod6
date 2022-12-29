@@ -60,8 +60,8 @@ bool CMenu::_gameinfo(void)
 			curPage = 1;
 			amount_of_skips = 0;
 			xtra_skips = 0;
-			_playGameSound(); // changes banner and game sound
 			_showGameInfo();
+			_playGameSound(); // changes banner and game sound
 		}
 		else if((wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) && ShowPointer()) // wiimote vertical
 			|| (wBtn_Pressed(WPAD_BUTTON_UP, WPAD_EXP_NONE) && !ShowPointer()) // wiimote sideways
@@ -74,8 +74,8 @@ bool CMenu::_gameinfo(void)
 			curPage = 1;
 			amount_of_skips = 0;
 			xtra_skips = 0;
-			_playGameSound();
 			_showGameInfo();
+			_playGameSound();
 		}
 		
 		else if(((wBtn_Pressed(WPAD_BUTTON_DOWN, WPAD_EXP_NONE) || wBtn_Held(WPAD_BUTTON_DOWN, WPAD_EXP_NONE)) && ShowPointer()) // wiimote vertical

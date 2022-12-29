@@ -1046,12 +1046,12 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 					bool nosave = false;
 					if(extract) // extract save from nand to saves emunand
 					{
-						if(_AutoExtractSave(GameHdr->id) < 0) // -1
+						if(_ExtractGameSave(GameHdr->id) < 0) // -1
 							nosave = true;
 					}
 					else // flash save from saves emunand to nand
 					{
-						if(_FlashSave(GameHdr->id) < 0) // -1
+						if(_FlashGameSave(GameHdr->id) < 0) // -1
 							nosave = true;
 					}
 					if(nosave)

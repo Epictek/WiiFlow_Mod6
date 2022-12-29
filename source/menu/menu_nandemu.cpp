@@ -34,7 +34,7 @@ static inline int loopNum(int i, int s)
 	return (i + s) % s;
 }
 
-void CMenu::_showNandEmu(bool instant)
+void CMenu::_showConfigNandEmu(bool instant)
 {
 	int i;
 	
@@ -239,7 +239,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 
 	_setBg(m_configBg, m_configBg);
 	SetupInput();
-	_showNandEmu();
+	_showConfigNandEmu();
 	
 	while(!m_exit)
 	{
@@ -254,7 +254,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 		{
 			_hideConfig(true);
 			curPage = MAIN_SETTINGS;
-			 _showNandEmu();
+			 _showConfigNandEmu();
 		}
 		else if(BTN_A_OR_2_PRESSED)
 		{
@@ -266,7 +266,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 				{
 					_hideConfig(true);
 					curPage = MAIN_SETTINGS;
-					 _showNandEmu();
+					 _showConfigNandEmu();
 				}
 			}
 			
@@ -283,28 +283,28 @@ bool CMenu::_configNandEmu(u8 startPage)
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
-						_showNandEmu();
+						_showConfigNandEmu();
 					}
 					//! Download covers and info
 					else if(m_btnMgr.selected(m_configBtnGo[3]))
 					{
 						_hideConfig(true);
 						_download();
-						_showNandEmu();
+						_showConfigNandEmu();
 					}
 					//! Global video settings
 					else if(m_btnMgr.selected(m_configBtnGo[4]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
-						_showNandEmu();
+						_showConfigNandEmu();
 					}
 					//! Global nand emulation
 					else if(m_btnMgr.selected(m_configBtnGo[5]) && !a)
 					{
 						_hideConfig(true);
 						curPage = NANDEMU_SETTINGS;
-						_showNandEmu();
+						_showConfigNandEmu();
 					}
 					//! Return to WiiFlow channel
 					else if(m_btnMgr.selected(m_checkboxBtn[6]) && !a)
@@ -327,7 +327,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 							}
 							NANDemuView = curNANDemuView;
 						}
-						_showNandEmu(true);
+						_showConfigNandEmu(true);
 						m_btnMgr.setSelected(m_checkboxBtn[6]);
 					}
 					//! Default game language
@@ -335,7 +335,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 					{
 						s8 direction = m_btnMgr.selected(m_configBtnP[7-(2*a)]) ? 1 : -1;
 						m_cfg.setInt(channel_domain, "game_language", (int)loopNum(m_cfg.getUInt(channel_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
-						_showNandEmu(true);
+						_showConfigNandEmu(true);
 					}
 				}
 			}
@@ -351,7 +351,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 					_checkEmuNandSettings(EMU_NAND); // refresh emunands in case the partition was changed
 					if((m_current_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
 						m_refreshGameList = true;
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 				}
 				//! Wii channel preffered partition
 				else if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
@@ -365,7 +365,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 					else
 						part = loopNum(part + direction, 9);
 					m_cfg.setInt(channel_domain, "preferred_partition", part);
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 				}
 				//! Select wii channel emunand
 				else if((m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])))
@@ -374,7 +374,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 					curEmuNand = loopNum(curEmuNand + direction, emuNands.size());
 					m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
 					_FullNandCheck(EMU_NAND);
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 				}
 				//! Channel mode: emunand/realnand/bothnands
 				else if((m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])))
@@ -382,7 +382,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					channelsType = 1 + (int)loopNum((channelsType) - 1 + direction, ARRAY_SIZE(CMenu::_ChannelsType));
 					m_cfg.setInt(channel_domain, "channels_type", channelsType);
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 					m_refreshGameList = true;
 				}
 				//! Create new emunand folder
@@ -401,14 +401,14 @@ bool CMenu::_configNandEmu(u8 startPage)
 							_error(_t("dlmsg14", L"Done."));
 						}
 					}
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 				//! Install wad file
 				else if(m_btnMgr.selected(m_configBtnGo[5]))
 				{
 					_hideConfig(true);
 					_wadExplorer();
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 				//! Install wad folder
 				else if(m_btnMgr.selected(m_configBtnGo[6]))
@@ -418,20 +418,20 @@ bool CMenu::_configNandEmu(u8 startPage)
 					path = _FolderExplorer(fmt("%s:/", DeviceName[currentPartition]));
 					if(strlen(path) > 0)
 						_Wad(path, true);
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 				//! Extract nand to emunand
 				else if(m_btnMgr.selected(m_configBtn[7]))
 				{
 					if(_NandDump(0)) // 0 = Full nand dump
 						ExtNand = true;
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 				//! Dump Wii channel coverflow list
 				else if(m_btnMgr.selected(m_configBtn[8]))
 				{
 					_dumpGameList();
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 				//! Refresh coverflow list and cover cache
 				else if(m_btnMgr.selected(m_configBtn[9]))
@@ -452,20 +452,20 @@ bool CMenu::_configNandEmu(u8 startPage)
 				{
 					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					m_cfg.setInt(channel_domain, "video_mode", (int)loopNum(m_cfg.getUInt(channel_domain, "video_mode", 0) + direction, ARRAY_SIZE(CMenu::_VideoModes) - 1)); // minus 1 because of "default" array value
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 				}
 				//! Wii channel video deflicker
 				else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
 				{
 					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
 					m_cfg.setInt(channel_domain, "deflicker_wii", (int)loopNum(m_cfg.getUInt(channel_domain, "deflicker_wii", 0) + direction, ARRAY_SIZE(CMenu::_DeflickerOptions) - 1));
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 				}
 				//! Wii channel 480p pixel patch
 				else if(m_btnMgr.selected(m_checkboxBtn[5]))
 				{
 					m_cfg.setBool(channel_domain, "fix480p", !m_cfg.getBool(channel_domain, "fix480p"));
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 					m_btnMgr.setSelected(m_checkboxBtn[5]);
 				}
 			}
@@ -478,20 +478,20 @@ bool CMenu::_configNandEmu(u8 startPage)
 				{
 					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					m_cfg.setInt(channel_domain, "emulation", loopNum(m_cfg.getInt(channel_domain, "emulation", 0) + direction, ARRAY_SIZE(CMenu::_NandEmu) - 1));
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 				}
 				//! Keep emunand updated with latest nand config
 				else if(m_btnMgr.selected(m_checkboxBtn[4]))
 				{
 					m_cfg.setBool(channel_domain, "real_nand_config", !m_cfg.getBool(channel_domain, "real_nand_config"));
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 					m_btnMgr.setSelected(m_checkboxBtn[4]);
 				}
 				//! Keep emunand updated with latest nand miis
 				else if(m_btnMgr.selected(m_checkboxBtn[5]))
 				{
 					m_cfg.setBool(channel_domain, "real_nand_miis", !m_cfg.getBool(channel_domain, "real_nand_miis"));
-					_showNandEmu(true);
+					_showConfigNandEmu(true);
 					m_btnMgr.setSelected(m_checkboxBtn[5]);
 				}
 				//! Launch neek2o channel emunand system menu
@@ -499,14 +499,14 @@ bool CMenu::_configNandEmu(u8 startPage)
 				{
 					if(_launchNeek2oChannel(EXIT_TO_SMNK2O, EMU_NAND))
 						break;
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 				//! Launch WiiFlow channel on emunand in neek2o mode
 				else if(m_btnMgr.selected(m_configBtn[7]))
 				{
 					if(_launchNeek2oChannel(EXIT_TO_WFNK2O, EMU_NAND))
 						break;
-					_showNandEmu();
+					_showConfigNandEmu();
 				}
 			}
 		}
@@ -888,7 +888,7 @@ bool CMenu::_NandDump(int DumpType)
 	return 1;
 }
 
-int CMenu::_FlashSave(string gameId)
+int CMenu::_FlashGameSave(string gameId)
 {
 	if(_FindEmuPart(SAVES_NAND, true) < 0) // if emunand folder does not exist
 		return -1;
@@ -945,7 +945,7 @@ int CMenu::_FlashSave(string gameId)
 }
 
 /** Extract a gamesave from real nand to savesnand, used in _gameSettings() **/
-int CMenu::_AutoExtractSave(string gameId)
+int CMenu::_ExtractGameSave(string gameId)
 {		
 	if(_FindEmuPart(SAVES_NAND, false) < 0) // make emunand folder if it doesn't exist
 	{

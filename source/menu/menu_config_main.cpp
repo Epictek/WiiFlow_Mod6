@@ -361,16 +361,10 @@ void CMenu::_cacheCovers()
 	u32 index = 0;
 	
 	bool smallBox = false;
-	
-	if(m_current_view == COVERFLOW_HOMEBREW && !m_sourceflow)
-		smallBox = m_cfg.getBool(homebrew_domain, "smallbox", true);
-	else if(m_sourceflow)
+	if(m_sourceflow)
 		smallBox = m_cfg.getBool(sourceflow_domain, "smallbox", true);
-	else if(m_current_view == COVERFLOW_PLUGIN && !m_sourceflow)
-	{
-		if(enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257)))
-			smallBox = m_cfg.getBool(homebrew_domain, "smallbox", true);
-	}
+	else if(m_current_view == COVERFLOW_HOMEBREW || (m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
+		smallBox = m_cfg.getBool(homebrew_domain, "smallbox", true);
 	
 	for(vector<dir_discHdr>::iterator hdr = m_gameList.begin(); hdr != m_gameList.end(); ++hdr)
 	{
@@ -440,8 +434,7 @@ void CMenu::_cacheCovers()
 		if(!fsop_FileExist(wfcPath) || (!CoverFlow.fullCoverCached(wfcPath) && fullCover))
 		{
 			//! Create cache subfolders if needed
-			if(!fsop_FolderExist(cachePath))
-				fsop_MakeFolder(cachePath);
+			fsop_MakeFolder(cachePath);
 			//! Create cover texture
 			CoverFlow.cacheCoverFile(wfcPath, coverPath, fullCover);
 		}
@@ -454,14 +447,11 @@ void CMenu::_cacheCovers()
 			strlcpy(cached_banner, fmt("%s/%s.bnr", m_bnrCacheDir.c_str(), hdr->id), sizeof(cached_banner));
 			if(fsop_FileExist(cached_banner))
 				continue;
+
 			if(hdr->type == TYPE_WII_GAME)
-			{
 				_extractBnr(&(*hdr));
-			}
-			else if(hdr->type == TYPE_CHANNEL || hdr->type == TYPE_EMUCHANNEL)
-			{
+			else // channel or emuchannel
 				ChannelHandle.GetBanner(TITLE_ID(hdr->settings[0], hdr->settings[1]));
-			}
 			
 			if(CurrentBanner.IsValid())
 				fsop_WriteFile(cached_banner, CurrentBanner.GetBannerFile(), CurrentBanner.GetBannerFileSize());

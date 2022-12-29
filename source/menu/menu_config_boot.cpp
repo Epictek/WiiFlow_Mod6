@@ -17,7 +17,7 @@ const CMenu::SOption CMenu::_exitTo[4] = {
 	{ "wiiu", L"WiiU" },
 };
 
-void CMenu::_showBoot(bool instant)
+void CMenu::_showConfigBoot(bool instant)
 {
 	_hideCheckboxes(true); // reset checkboxes
 	
@@ -83,7 +83,7 @@ void CMenu::_configBoot(void)
 	set_port = currentPort;
 	
 	SetupInput();
-	_showBoot();
+	_showConfigBoot();
 
 	while(!m_exit)
 	{
@@ -115,12 +115,12 @@ void CMenu::_configBoot(void)
 					itr--;
 				}
 				cur_ios = itr->first;
-				_showBoot(true);
+				_showConfigBoot(true);
 			}
 			else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])) // usb port
 			{
 				set_port = !set_port;
-				_showBoot(true);
+				_showConfigBoot(true);
 			}
 			else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4])) // default exit
 			{
@@ -128,24 +128,24 @@ void CMenu::_configBoot(void)
 				int exit_to = (int)loopNum(m_cfg.getUInt(general_domain, "exit_to", 0) + direction, ARRAY_SIZE(CMenu::_exitTo) - !IsOnWiiU());
 				m_cfg.setInt(general_domain, "exit_to", exit_to);
 				Sys_ExitTo(exit_to);
-				_showBoot(true);
+				_showConfigBoot(true);
 			}
 			else if(m_btnMgr.selected(m_checkboxBtn[5]) && !useMetaArgIOS) // load cIOS on startup
 			{
 				cur_load = !cur_load;
-				_showBoot(true);
+				_showConfigBoot(true);
 				m_btnMgr.setSelected(m_checkboxBtn[5]);
 			}
 			else if(m_btnMgr.selected(m_checkboxBtn[6])) // sd only
 			{
 				sdOnly = !sdOnly;
-				_showBoot(true);
+				_showConfigBoot(true);
 				m_btnMgr.setSelected(m_checkboxBtn[6]);
 			}
 			else if(m_btnMgr.selected(m_checkboxBtn[7])) // force standby (if wc24)
 			{
 				m_cfg.setBool(general_domain, "force_standby", !m_cfg.getBool(general_domain, "force_standby"));
-				_showBoot(true);
+				_showConfigBoot(true);
 				m_btnMgr.setSelected(m_checkboxBtn[7]);
 			}
 		}

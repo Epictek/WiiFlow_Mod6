@@ -605,17 +605,17 @@ private:
 	void _showError(void);
 	void _showMain(void);
 	void _showConfigWii(bool instant = false);
-	void _showNandEmu(bool instant = false);
+	void _showConfigNandEmu(bool instant = false);
 	void _showConfigGC(bool instant = false);
 	void _showConfigHB(bool instant = false);
 	void _showConfigPlugin(bool instant = false);
 	void _showConfigMain(bool instant = false);
 	void _showConfigSource(bool instant = false);
-	void _showBoot(bool instant = false);
+	void _showConfigBoot(bool instant = false);
 	void _showConfigMusic(bool instant = false);
 	void _showConfigScreen(bool instant = false);
 	void _showConfigGui(bool instant = false);
-	void _showConfigNet(bool instant = false);
+	void _showConfigNet(bool instant = false); //
 	void _showConfigPaths(bool instant = false);
 	void _showConfigMisc(bool instant = false);
 	void _showProgress(void);
@@ -638,9 +638,9 @@ private:
 	void _showExplorer(void);
 	void _showWad(void);
 	void _showCheckboxesMenu(void);
-	void _showAddGame(void);
+	void _showAddGame(void); //
 	void _showCF(bool refreshList = false);
-	void _showCategoryConfig(bool instant = false);
+	void _showCategoryConfig(bool instant = false); //
 	
 	/* Menu main functions */
 	bool _error(const wstringEx &msg, bool dialog = false);
@@ -650,7 +650,7 @@ private:
 	void _configScreen(void);
 	void _configMusic(void);
 	void _configPaths(void);
-	void _configNet(void);
+	void _configNet(void); //
 	void _configWii(u8 startPage = MAIN_SETTINGS);
 	bool _configNandEmu(u8 startPage = MAIN_SETTINGS);
 	void _configGC(u8 startPage = MAIN_SETTINGS);
@@ -668,7 +668,7 @@ private:
 	bool _gameinfo(void);
 	void _gameSettings(const dir_discHdr *GameHdr, bool disc = false);
 	void _CoverBanner(void);
-	void _addGame(u8 game_type);
+	void _addGame(u8 game_type); //
 	void _Wad(const char *wad_path = NULL, bool folder = false);
 	void _CheatSettings(const char *id);
 	bool _Source(bool home = false);
@@ -683,8 +683,8 @@ private:
 	/* Nand emu functions */
 	string _SetEmuNand(s8 direction); //
 	bool _NandDump(int DumpType); //
-	int _AutoExtractSave(string gameId);
-	int _FlashSave(string gameId);
+	int _ExtractGameSave(string gameId);
+	int _FlashGameSave(string gameId);
 	int _FindEmuPart(bool savesnand, bool skipchecks);
 	bool _checkSave(string id, int nand_type);
 	void _checkEmuNandSettings(int nand_type);
@@ -707,7 +707,7 @@ private:
 	void _FileExplorer(const char *startPath); //
 	const char *_FolderExplorer(const char *startPath);
 	void _wadExplorer(void);
-	void _pluginExplorer(const char *startPath, u32 magic = 0, bool source = false);
+	void _pluginExplorer(const char *startPath, u32 magic = 0, bool source = false); //
 
 	/* Source menu + Source menu editor */
 	void _setSrcOptions(void);
@@ -729,7 +729,7 @@ private:
 	void _updateCatCheckboxes(void);
 	
 	/* Categories */
-	void _setTDBCategories(const dir_discHdr *hdr);
+	void _setTDBCategories(const dir_discHdr *hdr); //
 	void _getGameCategories(const dir_discHdr *hdr);
 	void _setGameCategories(void);	
 	
@@ -790,12 +790,12 @@ private:
 	static void _addDiscProgress(int status, int total, void *user_data);
 	static void _ShowProgress(int dumpstat, int dumpprog, int filestat, int fileprog, int files, int folders, const char *tmess, void *user_data);
 	static void * _gameInstaller(void *obj);
-	static void * _ImportFolder(void *obj);
+	static void * _ImportFolder(void *obj); //
 	bool _searchGamesByID(const char *gameId);
 	int _GCgameInstaller();
 	// static void * _GCcopyGame(void *obj);
 	
-	enum // don't change order
+	enum // don't change order (used in a for loop in menu_config_game.cpp)
 	{
 		WO_REMOVE_GAME = 0,
 		WO_BACKUP_EMUSAVE,
@@ -855,8 +855,8 @@ private:
 	void _load_installed_cioses();
 	std::map<u8, u8> _installed_cios;
 	typedef std::map<u8, u8>::iterator CIOSItr;
-	void _dumpGameList(void);
-	bool _launchNeek2oChannel(int ExitTo, int nand_type);
+	void _dumpGameList(void); //
+	bool _launchNeek2oChannel(int ExitTo, int nand_type); //
 	wstringEx _sortLabel(int sort); //
 	void _sortCF(bool previous = false); //	
 	// void UpdateCache(u32 view = COVERFLOW_MAX);
