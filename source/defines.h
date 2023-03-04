@@ -7,7 +7,7 @@
 #else
 #define APP_NAME				"WiiFlow Mod6"
 #endif
-#define APP_VERSION				"1.1.0-684"
+#define APP_VERSION				"1.1.0-685"
 
 #define APP_DATA_DIR			"wiiflow"
 #ifdef APP_WIIFLOW_LITE
@@ -36,6 +36,20 @@
 #define HOMEBREW_DOMAIN			"HOMEBREW"
 #define SOURCEFLOW_DOMAIN		"SOURCEFLOW"
 #define GENERAL_DOMAIN			"GENERAL"
+
+#define	WII_PMAGIC				"4E574949"
+#define	WII_PMAGICN				0x4E574949
+#define	GC_PMAGIC				"4E47434D"
+#define	GC_PMAGICN				0x4E47434D
+#define ENAND_PMAGIC			"454E414E"
+#define ENAND_PMAGICN			0x454E414E
+#define	NAND_PMAGIC				"4E414E44"
+#define	NAND_PMAGICN			0x4E414E44
+#define	HB_PMAGIC				"48425257"
+#define	HB_PMAGICB				"484252"
+#define	HB_PMAGICN				0x48425257
+#define SCUMM_PMAGIC			"5343564D"
+#define SCUMM_PMAGICN			0x5343564D
 
 #define DEVELOPERS				"Fledge68, mod by Iamerror80"
 #define PAST_DEVELOPERS			"FIX94, OverjoY, Hibernatus, Narolez, Hulk, Miigotu, r-win"

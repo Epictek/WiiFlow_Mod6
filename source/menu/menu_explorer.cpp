@@ -728,11 +728,11 @@ void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 		u8 pos = m_plugin.GetPluginPosition(magic);
 		
 		//! Close if magic is not valid or if emunand, realnand or scummvm
-		if(pos == 255 || magic == 0x5343564D || magic == 0x454E414E || magic == 0x4E414E44)
+		if(pos == 255 || magic == ENAND_PMAGICN || magic == NAND_PMAGICN || magic == SCUMM_PMAGICN)
 			return;
 
 		//! Enable import and launch of roms if magic is not wii, gc or hb
-		if(magic != 0x4E574949 && magic != 0x4E47434D && strncasecmp(fmt("%06x", magic), "484252", 6) != 0)
+		if(magic != WII_PMAGICN && magic != GC_PMAGICN && strncasecmp(fmt("%06x", magic), HB_PMAGICB, 6) != 0)
 		{
 			pluginExplorer = true;
 			strcpy(m_plugin.PluginMagicWord, fmt("%08x", magic));
@@ -745,13 +745,13 @@ void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 			string domain;
 			switch(magic)
 			{
-				case 0x4E574949:
+				case WII_PMAGICN:
 					domain = wii_domain;
 					break;
-				case 0x4E47434D:
+				case GC_PMAGICN:
 					domain = gc_domain;
 					break;
-				case 0x48425257:
+				case HB_PMAGICN:
 					domain = homebrew_domain;
 					break;
 				default:

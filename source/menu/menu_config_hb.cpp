@@ -173,7 +173,7 @@ void CMenu::_configHB(u8 startPage)
 				{
 					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_HOMEBREW);
-					if(m_current_view & COVERFLOW_HOMEBREW || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
+					if(m_current_view & COVERFLOW_HOMEBREW || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(HB_PMAGIC)))
 						m_refreshGameList = true;
 					_showConfigHB(true);
 				}

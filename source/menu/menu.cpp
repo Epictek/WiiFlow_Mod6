@@ -2149,8 +2149,7 @@ void CMenu::_initCF(bool dumpGameList)
 	{
 		bool defaultBoxMode = m_cfg.getBool(general_domain, "box_mode", true); //
 		if((m_current_view == COVERFLOW_HOMEBREW) ||
-		(m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount == 1 &&
-		m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
+		(m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(HB_PMAGIC)))
 		{
 			CoverFlow.setBoxMode(m_cfg.getBool(homebrew_domain, "box_mode", false));
 			CoverFlow.setSmallBoxMode(m_cfg.getBool(homebrew_domain, "smallbox", true));
@@ -2232,7 +2231,7 @@ void CMenu::_initCF(bool dumpGameList)
 		u32 sourceNumber = 0;
 		if(m_current_view == COVERFLOW_PLUGIN && !m_sourceflow)
 		{
-			if(!m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(strtoul(m_cfg.getString(plugin_domain, "cur_magic", "00000000").c_str(), NULL, 16))))
+			if(!m_plugin.GetEnabledStatus(m_cfg.getString(PLUGIN_DOMAIN, "cur_magic", "00000000").c_str()))
 			{
 				for(u8 i = 0; m_plugin.PluginExist(i); ++i)
 				{
@@ -2246,13 +2245,13 @@ void CMenu::_initCF(bool dumpGameList)
 			
 			strncpy(m_plugin.PluginMagicWord, m_cfg.getString(plugin_domain, "cur_magic").c_str(), 8);
 			
-			if(strncasecmp(m_plugin.PluginMagicWord, "4E47434D", 8) == 0) // NGCM
+			if(strncasecmp(m_plugin.PluginMagicWord, GC_PMAGIC, 8) == 0) // NGCM
 				ID = m_cfg.getString("plugin_item", m_plugin.PluginMagicWord, "");
-			else if(strncasecmp(m_plugin.PluginMagicWord, "4E574949", 8) == 0) // NWII
+			else if(strncasecmp(m_plugin.PluginMagicWord, WII_PMAGIC, 8) == 0) // NWII
 				ID = m_cfg.getString("plugin_item", m_plugin.PluginMagicWord, "");
-			else if(strncasecmp(m_plugin.PluginMagicWord, "4E414E44", 8) == 0) // NAND
+			else if(strncasecmp(m_plugin.PluginMagicWord, NAND_PMAGIC, 8) == 0) // NAND
 				ID = m_cfg.getString("plugin_item", m_plugin.PluginMagicWord, "");
-			else if(strncasecmp(m_plugin.PluginMagicWord, "454E414E", 8) == 0) // ENAN
+			else if(strncasecmp(m_plugin.PluginMagicWord, ENAND_PMAGIC, 8) == 0) // ENAN
 				ID = m_cfg.getString("plugin_item", m_plugin.PluginMagicWord, "");
 			else
 				filename = m_cfg.getString("plugin_item", m_plugin.PluginMagicWord, "");
@@ -2484,32 +2483,32 @@ bool CMenu::_loadPluginList()
 		const char *romDir = m_plugin.GetRomDir(i);
 		if(strstr(romDir, "scummvm.ini") == NULL)
 		{
-			if(strncasecmp(m_plugin.PluginMagicWord, "484252", 6) == 0) // HBRW
+			if(strncasecmp(m_plugin.PluginMagicWord, HB_PMAGICB, 6) == 0) // HBRW
 			{
 				if(updateCache)
 					m_cfg.setBool(homebrew_domain, "update_cache", true);
 				_loadHomebrewList(romDir);
 			}
-			else if(strncasecmp(m_plugin.PluginMagicWord, "4E47434D", 8) == 0) // NGCM
+			else if(strncasecmp(m_plugin.PluginMagicWord, GC_PMAGIC, 8) == 0) // NGCM
 			{
 				if(updateCache)
 					m_cfg.setBool(gc_domain, "update_cache", true);
 				_loadGamecubeList();
 			}
-			else if(strncasecmp(m_plugin.PluginMagicWord, "4E574949", 8) == 0) // NWII
+			else if(strncasecmp(m_plugin.PluginMagicWord, WII_PMAGIC, 8) == 0) // NWII
 			{
 				if(updateCache)
 					m_cfg.setBool(wii_domain, "update_cache", true);
 				_loadWiiList();
 			}
-			else if(strncasecmp(m_plugin.PluginMagicWord, "4E414E44", 8) == 0) // NAND
+			else if(strncasecmp(m_plugin.PluginMagicWord, NAND_PMAGIC, 8) == 0) // NAND
 			{
 				if(updateCache)
 					m_cfg.setBool(channel_domain, "update_cache", true);
 				m_cfg.setInt(channel_domain, "channels_type", CHANNELS_REAL);
 				_loadChannelList();
 			}
-			else if(strncasecmp(m_plugin.PluginMagicWord, "454E414E", 8) == 0) // ENAN
+			else if(strncasecmp(m_plugin.PluginMagicWord, ENAND_PMAGIC, 8) == 0) // ENAN
 			{
 				if(updateCache)
 					m_cfg.setBool(channel_domain, "update_cache", true);

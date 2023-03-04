@@ -303,10 +303,10 @@ void CMenu::_checkboxesMenu(u8 md)
 						u8 pos = firstCheckbox + i;
 						u32 magic = m_plugin.GetPluginMagic(pos);
 						//! no explorer edit if emunand, realnand, scumm or hb
-						bool not_allowed = magic == 0x454E414E || magic == 0x4E414E44 || magic == 0x5343564D || magic == 0x48425257;
+						bool not_allowed = magic == ENAND_PMAGICN || magic == NAND_PMAGICN || magic == SCUMM_PMAGICN || magic == HB_PMAGICN;
 						if(mode == EDIT_ROMDIR_PATH)
 							//! no wii or gc either for romdir
-							not_allowed = not_allowed || magic == 0x4E574949 || magic == 0x4E47434D;
+							not_allowed = not_allowed || magic == WII_PMAGICN || magic == GC_PMAGICN;
 						if(not_allowed)
 							_error(_t("smediterr", L"Not allowed!"));
 						else

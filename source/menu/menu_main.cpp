@@ -92,15 +92,15 @@ void CMenu::_getCustomBgTex()
 			{
 				case COVERFLOW_CHANNEL:
 					if(m_cfg.getInt(channel_domain, "channels_type") & CHANNELS_REAL)
-						strncpy(m_plugin.PluginMagicWord, "4E414E44", 9);
+						strncpy(m_plugin.PluginMagicWord, NAND_PMAGIC, 9);
 					else
-						strncpy(m_plugin.PluginMagicWord, "454E414E", 9);
+						strncpy(m_plugin.PluginMagicWord, ENAND_PMAGIC, 9);
 					break;
 				case COVERFLOW_HOMEBREW:
-					strncpy(m_plugin.PluginMagicWord, "48425257", 9);
+					strncpy(m_plugin.PluginMagicWord, HB_PMAGIC, 9);
 					break;
 				case COVERFLOW_GAMECUBE:
-					strncpy(m_plugin.PluginMagicWord, "4E47434D", 9);
+					strncpy(m_plugin.PluginMagicWord, GC_PMAGIC, 9);
 					break;
 				case COVERFLOW_PLUGIN:
 					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
@@ -120,11 +120,11 @@ void CMenu::_getCustomBgTex()
 							i++;
 						}
 						//! if multiple platforms default to HOMEBREW
-						strncpy(m_plugin.PluginMagicWord, match ? m_plugin.PluginMagicWord : "48425257", match ? 8 : 9);
+						strncpy(m_plugin.PluginMagicWord, match ? m_plugin.PluginMagicWord : HB_PMAGIC, match ? 8 : 9);
 					}
 					break;
 				default: // COVERFLOW_WII
-					strncpy(m_plugin.PluginMagicWord, "4E574949", 9);
+					strncpy(m_plugin.PluginMagicWord, WII_PMAGIC, 9);
 			}
 			if(strlen(m_plugin.PluginMagicWord) == 8)
 				fn = m_platform.getString("PLUGINS", m_plugin.PluginMagicWord, "");
@@ -378,7 +378,7 @@ void CMenu::_showCF(bool refreshList)
 	else if(m_current_view & COVERFLOW_PLUGIN)
 	{
 		//! check if homebrew plugin
-		if(enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257)) && hb_smallbox)
+		if(enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(HB_PMAGIC) && hb_smallbox)
 			strcpy(cf_domain, "_SMALLFLOW");
 		else if(enabledPluginsCount > 0 && m_platform.loaded())
 		{
@@ -494,7 +494,7 @@ int CMenu::main(void)
 	/* Show explorer if last game was launched using explorer in source menu */
 	if(m_explorer_on_start)
 	{
-		u32 plmagic = strtoul(m_cfg.getString(plugin_domain, "cur_magic", "4E574949").c_str(), NULL, 16);
+		u32 plmagic = strtoul(m_cfg.getString(plugin_domain, "cur_magic", WII_PMAGIC).c_str(), NULL, 16);
 		string plpath = m_cfg.getString(general_domain, "explorer_path", "");
 		_pluginExplorer(plpath.c_str(), plmagic, true);
 		m_explorer_on_start = false;

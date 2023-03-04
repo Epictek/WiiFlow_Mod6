@@ -363,7 +363,7 @@ void CMenu::_cacheCovers()
 	bool smallBox = false;
 	if(m_sourceflow)
 		smallBox = m_cfg.getBool(sourceflow_domain, "smallbox", true);
-	else if(m_current_view == COVERFLOW_HOMEBREW || (m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))))
+	else if(m_current_view == COVERFLOW_HOMEBREW || (m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(HB_PMAGIC)))
 		smallBox = m_cfg.getBool(homebrew_domain, "smallbox", true);
 	
 	for(vector<dir_discHdr>::iterator hdr = m_gameList.begin(); hdr != m_gameList.end(); ++hdr)
@@ -547,22 +547,22 @@ const char *CMenu::getBlankCoverPath(const dir_discHdr *element)
 		switch(element->type)
 		{
 			case TYPE_CHANNEL:
-				strncpy(m_plugin.PluginMagicWord, "4E414E44", 9);
+				strncpy(m_plugin.PluginMagicWord, NAND_PMAGIC, 9);
 				break;
 			case TYPE_EMUCHANNEL:
-				strncpy(m_plugin.PluginMagicWord, "454E414E", 9);
+				strncpy(m_plugin.PluginMagicWord, ENAND_PMAGIC, 9);
 				break;
 			case TYPE_HOMEBREW:
-				strncpy(m_plugin.PluginMagicWord, "48425257", 9);
+				strncpy(m_plugin.PluginMagicWord, HB_PMAGIC, 9);
 				break;
 			case TYPE_GC_GAME:
-				strncpy(m_plugin.PluginMagicWord, "4E47434D", 9);
+				strncpy(m_plugin.PluginMagicWord, GC_PMAGIC, 9);
 				break;
 			case TYPE_PLUGIN:
 				strncpy(m_plugin.PluginMagicWord, fmt("%08x", element->settings[0]), 8);
 				break;
 			default: // wii
-				strncpy(m_plugin.PluginMagicWord, "4E574949", 9);
+				strncpy(m_plugin.PluginMagicWord, WII_PMAGIC, 9);
 		}
 		blankCoverTitle = m_platform.getString("PLUGINS", m_plugin.PluginMagicWord, "wii");
 	}

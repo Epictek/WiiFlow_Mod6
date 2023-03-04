@@ -298,7 +298,7 @@ void CMenu::_configGC(u8 startPage)
 				{
 					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_GAMECUBE);
-					if(m_current_view & COVERFLOW_GAMECUBE || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E47434D))))
+					if(m_current_view & COVERFLOW_GAMECUBE || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(GC_PMAGIC)))
 						m_refreshGameList = true;
 					_showConfigGC(true);
 				}
@@ -329,7 +329,7 @@ void CMenu::_configGC(u8 startPage)
 						m_cfg.setString(gc_domain, "gc_games_dir", tmpPath);
 						strcpy(gc_games_dir, tmpPath);
 						m_cfg.setBool(gc_domain, "update_cache", true);
-						if(m_current_view & COVERFLOW_GAMECUBE || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E47434D))))
+						if(m_current_view & COVERFLOW_GAMECUBE || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(GC_PMAGIC)))
 							m_refreshGameList = true;
 					}
 					_showConfigGC();

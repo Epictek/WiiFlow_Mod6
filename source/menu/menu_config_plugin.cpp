@@ -36,23 +36,22 @@ void CMenu::_showConfigPlugin(bool instant)
 	PlBtn = 0;
 	PlBtn2 = 0;
 	
-	if(m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))) // plugin wii
+	if(m_plugin.GetEnabledStatus(WII_PMAGIC)) // plugin wii
 	{
 		++max_line;
 		wii_enabled = true;
 	}
-	if(m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E)) ||
-	m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E414E44))) // plugin channels (emunand + realnand)
+	if(m_plugin.GetEnabledStatus(ENAND_PMAGIC) || m_plugin.GetEnabledStatus(NAND_PMAGIC)) // plugin channels (emunand + realnand)
 	{
 		++max_line;
 		chan_enabled = true;
 	}
-	if(m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E47434D))) // plugin gamecube
+	if(m_plugin.GetEnabledStatus(GC_PMAGIC)) // plugin gamecube
 	{
 		++max_line;
 		gc_enabled = true;
 	}
-	if(m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x48425257))) // plugin homebrew
+	if(m_plugin.GetEnabledStatus(HB_PMAGIC)) // plugin homebrew
 	{
 		++max_line;
 		hb_enabled = true;
@@ -63,7 +62,7 @@ void CMenu::_showConfigPlugin(bool instant)
 		while(m_plugin.PluginExist(pos) && !m_plugin.GetEnabledStatus(pos)) { ++pos; }
 		u32 magic = m_plugin.GetPluginMagic(pos);
 		//! if magic is not wii, gc, emunand, realnand, scumm or hb
-		if(magic != 0x4E574949 && magic != 0x4E47434D && magic != 0x454E414E && magic != 0x4E414E44 && magic != 0x5343564D && magic != 0x48425257)
+		if(magic != WII_PMAGICN && magic != GC_PMAGICN && magic != ENAND_PMAGICN && magic != NAND_PMAGICN && magic != SCUMM_PMAGICN && magic != HB_PMAGICN)
 		{
 			max_line = max_line + 2;
 			pl_enabled = true;

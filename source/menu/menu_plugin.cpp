@@ -161,9 +161,9 @@ void CMenu::_PluginSettings()
 			else
 				enabledMagics.append(',' + magic);
 			
-			if(magic == "454e414e")
+			if(upperCase(magic) == ENAND_PMAGIC)
 				channels_type |= CHANNELS_EMU;
-			else if(magic == "4e414e44")
+			else if(upperCase(magic) == NAND_PMAGIC)
 				channels_type |= CHANNELS_REAL;
 		}
 	}

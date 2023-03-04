@@ -349,7 +349,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 					s8 direction = m_btnMgr.selected(m_configBtnP[0]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_CHANNEL);
 					_checkEmuNandSettings(EMU_NAND); // refresh emunands in case the partition was changed
-					if((m_current_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
+					if((m_current_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(ENAND_PMAGIC)))
 						m_refreshGameList = true;
 					_showConfigNandEmu(true);
 				}
@@ -519,7 +519,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 		//! we only need to force update cache in case nand has just been extracted
 		if(ExtNand)
 			m_cfg.setBool(channel_domain, "update_cache", true);
-		if((m_current_view & COVERFLOW_CHANNEL) || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
+		if((m_current_view & COVERFLOW_CHANNEL) || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(ENAND_PMAGIC)))
 			m_refreshGameList = true;
 	}
 	
@@ -541,7 +541,7 @@ string CMenu::_SetEmuNand(s8 direction)
 		return "";
 	//! if wii games currently displayed in coverflow set savesnand
 	if(m_current_view & COVERFLOW_WII ||
-	(m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))))
+	(m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(WII_PMAGIC)))
 	{
 		curSavesNand = loopNum(curSavesNand + direction, savesNands.size());
 		m_cfg.setString(wii_domain, "current_save_emunand", savesNands[curSavesNand]);
@@ -552,7 +552,7 @@ string CMenu::_SetEmuNand(s8 direction)
 	//! else if emunand currently displayed in coverflow, along with realnand or not
 	else if((m_current_view & COVERFLOW_CHANNEL && 
 	(m_cfg.getInt(channel_domain, "channels_type") >= CHANNELS_EMU || neek2o())) || 
-	(m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x454E414E))))
+	(m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(ENAND_PMAGIC)))
 	{
 		curEmuNand = loopNum(curEmuNand + direction, emuNands.size());
 		m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);

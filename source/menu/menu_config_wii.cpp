@@ -314,7 +314,7 @@ void CMenu::_configWii(u8 startPage)
 				{
 					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_WII); //
-					if(m_current_view & COVERFLOW_WII || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))))
+					if(m_current_view & COVERFLOW_WII || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(WII_PMAGIC)))
 						m_refreshGameList = true;
 					_showConfigWii(true);
 				}
@@ -345,7 +345,7 @@ void CMenu::_configWii(u8 startPage)
 						m_cfg.setString(wii_domain, "wii_games_dir", tmpPath);
 						strcpy(wii_games_dir, tmpPath);
 						m_cfg.setBool(wii_domain, "update_cache", true);
-						if(m_current_view & COVERFLOW_WII || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(m_plugin.GetPluginPosition(0x4E574949))))
+						if(m_current_view & COVERFLOW_WII || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(WII_PMAGIC)))
 							m_refreshGameList = true;
 					}
 					_showConfigWii();

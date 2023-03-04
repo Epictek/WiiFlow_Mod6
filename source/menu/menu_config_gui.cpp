@@ -237,7 +237,7 @@ void CMenu::_configGui(void)
 		//! reset all coverflow layouts to first one
 		for(m_current_view = COVERFLOW_WII; m_current_view <= COVERFLOW_HOMEBREW; m_current_view = m_current_view * 2)
 			_setCFVersion(1);
-		// _setSrcFlow(1); // not sure if really needed
+		_setSrcFlow(1);
 		_error(_t("errboot8", L"WiiFlow needs rebooting to apply changes."));
 		m_exit = true;
 		m_reload = true;
