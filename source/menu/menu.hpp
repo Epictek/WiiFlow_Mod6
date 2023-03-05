@@ -675,7 +675,7 @@ private:
 	void _PluginSettings();
 	void _CategorySettings(bool fromGameSet = false);
 	void _checkboxesMenu(u8 md);
-	char *_keyboard(bool search = false); //
+	char *_keyboard(void); //
 	void _CategoryConfig(void); //
 	bool _Home();
 	bool _ExitTo();

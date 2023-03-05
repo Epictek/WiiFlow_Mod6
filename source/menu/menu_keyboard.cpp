@@ -9,7 +9,7 @@ char text[17];
 
 static const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -',.<"; // 42 buttons
 
-char *CMenu::_keyboard(bool search)
+char *CMenu::_keyboard(void)
 {
 	u8 repeatDelay = 0;
 	u8 n = 0;
@@ -20,25 +20,21 @@ char *CMenu::_keyboard(bool search)
 	for(u8 i = 0; i < 42; ++i)
 		m_btnMgr.show(m_keyboardBtnKey[i]);
 	m_btnMgr.show(m_configBtnBack);
+	m_btnMgr.setText(m_configBtnCenter, _t("ok", L"Ok"));
+	m_btnMgr.show(m_configBtnCenter);
 	m_btnMgr.setText(m_configLblTitle, textLbl);
 	m_btnMgr.show(m_configLblTitle);
 	
 	for(u8 i = 0; i < ARRAY_SIZE(m_keyboardLblUser); ++i)
 		if(m_keyboardLblUser[i] != -1)
-			m_btnMgr.show(m_keyboardLblUser[i]);	
-	
-	if(!search)
-	{
-		m_btnMgr.setText(m_configBtnCenter, _t("ok", L"Ok"));
-		m_btnMgr.show(m_configBtnCenter);
-	}
+			m_btnMgr.show(m_keyboardLblUser[i]);
 	
 	while(!m_exit)
 	{
 		_mainLoopCommon();
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 		{
-			text[n * search] = '\0'; // same as button ok if search else cancel
+			text[0] = '\0';
 			break;
 		}
 		else if(BTN_LEFT_REV_REPEAT || BTN_UP_REPEAT)
@@ -65,7 +61,7 @@ char *CMenu::_keyboard(bool search)
 		{
 			if(m_btnMgr.selected(m_configBtnBack))
 			{
-				text[n * search] = '\0'; // same as button ok if search else cancel
+				text[0] = '\0';
 				break;
 			}
 			else if(m_btnMgr.selected(m_configBtnCenter))

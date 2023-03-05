@@ -84,8 +84,9 @@ struct dir_discHdr
 
 	u32 casecolor;
 	u16 index;
-	u8 esrb;
-	u8 controllers;
+	u16 year;
+	// u8 esrb;
+	// u8 controllers;
 	u8 players;
 	u8 wifi;
 } ATTRIBUTE_PACKED;

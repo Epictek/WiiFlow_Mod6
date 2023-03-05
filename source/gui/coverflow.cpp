@@ -1944,6 +1944,12 @@ bool CCoverFlow::_sortByBtnNumbers(CItem item1, CItem item2)
 	return item1.hdr->settings[0] < item2.hdr->settings[0];
 }
 
+bool CCoverFlow::_sortByYear(CItem item1, CItem item2)
+{
+	if(item1.hdr->year == item2.hdr->year) return _sortByAlpha(item1, item2);
+	return item1.hdr->year < item2.hdr->year;
+}
+
 bool CCoverFlow::start(void)
 {
 	if (m_items.empty()) return true;
@@ -1963,6 +1969,8 @@ bool CCoverFlow::start(void)
 		sort(m_items.begin(), m_items.end(), CCoverFlow::_sortByWifiPlayers);
 	else if (m_sorting == SORT_BTN_NUMBERS)
 		sort(m_items.begin(), m_items.end(), CCoverFlow::_sortByBtnNumbers);
+	else if (m_sorting == SORT_YEAR)
+		sort(m_items.begin(), m_items.end(), CCoverFlow::_sortByYear);
 
 	/* Load the colored skin/spine images if not already done */
 	if(!m_dvdskin_loaded)
@@ -2355,6 +2363,9 @@ void CCoverFlow::nextLetter(wchar_t *c)
 
 	if (m_sorting == SORT_GAMEID)
 		return nextID(c);
+	
+	if (m_sorting == SORT_YEAR)
+		return nextYear(c);	
 
 	LockMutex lock(m_mutex);
 
@@ -2394,6 +2405,9 @@ void CCoverFlow::prevLetter(wchar_t *c)
 
 	if (m_sorting == SORT_GAMEID)
 		return prevID(c);
+	
+	if (m_sorting == SORT_YEAR)
+		return prevYear(c);
 
 	LockMutex lock(m_mutex);
 	u32 i, j = 0, k = 0, n = m_items.size();
@@ -2431,6 +2445,63 @@ void CCoverFlow::prevLetter(wchar_t *c)
 		while (!iswalnum(m_items[loopNum(curPos - i, n)].hdr->title[k]) && m_items[loopNum(curPos - i, n)].hdr->title[k+1] != L'\0') k++;
 		c[0] = upperCaseWChar(m_items[loopNum(curPos - i, n)].hdr->title[k]);
 	}
+
+	_updateAllTargets();
+}
+
+void CCoverFlow::nextYear(wchar_t *c)
+{
+	LockMutex lock(m_mutex);
+	u32 i, n = m_items.size();
+
+	_completeJump();
+	u32 curPos = _currentPos();
+	int year = m_items[curPos].hdr->year;
+
+	for (i = 1; i < n; ++i)
+		if (m_items[loopNum(curPos + i, n)].hdr->year != year)
+			break;
+
+	if (i < n)
+	{
+		_setJump(i);
+		year = m_items[loopNum(curPos + i, n)].hdr->year;
+	}
+
+	char y[5] = {0 ,0 ,0 ,0, 0};
+	itoa(year, y, 10);
+	mbstowcs(c, y, strlen(y));
+
+	_updateAllTargets();
+}
+
+void CCoverFlow::prevYear(wchar_t *c)
+{
+	LockMutex lock(m_mutex);
+	u32 i, n = m_items.size();
+
+	_completeJump();
+	u32 curPos = _currentPos();
+	int year = m_items[curPos].hdr->year;
+
+	for (i = 1; i < n; ++i)
+		if (m_items[loopNum(curPos - i, n)].hdr->year != year)
+		{
+			year = m_items[loopNum(curPos - i, n)].hdr->year;
+			while(i < n && (m_items[loopNum(curPos - i, n)].hdr->year == year)) ++i;
+			i--;
+			break;
+		}
+
+	if (i < n)
+	{
+		_setJump(-i);
+		year = m_items[loopNum(curPos - i, n)].hdr->year;
+	}
+
+	char y[5] = {0 ,0 ,0 ,0, 0};
+	itoa(year, y, 10);
+	mbstowcs(c, y, strlen(y));
 
 	_updateAllTargets();
 }

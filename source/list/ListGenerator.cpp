@@ -31,7 +31,7 @@ dir_discHdr ListElement;
 Config CustomTitles;
 GameTDB gameTDB;
 Config romNamesDB;
-string platformName;
+const char *platformName;
 string pluginsDataDir;
 
 void ListGenerator::Init(const char *settingsDir, const char *Language, const char *plgnsDataDir)
@@ -95,6 +95,9 @@ static void AddISO(const char *GameID, const char *GameTitle, const char *GamePa
 	const char *gameTDB_Title = NULL;
 	if(gameTDB.IsLoaded())
 	{
+		int PublishDate = gameTDB.GetPublishDate(ListElement.id);
+		int year = PublishDate >> 16;
+		ListElement.year = year;
 		if(ListElement.casecolor == GameColor)
 			ListElement.casecolor = gameTDB.GetCaseColor(ListElement.id);
 		ListElement.wifi = gameTDB.GetWifiPlayers(ListElement.id);
@@ -230,7 +233,7 @@ static void Add_Plugin_Game(char *FullPath)
 		string ShortName = m_plugin.GetRomName(FullPath);
 		// gprintf("Add_Plugin_Game: FullPath=%s, ShortName=%s\n", FullPath, ShortName.c_str());
 		/* Get 6 character unique romID (from Screenscraper.fr) using shortName. if fails then use CRC or CD serial to get romID */
-		romID = m_plugin.GetRomId(FullPath, m_cacheList.Magic, romNamesDB, pluginsDataDir.c_str(), platformName.c_str(), ShortName.c_str());
+		romID = m_plugin.GetRomId(FullPath, m_cacheList.Magic, romNamesDB, pluginsDataDir.c_str(), platformName, ShortName.c_str());
 	}
 	if(romID.empty())
 		romID = "PLUGIN";
@@ -261,6 +264,13 @@ static void Add_Plugin_Game(char *FullPath)
 			mbstowcs(ListElement.title, RomFilename, 63);
 	}
 	Asciify(ListElement.title);
+	int year = 0;
+	if(romID != "PLUGIN" && gameTDB.IsLoaded())
+	{
+		int PublishDate = gameTDB.GetPublishDate(romID.c_str());
+		year = PublishDate >> 16;
+	}
+	ListElement.year = year;
 	ListElement.settings[0] = m_cacheList.Magic; // plugin magic
 	ListElement.casecolor = m_cacheList.Color;
 	ListElement.type = TYPE_PLUGIN;
@@ -349,6 +359,13 @@ void ListGenerator::ParseScummvmINI(Config &ini, const char *Device, const char 
 		}
 		Asciify(ListElement.title);
 		strcpy(ListElement.path, GameDomain);
+		int year = 0;
+		if(GameID != "PLUGIN" && gameTDB.IsLoaded())
+		{
+			int PublishDate = gameTDB.GetPublishDate(GameID.c_str());
+			year = PublishDate >> 16;
+		}
+		ListElement.year = year;
 		ListElement.settings[0] = m_cacheList.Magic; // scummvm magic
 		ListElement.casecolor = m_cacheList.Color;
 		ListElement.type = TYPE_PLUGIN;
@@ -362,7 +379,7 @@ void ListGenerator::ParseScummvmINI(Config &ini, const char *Device, const char 
 }
 
 /** Note: scummvm games are parsed above **/
-void ListGenerator::CreateRomList(Config &platform_cfg, const string& romsDir, const vector<string>& FileTypes, const string& DBName, bool UpdateCache)
+void ListGenerator::CreateRomList(const char *platform, const string& romsDir, const vector<string>& FileTypes, const string& DBName, bool UpdateCache)
 {
 	Clear();
 	if(!DBName.empty())
@@ -377,29 +394,17 @@ void ListGenerator::CreateRomList(Config &platform_cfg, const string& romsDir, c
 			fsop_deleteFile(DBName.c_str());
 		}
 	}
-	platformName = "";
-	if(platform_cfg.loaded())
+	
+	platformName = platform; // done to use it in add plugin game
+	if(platformName != NULL)
 	{
-		/* Search platform.ini to find plugin magic to get platformName */
-		platformName = platform_cfg.getString("PLUGINS", m_plugin.PluginMagicWord);
-		if(!platformName.empty())
-		{
-			/* check COMBINED for platform names that mean the same system just different region
-			some platforms have different names per country (ex. Genesis/Megadrive)
-			but we use only one platform name for both */
-			string newName = platform_cfg.getString("COMBINED", platformName);
-			if(newName.empty())
-				platform_cfg.remove("COMBINED", platformName);
-			else
-				platformName = newName;
+		/* Load rom names and crc database */
+		romNamesDB.load(fmt("%s/%s/%s.ini", pluginsDataDir.c_str(), platformName, platformName));
 
-			/* Load rom names and crc database */
-			romNamesDB.load(fmt("%s/%s/%s.ini", pluginsDataDir.c_str(), platformName.c_str(), platformName.c_str()));
-			/* Load platform name.xml database to get game's info using the gameID */
-			gameTDB.OpenFile(fmt("%s/%s/%s.xml", pluginsDataDir.c_str(), platformName.c_str(), platformName.c_str()));
-			if(gameTDB.IsLoaded())
-				gameTDB.SetLanguageCode(gameTDB_Language.c_str());
-		}
+		/* Load platform name.xml database to get game's info using the gameID */
+		gameTDB.OpenFile(fmt("%s/%s/%s.xml", pluginsDataDir.c_str(), platformName, platformName));
+		if(gameTDB.IsLoaded())
+			gameTDB.SetLanguageCode(gameTDB_Language.c_str());
 	}
 	CustomTitles.load(CustomTitlesPath.c_str());
 	GetFiles(romsDir.c_str(), FileTypes, Add_Plugin_Game, false, 30); // wow 30 subfolders! really?
@@ -433,6 +438,9 @@ static void Create_Channel_List(bool realNAND)
 		const char *gameTDB_Title = NULL;
 		if(gameTDB.IsLoaded())
 		{
+			int PublishDate = gameTDB.GetPublishDate(ListElement.id);
+			int year = PublishDate >> 16;
+			ListElement.year = year;
 			if(ListElement.casecolor == 0xFFFFFF)
 				ListElement.casecolor = gameTDB.GetCaseColor(ListElement.id);
 			ListElement.wifi = gameTDB.GetWifiPlayers(ListElement.id);

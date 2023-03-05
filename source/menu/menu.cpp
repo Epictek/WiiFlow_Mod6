@@ -2527,7 +2527,19 @@ bool CMenu::_loadPluginList()
 				vector<string> FileTypes = stringToVector(m_plugin.GetFileTypes(i), '|');
 				m_cacheList.Color = m_plugin.GetCaseColor(i);
 				m_cacheList.Magic = m_plugin.GetPluginMagic(i);
-				m_cacheList.CreateRomList(m_platform, romsDir, FileTypes, cachedListFile, updateCache);
+				string platformName = m_platform.getString("PLUGINS", m_plugin.PluginMagicWord, "");
+				if(!platformName.empty())
+				{
+					/* check COMBINED for platform names that mean the same system just different region
+					some platforms have different names per country (ex. Genesis/Megadrive)
+					but we use only one platform name for both */
+					string newName = m_platform.getString("COMBINED", platformName, "");
+					if(newName.empty())
+						m_platform.remove("COMBINED", platformName);
+					else
+						platformName = newName;
+				}
+				m_cacheList.CreateRomList(platformName.c_str(), romsDir, FileTypes, cachedListFile, updateCache);
 				for(vector<dir_discHdr>::iterator tmp_itr = m_cacheList.begin(); tmp_itr != m_cacheList.end(); tmp_itr++)
 				{
 					m_gameList.push_back(*tmp_itr);

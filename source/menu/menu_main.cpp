@@ -737,7 +737,9 @@ int CMenu::main(void)
 				if(BTN_B_OR_1_HELD) // cycle sort modes
 				{
 					bUsed = true;
-					if(m_current_view == COVERFLOW_PLUGIN || m_current_view == COVERFLOW_HOMEBREW) // alpha, playcount & lastplayed only
+					if(m_current_view & COVERFLOW_HOMEBREW)
+						sort = loopNum(sort + 1, SORT_YEAR); // alpha, playcount & lastplayed only
+					else if(m_current_view & COVERFLOW_PLUGIN) // alpha, playcount, lastplayed & year only
 						sort = loopNum(sort + 1, SORT_GAMEID);
 					else // change all other coverflow sort mode
 						sort = loopNum(sort + 1, SORT_MAX);
@@ -750,7 +752,7 @@ int CMenu::main(void)
 				{
 					_hideMain();
 					char *c = NULL;
-					c = _keyboard(true);
+					c = _keyboard();
 					if(strlen(c) > 0)
 					{
 						m_showtimer = 240;
@@ -1212,26 +1214,26 @@ wstringEx CMenu::_sortLabel(int sort)
 		return m_loc.getWString(m_curLanguage, "byplaycount", L"By play count");
 	else if(sort == SORT_LASTPLAYED)
 		return m_loc.getWString(m_curLanguage, "bylastplayed", L"By last played");
+	else if(sort == SORT_YEAR)
+		return m_loc.getWString(m_curLanguage, "byyear", L"By released year");
 	else if(sort == SORT_GAMEID)
 		return m_loc.getWString(m_curLanguage, "bygameid", L"By game ID");
 	else if(sort == SORT_WIFIPLAYERS)
 		return m_loc.getWString(m_curLanguage, "bywifiplayers", L"By wifi players");
 	else if(sort == SORT_PLAYERS)
 		return m_loc.getWString(m_curLanguage, "byplayers", L"By players");
-	else if(sort == SORT_BTN_NUMBERS)
-		return m_loc.getWString(m_curLanguage, "bybtnnumbers", L"By button numbers");
 	return L"";
 }
 
 void CMenu::_sortCF(bool previous)
 {
 	int sorting = m_cfg.getInt(_domainFromView(), "sort", SORT_ALPHA);
-	if(sorting != SORT_ALPHA && sorting != SORT_PLAYERS && sorting != SORT_WIFIPLAYERS && sorting != SORT_GAMEID)
+	if(sorting != SORT_ALPHA && sorting != SORT_YEAR && sorting != SORT_PLAYERS && sorting != SORT_WIFIPLAYERS && sorting != SORT_GAMEID)
 	{
 		CoverFlow.setSorting((Sorting)SORT_ALPHA);
 		sorting = SORT_ALPHA;
 	}
-	wchar_t c[3] = {0, 0, 0};
+	wchar_t c[5] = {0, 0, 0, 0, 0};
 	if(previous)
 		CoverFlow.prevLetter(c);
 	else
