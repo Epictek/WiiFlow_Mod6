@@ -21,7 +21,6 @@
  * 3. This notice may not be removed or altered from any source
  * distribution.
  ***************************************************************************/
- 
 #include <gccore.h>
 #include <stdio.h>
 #include <string.h>
@@ -126,7 +125,7 @@ bool PartitionHandle::Mount(int pos, const char *name, bool forceFAT)
 	if(valid(pos))
 		UnMount(pos);
 
-	if(!name)
+	if(!name || strlen(name) > 8)
 		return false;
 
 	if(pos >= (int)MountNameList.size())
@@ -134,13 +133,12 @@ bool PartitionHandle::Mount(int pos, const char *name, bool forceFAT)
 
 	MountNameList[pos] = name;
 	char DeviceSyn[10];
-	memcpy(DeviceSyn, name, 8);
+	strcpy(DeviceSyn, name);
 	strcat(DeviceSyn, ":");
-	DeviceSyn[9] = '\0';
 
-	/* Some stupid partition manager think they don't need to edit the freaken MBR.
-	So we need to check the first 64 sectors and see if some partition is there.
-	libfat does that by default so let's use it. */
+	//! Some stupid partition manager think they don't need to edit the freaken MBR.
+	//! So we need to check the first 64 sectors and see if some partition is there.
+	//! libfat does that by default so let's use it.
 	if(forceFAT && (strlen(GetFSName(pos)) == 0 || strcmp(GetFSName(pos), "Unknown") == 0))
 	{
 		if(fatMount(MountNameList[pos].c_str(), interface, 0, CACHE, SECTORS))
@@ -153,7 +151,10 @@ bool PartitionHandle::Mount(int pos, const char *name, bool forceFAT)
 		}
 	}
 	if(!valid(pos))
+	{
+		gprintf("No valid partition position found! Failed to mount any partition.\n");
 		return false;
+	}
 
 	SetWbfsHandle(pos, NULL);
 	if(strncmp(GetFSName(pos), "FAT", 3) == 0 || strcmp(GetFSName(pos), "GUID-Entry") == 0)
@@ -197,6 +198,7 @@ bool PartitionHandle::Mount(int pos, const char *name, bool forceFAT)
 		}
 	}
 	/* FAIL */
+	gprintf("Exhausted all supported filesystem types! Failed to mount any partition.\n");
 	MountNameList[pos].clear();
 	return false;
 }
@@ -278,7 +280,7 @@ s8 PartitionHandle::FindPartitions()
 		{
 			s8 ret = CheckGPT();
 			if(ret == 0) // if it's a GPT we don't need to go on looking through the mbr anymore
-				return ret;
+				break;
 		}
 		if(partition->type == PARTITION_TYPE_DOS33_EXTENDED || partition->type == PARTITION_TYPE_WIN95_EXTENDED)
 		{

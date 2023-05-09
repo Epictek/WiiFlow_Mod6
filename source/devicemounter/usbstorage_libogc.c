@@ -1,32 +1,24 @@
-/**-------------------------------------------------------------
-
+/*-------------------------------------------------------------
 usbstorage.c -- Bulk-only USB mass storage support
-
 Copyright (C) 2008
 Sven Peter (svpe) <svpe@gmx.net>
 Copyright (C) 2009-2010
 tueidj, rodries, Tantric
-
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any
 damages arising from the use of this software.
-
 Permission is granted to anyone to use this software for any
 purpose, including commercial applications, and to alter it and
 redistribute it freely, subject to the following restrictions:
-
 1.	The origin of this software must not be misrepresented; you
 must not claim that you wrote the original software. If you use
 this software in a product, an acknowledgment in the product
 documentation would be appreciated but is not required.
-
 2.	Altered source versions must be plainly marked as such, and
 must not be misrepresented as being the original software.
-
 3.	This notice may not be removed or altered from any source
 distribution.
-
--------------------------------------------------------------**/
+-------------------------------------------------------------*/
 #if defined(HW_RVL)
 
 #include <gccore.h>
@@ -96,31 +88,9 @@ distribution.
 
 #define DEVLIST_MAXSIZE    			8
 
-static inline const char *PartFromType(u8 type)
-{
-	switch (type)
-	{
-		case 0x00: return "Unused";
-		case 0x01: return "FAT12";
-		case 0x04: return "FAT16";
-		case 0x05: return "Extended";
-		case 0x06: return "FAT16";
-		case 0x07: return "NTFS";
-		case 0x0b: return "FAT32";
-		case 0x0c: return "FAT32";
-		case 0x0e: return "FAT16";
-		case 0x0f: return "Extended";
-		case 0x82: return "LxSWP";
-		case 0x83: return "LINUX";
-		case 0x8e: return "LxLVM";
-		case 0xa8: return "OSX";
-		case 0xab: return "OSXBT";
-		case 0xaf: return "OSXHF";
-		case 0xbf: return "WBFS";
-		case 0xe8: return "LUKS";
-		default: return "Unknown";
-	}
-}
+#define MBR_SIGNATURE			0x55AA
+#define MBR_SIGNATURE_MOD		0x55AB // UStealth modifies the mbr signature to 0x55AB so the WiiU will not attempt to format it; treat 0x55AB as a valid signature
+#define WBFS_HEADER_MAGIC		0x57424653 // 0x57424653 is the characters "WBFS" in hex
 
 static heap_cntrl __heap;
 static bool __inited = false;
@@ -847,6 +817,8 @@ static bool __usbstorage_ogc_IsInserted(void)
 	u8 device_count;
 	u8 i, j;
 	u16 vid, pid;
+	u16 mbrSignature;
+	u32 wbfsHeaderMagic;
 	s32 maxLun;
 	s32 retval;
 	u32 sectorsize, numSectors;
@@ -925,24 +897,21 @@ static bool __usbstorage_ogc_IsInserted(void)
 				__usbstorage_ogc_reset(&__usbfd);
 				continue;
 			}
-			
-			u8* mbr = (u8*)__lwp_heap_allocate(&__heap, 512);
-			USBStorage_OGC_Read(&__usbfd, j, 0, 1, mbr);
-			bool readablePartition = false;
-			for (u8 i = 0; i < 4; i++)
-			{
-				u8 rawPartitionType = mbr[450 + i * 16];
-				const char* partitionType = PartFromType(rawPartitionType);
-				if (strcmp(partitionType, "Unknown") != 0) 
-					readablePartition = true;
-			}
-			__lwp_heap_free(&__heap, mbr);
 
-			if (!readablePartition) 
+			u8* mbr = (u8*)__lwp_heap_allocate(&__heap, 512);
+			if (mbr)
 			{
-				gprintf("USB storage device with vid %lu pid %lu has no readable partitions. Skipping...\n", vid, pid);
-				__usbstorage_ogc_reset(&__usbfd);
-				continue;
+				USBStorage_OGC_Read(&__usbfd, j, 0, 1, mbr);
+				mbrSignature = ((u16*)mbr)[255];
+				wbfsHeaderMagic = *((u32*)mbr);
+				__lwp_heap_free(&__heap, mbr);
+
+				if (mbrSignature != MBR_SIGNATURE && mbrSignature != MBR_SIGNATURE_MOD && wbfsHeaderMagic != WBFS_HEADER_MAGIC)
+				{
+					gprintf("USB storage device (vid %lu pid %lu) cannot be identified as MBR, GPT, or WBFS. Skipping...\n", vid, pid);
+					__usbstorage_ogc_reset(&__usbfd);
+					continue;
+				}
 			}
 
 			__mounted = true;
