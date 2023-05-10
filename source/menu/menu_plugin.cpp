@@ -26,7 +26,12 @@ void CMenu::_updatePluginText(void)
 {
 	u32 firstCheckbox = (curPage - 1) * 10;
 	for(u8 i = 0; i < min(firstCheckbox + 10, (u32)m_max_plugins) - firstCheckbox; i++)
-		m_btnMgr.setText(m_configLbl[i], m_plugin.GetPluginName(firstCheckbox + i));
+	{
+		string pluginName = m_plugin.GetPluginName(firstCheckbox + i).toUTF8();
+		if(pluginName.size() > 30)
+			pluginName = pluginName.substr(0, 30) + "...";
+		m_btnMgr.setText(m_configLbl[i], pluginName);
+	}
 }
 
 void CMenu::_updatePluginCheckboxes(bool instant)

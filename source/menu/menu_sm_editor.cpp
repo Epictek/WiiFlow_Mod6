@@ -18,8 +18,7 @@ enum
 	HIDE_SOURCES = 1,
 	SELECT_BUTTON = 2,
 	ASSIGN_PLUGIN = 3,
-	EDIT_ROMDIR_PATH = 4,
-	EDIT_EXPLORER_PATH = 5
+	EDIT_PLUGIN = 4,
 };
 
 void CMenu::_showCheckboxesMenu(void)
@@ -30,7 +29,7 @@ void CMenu::_showCheckboxesMenu(void)
 		m_btnMgr.setText(m_configLblTitle, _t("smedit2", L"Choose Source"));
 	else if (mode == ASSIGN_PLUGIN)
 		m_btnMgr.setText(m_configLblTitle, _t("cfgpl1", L"Select Plugins"));
-	else // mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
+	else // mode == EDIT_PLUGIN
 		m_btnMgr.setText(m_configLblTitle, _t("smedit3", L"Choose Plugin"));
 
 	m_btnMgr.show(m_configLblTitle);
@@ -56,7 +55,7 @@ void CMenu::_updateCheckboxesText(void)
 			string button = sfmt("button_%i", firstCheckbox + i);
 			m_btnMgr.setText(m_configLbl[i], m_source.getWString(button, "title", button));
 		}
-		else // mode == ASSIGN_PLUGIN || mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
+		else // mode == ASSIGN_PLUGIN || mode == EDIT_PLUGIN
 		{
 			m_btnMgr.setText(m_configLbl[i], m_plugin.GetPluginName(firstCheckbox + i));
 		}
@@ -124,7 +123,7 @@ void CMenu::_updateCheckboxes(bool instant)
 					m_checkboxBtn[i] = m_configChkOff[i];
 			}
 		}
-		else // mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
+		else // mode == EDIT_PLUGIN
 			m_checkboxBtn[i] = m_configBtnGo[i];
 		m_btnMgr.show(m_checkboxBtn[i], instant);
 		m_btnMgr.show(m_configLbl[i], instant);
@@ -297,64 +296,20 @@ void CMenu::_checkboxesMenu(u8 md)
 						_updateCheckboxes(true);
 						m_btnMgr.setSelected(m_checkboxBtn[i]);
 					}
-					else // mode == EDIT_ROMDIR_PATH || EDIT_EXPLORER_PATH
+					else // mode == EDIT_PLUGIN
 					{
 						_hideConfig(true);
 						u8 pos = firstCheckbox + i;
-						u32 magic = m_plugin.GetPluginMagic(pos);
-						//! no explorer edit if emunand, realnand, scumm or hb
-						bool not_allowed = magic == ENAND_PMAGICN || magic == NAND_PMAGICN || magic == SCUMM_PMAGICN || magic == HB_PMAGICN;
-						if(mode == EDIT_ROMDIR_PATH)
-							//! no wii or gc either for romdir
-							not_allowed = not_allowed || magic == WII_PMAGICN || magic == GC_PMAGICN;
-						if(not_allowed)
-							_error(_t("smediterr", L"Not allowed!"));
-						else
-							_setPluginPath(pos, mode);
+						_configPluginEditor(pos); //
 						_showCheckboxesMenu();
+						_updateCheckboxesText();
 					}
 				}
 			}
 		}
 	}
-	if(mode < EDIT_ROMDIR_PATH) // mode != EDIT_ROMDIR_PATH && mode != EDIT_EXPLORER_PATH
+	if(mode < EDIT_PLUGIN)
 		m_source.save();
 	_hideConfig(true);
 }
 
-void CMenu::_setPluginPath(u8 pos, u8 mode)
-{
-	int romsPartition = m_plugin.GetRomPartition(pos);
-	if(romsPartition < 0)
-		romsPartition = m_cfg.getInt(plugin_domain, "partition", 0);
-	const char *currentPath = mode == EDIT_ROMDIR_PATH ? fmt("%s:/%s", DeviceName[romsPartition], m_plugin.GetRomDir(pos)) : m_plugin.GetExplorerPath(m_plugin.GetPluginMagic(pos));
-	const char *path = _FolderExplorer(currentPath);
-	if(strlen(path) > 0)
-	{
-		Config m_plugin_cfg;
-		m_plugin_cfg.load(m_plugin.GetPluginPath(pos).c_str());
-		if(m_plugin_cfg.loaded())
-		{
-			if(mode == EDIT_ROMDIR_PATH)
-			{
-				romsPartition = DeviceHandle.PathToDriveType(path);
-				m_plugin_cfg.setInt(PLUGIN, "rompartition", romsPartition);
-				m_plugin.SetRomPartition(pos, romsPartition);
-				string rd = sfmt("%s", strchr(path, '/') + 1);
-				m_plugin_cfg.setString(PLUGIN, "romdir", rd);
-				m_plugin.SetRomDir(pos, rd);
-				strncpy(m_plugin.PluginMagicWord, fmt("%08x", m_plugin.GetPluginMagic(pos)), 8); //
-				string cachedListFile(fmt("%s/%s_%s.db", m_listCacheDir.c_str(), DeviceName[romsPartition], m_plugin.PluginMagicWord));
-				fsop_deleteFile(cachedListFile.c_str());
-				if(m_current_view & COVERFLOW_PLUGIN)
-					m_refreshGameList = true;
-			}
-			else // mode == EDIT_EXPLORER_PATH
-			{
-				m_plugin_cfg.setString(PLUGIN, "explorerpath", path);
-				m_plugin.SetExplorerPath(pos, path);
-			}
-			m_plugin_cfg.save(true);
-		}
-	}
-}

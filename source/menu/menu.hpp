@@ -641,6 +641,7 @@ private:
 	void _showAddGame(void); //
 	void _showCF(bool refreshList = false);
 	void _showCategoryConfig(bool instant = false); //
+	void _showConfigPluginEditor(bool instant = false); //
 	
 	/* Menu main functions */
 	bool _error(const wstringEx &msg, bool dialog = false);
@@ -659,6 +660,7 @@ private:
 	void _configDownload(bool fromGameSet = false);
 	void _configSource(void);
 	void _configBoot(void);
+	void _configPluginEditor(u8 pos); //
 	void _game(bool launch = false);
 	void _download(string gameId = string(), int dl_type = 0);
 	bool _code(char code[4]);
@@ -717,7 +719,7 @@ private:
 	void _getMaxSourceButton(void); //
 	void _getSourcePage(bool home = false); //
 	bool _getNewSource(u8 btn);
-	void _setPluginPath(u8 pos, u8 mode); //
+	// void _setPluginPath(u8 mode); //
 	
 	/* Plugins */
 	void _updatePluginText(void);
@@ -893,6 +895,7 @@ private:
 	static const SOption _AddRegionCover[10];
 	static const SOption _privateServer[3];
 	static const SOption _DeflickerOptions[7];
+	static const SOption _coverColor[6];
 	
 	static const SCFParamDesc _cfParams[];
 

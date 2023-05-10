@@ -175,6 +175,11 @@ const char *Plugin::GetCoverFolderName(u32 magic)
 	return NULL;
 }
 
+void Plugin::SetCoverFolderName(u8 pos, const string &cf)
+{
+	Plugins[pos].coverFolder = cf;
+}
+
 int Plugin::GetRomPartition(u8 pos)
 {
 	return Plugins[pos].romPartition;
@@ -212,6 +217,11 @@ bool Plugin::GetFileNamesAsTitles(u8 pos) //
 	return Plugins[pos].fileNamesAsTitles;
 }
 
+void Plugin::SetFileNamesAsTitles(u8 pos, bool FileNamesAsTitles) // 
+{
+	Plugins[pos].fileNamesAsTitles = FileNamesAsTitles;
+}
+
 string Plugin::GetGuideName(u32 magic) // 
 {
 	if((Plugin_Pos = GetPluginPosition(magic)) < 255)
@@ -236,6 +246,11 @@ u32 Plugin::GetCaseColor(u8 pos)
 	return Plugins[pos].caseColor;
 }
 
+void Plugin::SetCaseColor(u8 pos, u32 caseColor) //
+{
+	Plugins[pos].caseColor = caseColor;
+}
+
 s8 Plugin::GetBoxMode(u8 pos)
 {
 	return Plugins[pos].boxMode;
@@ -244,6 +259,11 @@ s8 Plugin::GetBoxMode(u8 pos)
 wstringEx Plugin::GetPluginName(u8 pos)
 {
 	return Plugins[pos].DisplayName;
+}
+
+void Plugin::SetPluginName(u8 pos, const string &pn) //
+{
+	Plugins[pos].DisplayName.fromUTF8(pn);
 }
 
 bool Plugin::PluginExist(u8 pos)

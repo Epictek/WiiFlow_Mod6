@@ -84,7 +84,7 @@ void CMenu::_showConfigWii(bool instant)
 		m_btnMgr.setText(m_configLbl[3], _t("part99", L"Preffered partition at boot"));
 		m_btnMgr.setText(m_configLblVal[3], part == -1 ? _t("none", L"None") : upperCase(partitionname));
 		//! Wii game custom path
-		m_btnMgr.setText(m_configLbl[4], _t("cfg778", L"Custom path"));
+		m_btnMgr.setText(m_configLbl[4], _t("cfg778", L"Game folder path"));
 		//! Install Wii game
 		m_btnMgr.setText(m_configLbl[5], _t("wbfsop1", L"Install game"));
 		//! Dump Wii game coverflow list

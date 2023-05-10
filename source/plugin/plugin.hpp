@@ -73,29 +73,35 @@ public:
 	const char *GetDolName(u32 magic);
 	const char *GetCoverFolderName(u32 magic);
 	const char *GetRomDir(u8 pos);
-	void SetRomDir(u8 pos, const string &rd);
 	const char *GetExplorerPath(u32 magic); //
-	void SetExplorerPath(u8 pos, const string &ep); //
 	bool GetFileNamesAsTitles(u8 pos); //
 	string GetGuideName(u32 magic); //
 	const string& GetFoldersToSkip(u32 magic); //
 	string GetRomName(const char *FullPath);
 	string GetRomId(char *romPath, u32 Magic, Config &m_crc, const char *datadir, const char *platform, const char *name);
 	int GetRomPartition(u8 pos);
-	void SetRomPartition(u8 pos, int part);
 	const string& GetFileTypes(u8 pos);
 	wstringEx GetPluginName(u8 pos);
 	string GetPluginPath(u8 pos);
 	u32 GetPluginMagic(u8 pos);
 	u8 GetPluginPosition(u32 magic);
 	s8 GetBoxMode(u8 pos);
+	bool GetEnabledStatus(u8 pos);
+	bool GetEnabledStatus(const char *magic);
+	const vector<bool> &GetEnabledPlugins(u8 *num);
+	
+	void SetRomDir(u8 pos, const string &rd);
+	void SetRomPartition(u8 pos, int part);
+	void SetExplorerPath(u8 pos, const string &ep); //
+	void SetCaseColor(u8 pos, u32 caseColor);
+	void SetFileNamesAsTitles(u8 pos, bool FileNamesAsTitles); //
+	void SetEnablePlugin(u8 pos, u8 ForceMode = 0);
+	void SetCoverFolderName(u8 pos, const string &cf); //
+	void SetPluginName(u8 pos, const string &cf); //
+
 	void init(const string& m_pluginsDir);
 	void AddPlugin(Config &plugin, const string &iniPath);
 	void Cleanup();
-	bool GetEnabledStatus(u8 pos);
-	bool GetEnabledStatus(const char *magic);
-	void SetEnablePlugin(u8 pos, u8 ForceMode = 0);
-	const vector<bool> &GetEnabledPlugins(u8 *num);
 	bool PluginExist(u8 pos);
 	
 	vector<string> CreateArgs(const char *device, const char *path, 

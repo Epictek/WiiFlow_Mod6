@@ -77,7 +77,7 @@ void CMenu::_showConfigGC(bool instant)
 		m_btnMgr.setText(m_configLbl[3], _t("part99", L"Preffered partition at boot"));
 		m_btnMgr.setText(m_configLblVal[3], part == -1 ? _t("none", L"None") : upperCase(partitionname));
 		//! GC game custom path
-		m_btnMgr.setText(m_configLbl[4], _t("cfg778", L"Custom path"));
+		m_btnMgr.setText(m_configLbl[4], _t("cfg778", L"Game folder path"));
 		m_btnMgr.show(m_configBtnGo[4], instant);
 		//! Install GC game
 		m_btnMgr.setText(m_configLbl[5], _t("wbfsop1", L"Install game"));
