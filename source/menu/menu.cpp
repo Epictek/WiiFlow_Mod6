@@ -2331,7 +2331,7 @@ bool CMenu::_loadWiiList(void)
 	for(vector<dir_discHdr>::iterator tmp_itr = m_cacheList.begin(); tmp_itr != m_cacheList.end(); tmp_itr++)
 	{
 		m_gameList.push_back(*tmp_itr);
-		if(updateCache && tdb_genres)
+		if(cacheCovers && tdb_genres)
 			_setTDBCategories(&(*(tmp_itr)));
 	}
 	return true;
@@ -2366,7 +2366,7 @@ bool CMenu::_loadHomebrewList(const char *HB_Dir)
 	for(vector<dir_discHdr>::iterator tmp_itr = m_cacheList.begin(); tmp_itr != m_cacheList.end(); tmp_itr++)
 	{
 		m_gameList.push_back(*tmp_itr);
-		// if(updateCache && tdb_genres)
+		// if(cacheCovers && tdb_genres)
 			// _setTDBCategories(&(*(tmp_itr)));
 	}
 	return true;
@@ -2393,7 +2393,7 @@ bool CMenu::_loadGamecubeList()
 		if(tmp_itr->settings[0] == 1) // disc 2
 			continue; // skip gc disc 2 if it's still part of the cached list
 		m_gameList.push_back(*tmp_itr);
-		if(updateCache && tdb_genres)
+		if(cacheCovers && tdb_genres)
 			_setTDBCategories(&(*(tmp_itr)));
 	}
 	return true;
@@ -2454,7 +2454,7 @@ bool CMenu::_loadChannelList(void)
 			for(vector<dir_discHdr>::iterator tmp_itr = m_cacheList.begin(); tmp_itr != m_cacheList.end(); tmp_itr++)
 			{
 				m_gameList.push_back(*tmp_itr);
-				if(updateCache && tdb_genres)
+				if(cacheCovers && tdb_genres)
 					_setTDBCategories(&(*(tmp_itr)));
 			}
 		}

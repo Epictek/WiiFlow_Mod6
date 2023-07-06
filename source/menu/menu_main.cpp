@@ -421,7 +421,7 @@ void CMenu::_showCF(bool refreshList)
 	/* Display game count if not sourceflow */
 	if(m_sourceflow)
 		return;
-	m_showtimer = 240;
+	m_showtimer = 150;
 	m_snapshot_loaded = true; // hide coverflow title
 	u32 totalGames = CoverFlow.size();
 	if(totalGames > 0)
@@ -649,7 +649,7 @@ int CMenu::main(void)
 					_initCF();
 					m_refreshGameList = false;
 					//! show new game total
-					m_showtimer = 240;
+					m_showtimer = 150;
 					u32 totalGames = CoverFlow.size();
 					if(totalGames > 0)
 						m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
@@ -667,7 +667,7 @@ int CMenu::main(void)
 				m_cfg.setBool(_domainFromView(), "favorites", m_favorites);
 				_initCF();
 				//! show new game total
-				m_showtimer = 240;
+				m_showtimer = 150;
 				u32 totalGames = CoverFlow.size();
 				if(totalGames > 0)
 					m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
@@ -755,7 +755,7 @@ int CMenu::main(void)
 					c = _keyboard();
 					if(strlen(c) > 0)
 					{
-						m_showtimer = 240;
+						m_showtimer = 150;
 						if(CoverFlow.findTitle(c, false)) // search only
 						{
 							if(sort != SORT_ALPHA) // force alpha sort mode
@@ -779,7 +779,7 @@ int CMenu::main(void)
 				//! set sort mode text and display it
 				if(sortChange)
 				{
-					m_showtimer = 240;
+					m_showtimer = 150;
 					m_btnMgr.setText(m_mainLblNotice, _sortLabel(sort));
 					m_btnMgr.show(m_mainLblNotice);
 				}
@@ -910,7 +910,7 @@ int CMenu::main(void)
 					{
 						if(m_refreshGameList)
 							_showCF(true);
-						m_showtimer = 240;
+						m_showtimer = 150;
 						m_btnMgr.setText(m_mainLblLetter, new_nand);
 						m_btnMgr.show(m_mainLblLetter);
 					}
@@ -1029,7 +1029,7 @@ int CMenu::main(void)
 		if(m_music_info && MusicPlayer.SongChanged() && !MusicPlayer.OneSong)
 		{
 			if(m_showtimer == 0)
-				m_showtimer = 240;
+				m_showtimer = 150;
 			m_btnMgr.setText(m_mainLblCurMusic, MusicPlayer.GetFileName(), false); // false for word wrap
 			m_btnMgr.show(m_mainLblCurMusic);
 		}
@@ -1281,7 +1281,7 @@ void CMenu::_sortCF(bool previous)
 				curLetter = m_loc.getWString(m_curLanguage, "homebrew", L"Homebrew"); //
 		}
 	}
-	m_showtimer = 240;
+	m_showtimer = 150;
 	m_btnMgr.setText(m_mainLblLetter, curLetter);
 	m_btnMgr.show(m_mainLblLetter);	
 }
