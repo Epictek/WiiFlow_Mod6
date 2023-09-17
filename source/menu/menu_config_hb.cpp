@@ -27,7 +27,7 @@ void CMenu::_showConfigHB(bool instant)
 		//! Adjust homebrew CF
 		m_btnMgr.setText(m_configLbl[4], _t("cfgc4", L"Adjust coverflow"));
 		//! CF box mode
-		m_btnMgr.setText(m_configLbl[5], _t("cfg726", L"Covers box Mode"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg726", L"Covers box mode"));
 		m_checkboxBtn[5] = m_cfg.getOptBool(homebrew_domain, "box_mode", 0) == 0 ? m_configChkOff[5] : m_configChkOn[5]; // default false
 		//! CF smallbox
 		m_btnMgr.setText(m_configLbl[6], _t("cfghb2", L"Coverflow smallbox"));

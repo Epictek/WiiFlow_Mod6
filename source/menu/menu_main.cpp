@@ -380,6 +380,8 @@ void CMenu::_showCF(bool refreshList)
 		//! check if homebrew plugin
 		if(enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(HB_PMAGIC) && hb_smallbox)
 			strcpy(cf_domain, "_SMALLFLOW");
+		else if(m_thumbnail)
+			strcpy(cf_domain, "_SNAPSHOTS");
 		else if(enabledPluginsCount > 0 && m_platform.loaded())
 		{
 			//! get first plugin flow domain
@@ -630,6 +632,7 @@ int CMenu::main(void)
 					m_cfg.remove(sourceflow_domain, "tiers");
 					m_cfg.setUInt(general_domain, "sources", m_current_view);
 					m_catStartPage = 1;
+					m_thumbnail = false;
 					_srcTierBack(true);
 					_getCustomBgTex();
 					_setMainBg();
@@ -1382,6 +1385,10 @@ void CMenu::_setCFVersion(int version)
 
 void CMenu::exitHandler(int ExitTo)
 {
+	/* Write thumbnail view status and category start page to config */
+	m_cfg.setBool(general_domain, "thumbnails", m_thumbnail);
+	m_cfg.setInt(general_domain, "cat_startpage", m_catStartPage);
+	
 	m_exit = true;
 	if(ExitTo == EXIT_TO_BOOTMII) // Bootmii, check that the files are there, or ios will hang
 	{

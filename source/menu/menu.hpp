@@ -97,7 +97,7 @@ private:
 	const string sourceflow_domain = SOURCEFLOW_DOMAIN;
 	
 	const char *getBoxPath(const dir_discHdr *element, bool fullName);
-	const char *getFrontPath(const dir_discHdr *element, bool fullName, bool smallBox);
+	const char *getFrontPath(const dir_discHdr *element, bool fullName, bool smallBox, bool thumbNail);
 	
 	CCursor m_cursor[WPAD_MAX_WIIMOTES];
 	
@@ -140,6 +140,7 @@ private:
 	bool m_use_wifi_gecko;
 	bool m_use_sd_logging;
 	bool m_source_autoboot;
+	bool m_thumbnail; //
 	
 	dir_discHdr m_autoboot_hdr;
 	

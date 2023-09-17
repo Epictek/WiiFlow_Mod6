@@ -139,7 +139,6 @@ void CMenu::_launch(const dir_discHdr *hdr)
 	memcpy(&launchHdr, hdr, sizeof(dir_discHdr));
 	
 	MusicPlayer.Stop();
-	m_cfg.setInt(general_domain, "cat_startpage", m_catStartPage);
 	// m_gcfg2.load(fmt("%s/" GAME_SETTINGS2_FILENAME, m_settingsDir.c_str()));
 
 	/* Change to current game's partition */
@@ -1040,7 +1039,6 @@ void CMenu::_launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg)
 			/* Launching GC Game */
 			if(disc_cfg && !m_locked)
 				_gameSettings(hdr, dvd);
-			m_cfg.setInt(general_domain, "cat_startpage", m_catStartPage);
 			currentPartition = m_cfg.getInt(gc_domain, "partition", 1);
 			_launchGC(hdr, dvd);				
 			return;
@@ -1055,7 +1053,6 @@ void CMenu::_launchWii(dir_discHdr *hdr, bool dvd, bool disc_cfg)
 			mbstowcs(hdr->title, wii_hdr.title, 63);
 			if(disc_cfg && !m_locked)
 				_gameSettings(hdr, dvd);
-			m_cfg.setInt(general_domain, "cat_startpage", m_catStartPage);
 			currentPartition = m_cfg.getInt(wii_domain, "partition", 1);
 		}
 		else // should not happen

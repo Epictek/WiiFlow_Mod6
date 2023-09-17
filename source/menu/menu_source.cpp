@@ -601,6 +601,7 @@ bool CMenu::_getNewSource(u8 btn)
 
 void CMenu::_setSrcOptions(void)
 {
+	m_thumbnail = m_source.getBool(btn_selected, "snapshots", false);
 	m_catStartPage = min(max(1, m_source.getInt(btn_selected, "cat_page", 1)), 255);
 	u8 category = min(max(0, m_source.getInt(btn_selected, "category", 0)), 255);
 	if(category > 0 && category < m_max_categories)

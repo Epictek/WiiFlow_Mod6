@@ -521,6 +521,10 @@ bool CMenu::init(bool usb_mounted)
 	
 	/* Screensaver delay */
 	m_screensaverDelay = min(max(0, m_cfg.getInt(general_domain, "screensaver_idle_seconds", 60)), 255);
+	
+	/* Enable thumbnails */
+	m_thumbnail = m_cfg.getBool(general_domain, "thumbnails", false);
+	m_cfg.remove(general_domain, "thumbnails");
 
 	return true;
 }
@@ -770,7 +774,7 @@ void CMenu::_loadCFLayout(int version, bool forceAA, bool otherScrnFmt)
 {
 	string domain = fmt("%s_%i", cf_domain, version);
 	string domainSel = fmt("%s_%i_S", cf_domain, version);
-	bool smallflow = strcasecmp(cf_domain, "_SMALLFLOW") == 0;	
+	bool smallflow = (strcasecmp(cf_domain, "_SMALLFLOW") == 0 || strcasecmp(cf_domain, "_SNAPSHOTS") == 0);	
 	bool sf = otherScrnFmt;
 
 	int max_fsaa = m_coverflow.getInt(domain, "max_fsaa", 3);
@@ -2145,8 +2149,13 @@ void CMenu::_initCF(bool dumpGameList)
 
 	CoverFlow.setSorting((Sorting)m_cfg.getInt(_domainFromView(), "sort", 0));
 
-	if(!m_sourceflow)
+	if(m_sourceflow)
 	{
+		CoverFlow.setBoxMode(m_cfg.getBool(SOURCEFLOW_DOMAIN, "box_mode", true));
+		CoverFlow.setSmallBoxMode(m_cfg.getBool(SOURCEFLOW_DOMAIN, "smallbox", false));
+	}
+	else
+	{		
 		bool defaultBoxMode = m_cfg.getBool(general_domain, "box_mode", true); //
 		if((m_current_view == COVERFLOW_HOMEBREW) ||
 		(m_current_view == COVERFLOW_PLUGIN && enabledPluginsCount == 1 && m_plugin.GetEnabledStatus(HB_PMAGIC)))
@@ -2156,56 +2165,64 @@ void CMenu::_initCF(bool dumpGameList)
 		}
 		else if(m_current_view == COVERFLOW_PLUGIN)
 		{
-			if(enabledPluginsCount == 1) // only one plugin enabled
+			if(m_thumbnail)
 			{
-				s8 bm = -1;
-				for(u8 i = 0; m_plugin.PluginExist(i); ++i)
-				{
-					if(m_plugin.GetEnabledStatus(i))
-					{
-						bm = m_plugin.GetBoxMode(i);
-						break;
-					}
-				}
-				if(bm < 0) // if negative then use default setting
-					CoverFlow.setBoxMode(defaultBoxMode);
-				else 
-					CoverFlow.setBoxMode(bm == 0 ? false : true);
-				CoverFlow.setSmallBoxMode(false);
+				CoverFlow.setBoxMode(false);
+				CoverFlow.setSmallBoxMode(true);
 			}
-			else // more than 1 plugin enabled
+			else
 			{
-				s8 bm1 = -1;
-				s8 bm2 = -1;
-				bool all_same = true;
-				for(u8 i = 0; m_plugin.PluginExist(i); ++i)
+				if(enabledPluginsCount == 1) // only one plugin enabled
 				{
-					if(m_plugin.GetEnabledStatus(i))
+					s8 bm = -1;
+					for(u8 i = 0; m_plugin.PluginExist(i); ++i)
 					{
-						if(bm1 == -1)
+						if(m_plugin.GetEnabledStatus(i))
 						{
-							bm1 = m_plugin.GetBoxMode(i);
-							if(bm1 < 0)
-								bm1 = defaultBoxMode ? 1 : 0;
+							bm = m_plugin.GetBoxMode(i);
+							break;
 						}
-						else
+					}
+					if(bm < 0) // if negative then use default setting
+						CoverFlow.setBoxMode(defaultBoxMode);
+					else 
+						CoverFlow.setBoxMode(bm == 0 ? false : true);
+					CoverFlow.setSmallBoxMode(false);
+				}
+				else // more than 1 plugin enabled
+				{
+					s8 bm1 = -1;
+					s8 bm2 = -1;
+					bool all_same = true;
+					for(u8 i = 0; m_plugin.PluginExist(i); ++i)
+					{
+						if(m_plugin.GetEnabledStatus(i))
 						{
-							bm2 = m_plugin.GetBoxMode(i);
-							if(bm2 < 0)
-								bm2 = defaultBoxMode ? 1 : 0;
-							if(bm2 != bm1)
+							if(bm1 == -1)
 							{
-								all_same = false;
-								break;
+								bm1 = m_plugin.GetBoxMode(i);
+								if(bm1 < 0)
+									bm1 = defaultBoxMode ? 1 : 0;
+							}
+							else
+							{
+								bm2 = m_plugin.GetBoxMode(i);
+								if(bm2 < 0)
+									bm2 = defaultBoxMode ? 1 : 0;
+								if(bm2 != bm1)
+								{
+									all_same = false;
+									break;
+								}
 							}
 						}
 					}
+					if(!all_same)
+						CoverFlow.setBoxMode(defaultBoxMode);
+					else
+						CoverFlow.setBoxMode(bm1 == 0 ? false : true);
+					CoverFlow.setSmallBoxMode(false);
 				}
-				if(!all_same)
-					CoverFlow.setBoxMode(defaultBoxMode);
-				else
-					CoverFlow.setBoxMode(bm1 == 0 ? false : true);
-				CoverFlow.setSmallBoxMode(false);
 			}
 		}
 		else
@@ -2214,11 +2231,7 @@ void CMenu::_initCF(bool dumpGameList)
 			CoverFlow.setSmallBoxMode(false);
 		}
 	}
-	else // sourceflow
-	{
-		CoverFlow.setBoxMode(m_cfg.getBool(SOURCEFLOW_DOMAIN, "box_mode", true));
-		CoverFlow.setSmallBoxMode(m_cfg.getBool(SOURCEFLOW_DOMAIN, "smallbox", false));
-	}
+
 /*********************************** Setup coverflow covers settings ***********************************/
 	CoverFlow.setBufferSize(m_cfg.getInt(general_domain, "cover_buffer", 20));
 	CoverFlow.setHQcover(m_cfg.getBool(general_domain, "cover_use_hq", true));

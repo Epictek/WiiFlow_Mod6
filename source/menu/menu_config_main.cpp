@@ -372,71 +372,96 @@ void CMenu::_cacheCovers()
 		update_pThread(index, false);
 		m_thrdMessage = wfmt(_fmt("dlmsg31", L"Loading item %i of %i"), index, total);
 		m_thrdMessageAdded = true;
+		
+		bool blankCover;
+		bool fullCover;
+		bool thumbNail = (hdr->type == TYPE_PLUGIN && m_platform.loaded());
+		u8 i = 0;
 
-		/* Get cover PNG path: example for the Atari ST game "Another World" */
-		bool blankCover = false;
-		//! 1) first test if "/boxcovers/[coverfolder]/Another World (1991)(Delphine)(Disk 1 of 2)[cr Elite].st.png" exists
-		bool fullCover = true;
-		strlcpy(coverPath, getBoxPath(&(*hdr), true), sizeof(coverPath)); // (fullname = true)
-		if(!fsop_FileExist(coverPath) || smallBox)
+		for(i = 0; i < thumbNail + 1; ++i) // 2 passes, first for normal cover, second for thumbnail
 		{
-			//! 2) then test if "/covers/[coverfolder]/Another World (1991)(Delphine)(Disk 1 of 2)[cr Elite].st.png" exists
-			fullCover = false;
-			strlcpy(coverPath, getFrontPath(&(*hdr), true, smallBox), sizeof(coverPath)); // (fullname = true)
-			if(!fsop_FileExist(coverPath) || smallBox)
+			blankCover = false;
+			fullCover = true;
+			/* Get cover PNG path: example for the Atari ST game "Another World" */
+			strlcpy(coverPath, getBoxPath(&(*hdr), true), sizeof(coverPath)); // (fullname = true)
+			//! result should be: ".../boxcovers/[coverfolder]/Another World (1991)(Delphine)(Disk 1 of 2)[cr Elite].st.png"
+			
+			if(i == 0) // normal box & front cover pass, test multiple cover paths in case first one does not exist
 			{
-				//! 3) then test if "/boxcovers/[coverfolder]/Another World.png" exists (added)
-				fullCover = true;
-				strlcpy(coverPath, getBoxPath(&(*hdr), false), sizeof(coverPath)); // (fullname = false)
+				//! 1) first test if ".../boxcovers/[coverfolder]/Another World (1991)(Delphine)(Disk 1 of 2)[cr Elite].st.png" exists
 				if(!fsop_FileExist(coverPath) || smallBox)
 				{
-					//! 4) then test if "/covers/[coverfolder]/Another World.png" exists (added)
+					//! 2) then test if ".../covers/[coverfolder]/Another World (1991)(Delphine)(Disk 1 of 2)[cr Elite].st.png" exists
 					fullCover = false;
-					strlcpy(coverPath, getFrontPath(&(*hdr), false, smallBox), sizeof(coverPath)); // (fullname = false)
-					if(!fsop_FileExist(coverPath) && !smallBox)
+					strlcpy(coverPath, getFrontPath(&(*hdr), true, smallBox, false), sizeof(coverPath)); // (fullname = true)
+					if(!fsop_FileExist(coverPath) || smallBox)
 					{
-						//! 5) finally test if "/boxcovers/blank_covers/ATARIST.png" exists
-						fullCover = true;				
-						strlcpy(coverPath, getBlankCoverPath(&(*hdr)), sizeof(coverPath));
-						blankCover = true;
-						if(!fsop_FileExist(coverPath))
-							continue;
+						//! 3) then test if ".../boxcovers/[coverfolder]/Another World.png" exists (added)
+						fullCover = true;
+						strlcpy(coverPath, getBoxPath(&(*hdr), false), sizeof(coverPath)); // (fullname = false)
+						if(!fsop_FileExist(coverPath) || smallBox)
+						{
+							//! 4) then test if ".../covers/[coverfolder]/Another World.png" exists (added)
+							fullCover = false;
+							strlcpy(coverPath, getFrontPath(&(*hdr), false, smallBox, false), sizeof(coverPath)); // (fullname = false)
+							if(!fsop_FileExist(coverPath) && !smallBox)
+							{
+								//! 5) finally test if ".../boxcovers/blank_covers/ATARIST.png" exists
+								fullCover = true;				
+								strlcpy(coverPath, getBlankCoverPath(&(*hdr)), sizeof(coverPath));
+								blankCover = true;
+							}
+						}
 					}
 				}
 			}
-		}		
-		/* Get cache folder path */
-		if(blankCover) // added
-			snprintf(cachePath, sizeof(cachePath), "%s/blank_covers", m_cacheDir.c_str());
-		else if(hdr->type == TYPE_PLUGIN)
-			snprintf(cachePath, sizeof(cachePath), "%s/%s", m_cacheDir.c_str(), m_plugin.GetCoverFolderName(hdr->settings[0]));
-		else if(m_sourceflow)
-			snprintf(cachePath, sizeof(cachePath), "%s/sourceflow", m_cacheDir.c_str());
-		else if(hdr->type == TYPE_HOMEBREW)
-			snprintf(cachePath, sizeof(cachePath), "%s/homebrew", m_cacheDir.c_str());
-		else
-			snprintf(cachePath, sizeof(cachePath), "%s", m_cacheDir.c_str());
+			else // i == 1, thumbnail pass, replace coverPath with "/snapshots/ATARIST/[gameTDB_name].png" using platform
+			{
+				fullCover = false;
+				strlcpy(coverPath, getFrontPath(&(*hdr), false, smallBox, true), sizeof(coverPath));
+				//! then test blank cover
+				if(!fsop_FileExist(coverPath))
+				{
+					strlcpy(coverPath, getBlankCoverPath(&(*hdr)), sizeof(coverPath));
+					blankCover = true;
+				}
+			}
+			if(!fsop_FileExist(coverPath))
+				continue;
 
-		/* Get game name or ID */
-		const char *gameNameOrID = NULL;
-		if(!blankCover)
-			gameNameOrID = CoverFlow.getFilenameId(&(*hdr)); // &(*hdr) converts iterator to pointer to mem address
-		else
-			gameNameOrID = strrchr(coverPath, '/') + 1;
-			
-		/* Get cover wfc path */
-		if(smallBox)
-			snprintf(wfcPath, sizeof(wfcPath), "%s/%s_small.wfc", cachePath, gameNameOrID);
-		else
-			snprintf(wfcPath, sizeof(wfcPath), "%s/%s.wfc", cachePath, gameNameOrID);
-		
-		/* If wfc doesn't exist or is flat and have full cover */
-		if(!fsop_FileExist(wfcPath) || (!CoverFlow.fullCoverCached(wfcPath) && fullCover))
-		{
-			//! Create cache subfolders if needed
-			fsop_MakeFolder(cachePath);
-			//! Create cover texture
-			CoverFlow.cacheCoverFile(wfcPath, coverPath, fullCover);
+			/* Get cache folder path */
+			if(blankCover) // added
+				snprintf(cachePath, sizeof(cachePath), "%s/blank_covers", m_cacheDir.c_str());
+			else if(hdr->type == TYPE_PLUGIN)
+				snprintf(cachePath, sizeof(cachePath), "%s/%s", m_cacheDir.c_str(), m_plugin.GetCoverFolderName(hdr->settings[0]));
+			else if(m_sourceflow)
+				snprintf(cachePath, sizeof(cachePath), "%s/sourceflow", m_cacheDir.c_str());
+			else if(hdr->type == TYPE_HOMEBREW)
+				snprintf(cachePath, sizeof(cachePath), "%s/homebrew", m_cacheDir.c_str());
+			else
+				snprintf(cachePath, sizeof(cachePath), "%s", m_cacheDir.c_str());
+
+			/* Get game name or ID */
+			const char *gameNameOrID = NULL;
+			if(!blankCover)
+				gameNameOrID = CoverFlow.getFilenameId(&(*hdr)); // &(*hdr) converts iterator to pointer to mem address
+			else
+				gameNameOrID = strrchr(coverPath, '/') + 1;
+				
+			/* Get cover wfc path */
+			if(smallBox || i == 1)
+				snprintf(wfcPath, sizeof(wfcPath), "%s/%s_small.wfc", cachePath, gameNameOrID);
+			else
+				snprintf(wfcPath, sizeof(wfcPath), "%s/%s.wfc", cachePath, gameNameOrID);
+
+			/* If wfc doesn't exist or is flat and have full cover */
+			if(!fsop_FileExist(wfcPath) || (!CoverFlow.fullCoverCached(wfcPath) && fullCover))
+			{
+				//! Create cache subfolders if needed
+				fsop_MakeFolder(cachePath);
+				//! Create cover texture
+				CoverFlow.cacheCoverFile(wfcPath, coverPath, fullCover);
+			}
 		}
 		
 		/* Cache wii and channel banners */
@@ -488,20 +513,76 @@ const char *CMenu::getBoxPath(const dir_discHdr *element, bool fullName)
 	return fmt("%s/%s.png", m_boxPicDir.c_str(), element->id);
 }
 
-const char *CMenu::getFrontPath(const dir_discHdr *element, bool fullName, bool smallBox) // added smallbox
+const char *CMenu::getFrontPath(const dir_discHdr *element, bool fullName, bool smallBox, bool thumbNail) // added smallbox & thumbNail
 {
 	if(element->type == TYPE_PLUGIN)
 	{
-		string CleanName(element->path);
-			CleanName = CleanName.substr(CleanName.find_last_of("/") + 1);
-		if(!fullName)
+		if(thumbNail)
 		{
-			CleanName = CleanName.substr(0, CleanName.find_last_of("."));
-			//! Remove common suffixes (parenthesis, brackets, disk #)
-			CleanName = CleanName.substr(0, CleanName.find(" (")).substr(0, CleanName.find(" [")).substr(0, CleanName.find("_Disk"));
+			if(m_platform.loaded())
+			{
+				GameTDB gametdb;
+				char GameID[7];
+				GameID[6] = '\0';
+				char platformName[16];
+				const char *TMP_Char = NULL;
+				strncpy(m_plugin.PluginMagicWord, fmt("%08x", element->settings[0]), 8);
+				snprintf(platformName, sizeof(platformName), "%s", m_platform.getString("PLUGINS", m_plugin.PluginMagicWord).c_str());
+				strcpy(GameID, element->id);
+				
+				//! Check COMBINED
+				string newName = m_platform.getString("COMBINED", platformName);
+				if(newName.empty())
+					m_platform.remove("COMBINED", platformName);
+				else
+					snprintf(platformName, sizeof(platformName), "%s", newName.c_str());
+				
+				gametdb.OpenFile(fmt("%s/%s/%s.xml", m_pluginDataDir.c_str(), platformName, platformName));
+				if(gametdb.IsLoaded())
+				{
+					gametdb.SetLanguageCode(m_loc.getString(m_curLanguage, "gametdb_code", "EN").c_str());
+					const char *coverPath = NULL;
+					//! Check ARCADE systems
+					if(strcasestr(platformName, "ARCADE") || strcasestr(platformName, "CPS") || !strncasecmp(platformName, "NEOGEO", 6))
+					{
+						string ShortName;
+						if(strrchr(element->path, '/') != NULL)
+							ShortName = m_plugin.GetRomName(element->path);
+						else
+						{
+							char title[64];
+							wcstombs(title, element->title, 63);
+							title[63] = '\0';
+							ShortName = title;
+						}
+						
+						coverPath = fmt("%s/%s/%s.png", m_snapDir.c_str(), platformName, ShortName.c_str());
+					}
+					else if(gametdb.GetName(GameID, TMP_Char))
+						coverPath = fmt("%s/%s/%s.png", m_snapDir.c_str(), platformName, TMP_Char);
+					
+					gametdb.CloseFile();
+					
+					if(coverPath == NULL || !fsop_FileExist(coverPath))
+						coverPath = fmt("%s/%s/%s.png", m_snapDir.c_str(), platformName, GameID);
+					
+					return coverPath;
+				}
+			}
 		}
-		const char *coverFolder = m_plugin.GetCoverFolderName(element->settings[0]);
-		return fmt("%s/%s/%s.png", m_picDir.c_str(), coverFolder, CleanName.c_str());
+		else // not thumbnail
+		{
+			string CleanName(element->path);
+				CleanName = CleanName.substr(CleanName.find_last_of("/") + 1);
+			if(!fullName)
+			{
+				CleanName = CleanName.substr(0, CleanName.find_last_of("."));
+				//! Remove common suffixes (parenthesis, brackets, disk #)
+				CleanName = CleanName.substr(0, CleanName.find(" (")).substr(0, CleanName.find(" [")).substr(0, CleanName.find("_Disk"));
+			}
+			const char *coverFolder = m_plugin.GetCoverFolderName(element->settings[0]);
+			return fmt("%s/%s/%s.png", m_picDir.c_str(), coverFolder, CleanName.c_str());
+		}
 	}
 	else if(element->type == TYPE_HOMEBREW)
 	{

@@ -37,7 +37,7 @@ bool CMenu::_gameinfo(void)
 	int xtra_skips = 0;
 	curPage = 1;
 
-	_setBg(m_configBg, m_configBg);
+	// _setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showGameInfo();
 	
@@ -54,7 +54,7 @@ bool CMenu::_gameinfo(void)
 			|| (wBtn_Pressed(WPAD_CLASSIC_BUTTON_RIGHT, WPAD_EXP_CLASSIC)) // classic controller
 			|| GBTN_RIGHT_PRESSED) // gamecube controller
 		{
-			_hideGameInfoPg(true);
+			_hideGameInfoPg(false);
 			CoverFlow.down();
 			m_newGame = true;
 			curPage = 1;
@@ -68,7 +68,7 @@ bool CMenu::_gameinfo(void)
 			|| (wBtn_Pressed(WPAD_CLASSIC_BUTTON_LEFT, WPAD_EXP_CLASSIC)) // classic controller
 			|| GBTN_LEFT_PRESSED) // gamecube controller
 		{
-			_hideGameInfoPg(true);
+			_hideGameInfoPg(false);
 			CoverFlow.up();
 			m_newGame = true;
 			curPage = 1;
@@ -301,23 +301,23 @@ void CMenu::_initGameInfoMenu()
 	{
 		string dom(fmt("GAMEINFO/CONTROLSREQ%i", i + 1));
 		m_gameinfoLblControlsReq[i] = _addLabel(dom.c_str(), theme.txtFont, L"", 550 - (i*60), 100, 60, 40, theme.txtFontColor, 0, emptyTex);
-		_setHideAnim(m_gameinfoLblControlsReq[i], dom.c_str(), 0, -100, 0.f, 0.f);
+		_setHideAnim(m_gameinfoLblControlsReq[i], dom.c_str(), 0, 0, 1.f, -1.f);
 	}
 
 	for(u8 i = 0; i < ARRAY_SIZE(m_gameinfoLblControls); ++i)
 	{
 		string dom(fmt("GAMEINFO/CONTROLS%i", i + 1));
 		m_gameinfoLblControls[i] = _addLabel(dom.c_str(), theme.txtFont, L"", 550 - (i*60), 170, 60, 40, theme.txtFontColor, 0, emptyTex);
-		_setHideAnim(m_gameinfoLblControls[i], dom.c_str(), 0, -100, 0.f, 0.f);
+		_setHideAnim(m_gameinfoLblControls[i], dom.c_str(), 0, 0, 1.f, -1.f);
 	}
 
-	_setHideAnim(m_gameinfoLblRating, "GAMEINFO/RATING", 0, -100, 0.f, 0.f);
+	_setHideAnim(m_gameinfoLblRating, "GAMEINFO/RATING", 0, 0, 1.f, -1.f);
 	_setHideAnim(m_gameinfoLblSynopsis, "GAMEINFO/SYNOPSIS", 0, 700, 1.f, 1.f);
-	_setHideAnim(m_gameinfoLblWifiplayers, "GAMEINFO/WIFIPLAYERS", 0, -100, 0.f, 0.f);
-	_setHideAnim(m_gameinfoLblSnap, "GAMEINFO/SNAP", 0, -100, 0.f, 0.f);
-	_setHideAnim(m_gameinfoLblCartDisk, "GAMEINFO/CART", 0, -100, 0.f, 0.f);
-	_setHideAnim(m_gameinfoLblOverlay, "GAMEINFO/OVERLAY", 0, -100, 0.f, 0.f);
-	_setHideAnim(m_gameinfoLblRomInfo, "GAMEINFO/ROMINFO", 0, -100, 0.f, 0.f);
+	_setHideAnim(m_gameinfoLblWifiplayers, "GAMEINFO/WIFIPLAYERS", 0, 0, 1.f, -1.f);
+	_setHideAnim(m_gameinfoLblSnap, "GAMEINFO/SNAP", 0, 0, 1.f, -1.f);
+	_setHideAnim(m_gameinfoLblCartDisk, "GAMEINFO/CART", 0, 0, 1.f, -1.f);
+	_setHideAnim(m_gameinfoLblOverlay, "GAMEINFO/OVERLAY", 0, 0, 1.f, -1.f);
+	_setHideAnim(m_gameinfoLblRomInfo, "GAMEINFO/ROMINFO", 0, 0, 1.f, -1.f);
 
 	// _hideGameInfo(true);
 	synopsis_h = m_theme.getInt("GAMEINFO/SYNOPSIS", "height", 290);
@@ -404,7 +404,7 @@ void CMenu::_textGameInfo(void)
 	time_t lastPlayed;
 	int PublishDate, year, day, month;
 	u8 players;
-
+	
 /***************************************** Playcount info ***********************************************/
 	
 	if(GameHdr->type != TYPE_HOMEBREW)
@@ -439,10 +439,8 @@ void CMenu::_textGameInfo(void)
 				strftime(buffer, 20, "%Y-%m-%d", timeinfo);
 				break;
 		}
-		rom_info.append(wfmt(_fmt("gameinfo98",L"Play count: %i"), playCount));
-		rom_info.append(L"\n\n");
-		rom_info.append(wfmt(_fmt("gameinfo99", L"Last on: %s"), buffer));
-		rom_info.append(L"\n\n");
+		rom_info.append(wfmt(_fmt("gameinfo98",L"Play count: %i\n\n"), playCount));
+		rom_info.append(wfmt(_fmt("gameinfo99", L"Last on: %s\n\n"), buffer));
 	}
 	
 /***************************************** Plugin game info *********************************************/
@@ -938,18 +936,8 @@ void CMenu::_textGameInfo(void)
 	}
 	m_btnMgr.setText(m_gameinfoLblSynopsis, gameinfo_Synopsis_w);
 
-	/* Create Rom / ISO Info */
-	rom_info.append(wfmt(_fmt("gameinfo7",L"GameID: %s"), GameID));
-		
-	if(gametdb.GetRegion(GameID, TMP_Char))
-	{
-		rom_info += ' ';
-		rom_info.append(wfmt(_fmt("gameinfo3",L"(%s)"), TMP_Char));
-	}
-
 	if(gametdb.GetGenres(GameID, TMP_Char, GameHdr->type))
 	{
-		rom_info.append(L"\n\n");
 		vector<string> genres = stringToVector(TMP_Char, ',');
 		string s;
 		for(u8 i = 0; i < genres.size(); ++i)
@@ -958,7 +946,7 @@ void CMenu::_textGameInfo(void)
 				s.append(", "); // add comma & space between genres
 			s.append(genres[i]);
 		}
-		rom_info.append(wfmt(_fmt("gameinfo5",L"Genre: %s"), s.c_str()));
+		rom_info.append(wfmt(_fmt("gameinfo5",L"Genre: %s\n\n"), s.c_str()));
 	}
 	PublishDate = gametdb.GetPublishDate(GameID);
 	year = PublishDate >> 16;
@@ -968,63 +956,57 @@ void CMenu::_textGameInfo(void)
 	{
 		//! only display year or nothing if there's no date at all
 		if(year != 0)
-		{
-			rom_info.append(L"\n\n");
-			rom_info.append(wfmt(_fmt("gameinfo8",L"Released: %i"), year));
-		}
+			rom_info.append(wfmt(_fmt("gameinfo8",L"Released: %i\n\n"), year));
 	}
 	else
 	{
 		switch(wiiRegion)
 		{
 			case 1: // US
-				rom_info.append(L"\n\n");
-				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i"), month, day, year));
+				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i\n\n"), month, day, year));
 				break;
 			case 2: // EUR
-				rom_info.append(L"\n\n");
-				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i/%i/%i"), day, month, year));
+				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i/%i/%i\n\n"), day, month, year));
 				break;
 			default:
-				rom_info.append(L"\n\n");
-				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i"), year, month, day));
+				rom_info.append(wfmt(_fmt("gameinfo4",L"Release Date: %i-%i-%i\n\n"), year, month, day));
 				break;
 		}
 	}
 	
 	players = gametdb.GetPlayers(GameID);
 	if(players > 1)
-	{
-		rom_info.append(L"\n\n");
-		rom_info.append(wfmt(_fmt("gameinfo9",L"Players: %i"), players));
-	}
+		rom_info.append(wfmt(_fmt("gameinfo9",L"Players: %i\n\n"), players));
 	
 	if(gametdb.GetLanguages(GameID, TMP_Char)) // added
-	{
-		rom_info.append(L"\n\n");
-		rom_info.append(wfmt(_fmt("gameinfo10",L"Languages: %s"), TMP_Char));
-	}
-	if(gametdb.GetDeveloper(GameID, TMP_Char))
-	{
-		rom_info.append(L"\n\n");
-		rom_info.append(wfmt(_fmt("gameinfo1",L"Developer: %s"), TMP_Char));
-	}
-	if(gametdb.GetPublisher(GameID, TMP_Char))
-	{
-		rom_info.append(L"\n\n");
-		rom_info.append(wfmt(_fmt("gameinfo2",L"Publisher: %s"), TMP_Char));
-	}
+		rom_info.append(wfmt(_fmt("gameinfo10",L"Languages: %s\n\n"), TMP_Char));
 
+	if(gametdb.GetDeveloper(GameID, TMP_Char))
+		rom_info.append(wfmt(_fmt("gameinfo1",L"Developer: %s\n\n"), TMP_Char));
+
+	if(gametdb.GetPublisher(GameID, TMP_Char))
+		rom_info.append(wfmt(_fmt("gameinfo2",L"Publisher: %s\n\n"), TMP_Char));
+	
+	rom_info.append(wfmt(_fmt("gameinfo7",L"GameID: %s"), GameID));
+	if(gametdb.GetRegion(GameID, TMP_Char))
+	{
+		rom_info += ' ';
+		rom_info.append(wfmt(_fmt("gameinfo3",L"(%s)"), TMP_Char));
+	}
+	rom_info.append(L"\n\n");
+	
 	gametdb.CloseFile();
 	
 out:
 	if(!tdb_found)
 	{
 		if(GameHdr->type == TYPE_PLUGIN)
-			rom_info.append(_t("errgame18", L"No game info!"));
+			rom_info.append(_t("errgame18", L"No game info!\n\n"));
 		else
-			rom_info.append(_t("errtdb", L"Download GameTDB to use this feature."));
-		m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);
+			rom_info.append(_t("errtdb", L"Download GameTDB to get more information.\n\n"));
 	}
+	if(strrchr(GameHdr->path, '/') != NULL) // added
+		rom_info.append(wfmt(_fmt("gameinfo97",L"File: %s"), strrchr(GameHdr->path, '/') + 1));
+
 	m_btnMgr.setText(m_gameinfoLblRomInfo, rom_info);
 }

@@ -180,6 +180,7 @@ void CMenu::_PluginSettings()
 		_getCustomBgTex();
 		m_cfg.setUInt(general_domain, "sources", m_current_view);
 		m_catStartPage = 1;
+		m_thumbnail = false;
 		if(channels_type > 0) //
 			m_cfg.setInt(channel_domain, "channels_type", channels_type);
 	}

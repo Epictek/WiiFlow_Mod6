@@ -472,7 +472,7 @@ void CMenu::_game(bool launch)
 				m_zoom_video = false;
 			
 			/* Play button */
-			if(launch || m_btnMgr.selected(m_gameBtnPlay) || m_btnMgr.selected(m_gameBtnPlayFull) || (!ShowPointer() && !m_video_playing && !menuBar))
+			if(launch || m_btnMgr.selected(m_gameBtnPlay) || m_btnMgr.selected(m_gameBtnPlayFull))
 			{
 				_hideGame();
 				_cleanupBanner();
@@ -538,7 +538,7 @@ void CMenu::_game(bool launch)
 				newLabels = true;
 			}
 			/* Game info */
-			else if(m_btnMgr.selected(m_gameBtnInfo))
+			else if((!ShowPointer() && !m_video_playing && !menuBar) || m_btnMgr.selected(m_gameBtnInfo))
 			{
 				_hideGame(); // stops trailer movie and unloads fanart
 				m_banner.ToggleZoom(); // zoom to full
