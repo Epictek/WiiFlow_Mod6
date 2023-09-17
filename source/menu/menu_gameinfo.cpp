@@ -55,7 +55,7 @@ bool CMenu::_gameinfo(void)
 			|| GBTN_RIGHT_PRESSED) // gamecube controller
 		{
 			_hideGameInfoPg(true);
-			CoverFlow.right();
+			CoverFlow.down();
 			m_newGame = true;
 			curPage = 1;
 			amount_of_skips = 0;
@@ -69,7 +69,7 @@ bool CMenu::_gameinfo(void)
 			|| GBTN_LEFT_PRESSED) // gamecube controller
 		{
 			_hideGameInfoPg(true);
-			CoverFlow.left();
+			CoverFlow.up();
 			m_newGame = true;
 			curPage = 1;
 			amount_of_skips = 0;

@@ -245,7 +245,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 			bool left = wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE);
 			_setGameCategories();
 			_hideConfig();
-			left ? CoverFlow.left() : CoverFlow.right();
+			left ? CoverFlow.up() : CoverFlow.down();
 			curPage = 1;
 			m_newGame = true;
 			m_categories.assign(m_max_categories, '0');

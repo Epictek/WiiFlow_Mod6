@@ -2543,7 +2543,7 @@ bool CMenu::_loadPluginList()
 				for(vector<dir_discHdr>::iterator tmp_itr = m_cacheList.begin(); tmp_itr != m_cacheList.end(); tmp_itr++)
 				{
 					m_gameList.push_back(*tmp_itr);
-					if(updateCache && tdb_genres)
+					if(cacheCovers && tdb_genres)
 						_setTDBCategories(&(*(tmp_itr)));
 				}
 			}
@@ -2572,7 +2572,7 @@ bool CMenu::_loadPluginList()
 			for(vector<dir_discHdr>::iterator tmp_itr = m_cacheList.begin(); tmp_itr != m_cacheList.end(); tmp_itr++)
 			{
 				m_gameList.push_back(*tmp_itr);
-				if(updateCache && tdb_genres)
+				if(cacheCovers && tdb_genres)
 					_setTDBCategories(&(*(tmp_itr)));
 			}
 			scummvm.unload();			
