@@ -23,7 +23,7 @@
 // Nintendont
 #include "nin_cfg.h"
 #define NIN_LOADER_PATH "%s:/apps/nintendont/boot.dol"
-#define NIN_SLIPPI_PATH "%s:/apps/nintendont slippi/boot.dol"
+#define NIN_SLIPPI_PATH "%s:/apps/Slippi Nintendont/boot.dol"
 
 bool Nintendont_Installed();
 bool Nintendont_GetLoader(bool use_slippi);

@@ -1149,7 +1149,7 @@ void * CMenu::_gameSoundThread(void *obj)
 		{
 			m_banner.DeleteBanner();
 			/* Try to get snapshot */
-			if(m->m_platform.loaded())
+			if(m->m_platform.loaded() && !m->m_thumbnail) // game cover is already a snapshot if m_thumbnail
 			{
 				char GameID[7];
 				char platformName[16];

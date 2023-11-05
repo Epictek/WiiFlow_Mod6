@@ -660,7 +660,10 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 						else if(_wbfsOp(WO_REMOVE_GAME))
 						{
 							if(GameHdr->type == TYPE_PLUGIN) // if plugin delete cached cover
-								fsop_deleteFile(fmt("%s/%s/%s.wfc", m_cacheDir.c_str(), m_plugin.GetCoverFolderName(GameHdr->settings[0]), CoverFlow.getFilenameId(GameHdr)));
+							{
+								for(u8 i = 0; i < 2; ++i) // delete standard and snapshot ("_small") covers
+									fsop_deleteFile(fmt("%s/%s/%s%s.wfc", m_cacheDir.c_str(), m_plugin.GetCoverFolderName(GameHdr->settings[0]), CoverFlow.getFilenameId(GameHdr), i == 1 ? "_small" : ""));
+							}
 							_setCurrentItem(CoverFlow.getNextHdr());
 							_cleanupBanner();
 							_loadList(); // no need to reshowCF and recache covers, just reload list and reinitCF

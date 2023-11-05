@@ -2083,6 +2083,7 @@ void CCoverFlow::_left(int repeatDelay, u32 step)
 		prev = m_covers[m_range / 2].index;
 		// Shift the array to the right
 		arrStep = step % (m_rows - 2) + (step / (m_rows - 2)) * m_rows;
+		arrStep = arrStep > (int)m_range ? m_range : arrStep; // Q&D fix to "cheat and skip covers"
 		for (int i = (int)m_range - 1; i >= arrStep; --i)
 			m_covers[i] = m_covers[i - arrStep];
 		_loadAllCovers(loopNum((int)prev - step, m_items.size()));
@@ -2124,6 +2125,7 @@ void CCoverFlow::_right(int repeatDelay, u32 step)
 		prev = m_covers[m_range / 2].index;
 		// Shift the array to the left
 		arrStep = step % (m_rows - 2) + (step / (m_rows - 2)) * m_rows;
+		arrStep = arrStep > (int)m_range ? m_range : arrStep; // Q&D fix to "cheat and skip covers"
 		for (u32 i = 0; i < m_range - arrStep; ++i)
 			m_covers[i] = m_covers[i + arrStep];
 		_loadAllCovers(loopNum(prev + step, m_items.size()));
@@ -2188,7 +2190,7 @@ bool CCoverFlow::mouseOver(int x, int y)
 void CCoverFlow::setSelected(int i)
 {
 	LockMutex lock(m_mutex);
-	m_delay = m_minDelay; // small fix to load covers twice by setting m_cover = true twice
+	m_delay = m_minDelay; // Q&D fix to load covers twice by setting m_cover = true twice
 	m_moved = true;
 	_loadAllCovers(i);
 	_updateAllTargets(true);
@@ -2668,13 +2670,23 @@ void CCoverFlow::_unselect(void)
 void CCoverFlow::_jump(void)
 {
 	int step, delay = 2;
-
+	
 	if (m_rows >= 3)
-		step = (u32)abs(m_jump) <= (m_rows - 2) / 2 ? 1 : m_rows - 2;
+	{
+		// step = (u32)abs(m_jump) <= (m_rows - 2) / 2 ? 1 : m_rows - 2;
+		//! Q&D fix to "cheat and skip covers" as well as below for a unique row (but needed a patch in _left() and _right() functions above)
+		if((u32)abs(m_jump) <= (m_rows - 2) / 2)
+			step = 1;
+		else if((u32)abs(m_jump) > m_range + 1)
+			step = abs(m_jump) - (m_range + 1);
+		else
+			step = m_rows - 2;
+	}
 	else
 		// Cheat and skip covers we wouldn't see anyway
 		// This means the jump shouldn't be modified before it's done completely
 		step = (u32)abs(m_jump) > m_range + 1 ? abs(m_jump) - (m_range + 1) : 1;
+
 	if (m_jump < 0)
 	{
 		_left(delay, step);

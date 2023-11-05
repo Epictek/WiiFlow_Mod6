@@ -257,14 +257,7 @@ void CMenu::_getSourcePage(bool home)
 	if(!home)
 	{
 		u8 num = stoi(sm_numbers[sm_numbers.size() - 1]);
-		for(i = 0; i < nonHiddenSources.size(); i++)
-		{
-			if(nonHiddenSources[i] == num)
-			{
-				curPage = i / 12 + 1;
-				break;
-			}
-		}
+		curPage = num / 12 + 1; // used to check if num was part of nonHiddenSources
 	}
 	maxPage = ((nonHiddenSources.size() - 1) / 12) + 1;	
 }
