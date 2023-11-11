@@ -221,9 +221,10 @@ void BannerWindow::Draw(void)
 		DrawRectangle(0.0f, 0.0f, m_vid.width(), m_vid.height(), (GXColor) {0, 0, 0, Brightness});
 }
 
-void BannerWindow::ToggleGameSettings()
+void BannerWindow::ToggleGameSettings(bool zoom)
 {
-	// ToggleZoom();
+	if(zoom)
+		ToggleZoom();
 	Brightness = (Brightness == 200 ? 0 : 200);
 }
 

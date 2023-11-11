@@ -56,7 +56,7 @@ public:
 	void CreateGCBanner(u8 *bnr, u8 *font1, u8 *font2, const wchar_t *title);
 	void Draw(void);
 	bool ToggleZoom(void);
-	void ToggleGameSettings();
+	void ToggleGameSettings(bool zoom = false);
 	bool GetShowBanner() { return ShowBanner; }
 	void SetShowBanner(bool show) { ShowBanner = show; }
 	void ReSetup_GX(void);

@@ -510,11 +510,11 @@ void CMenu::_game(bool launch)
 				{
 					_hideGame();
 					//! the mainloop handles drawing banner while in settings
-					m_banner.ToggleZoom(); // zoom to full
-					m_banner.ToggleGameSettings(); // dim brightness
+					m_banner.ToggleGameSettings(m_bnr_settings); // zoom to full if requested and dim brightness
+					CoverFlow.fade(1);
 					_CategorySettings(true); // fromgameset is true
-					m_banner.ToggleGameSettings(); // reset brightness
-					m_banner.ToggleZoom(); // de zoom to small
+					CoverFlow.fade(0);
+					m_banner.ToggleGameSettings(m_bnr_settings); // de zoom to small if requested and reset brightness
 				}
 				if(m_newGame) // if categories settings moved coverflow right or left
 					startGameSound = -10;
@@ -541,11 +541,11 @@ void CMenu::_game(bool launch)
 			else if((!ShowPointer() && !m_video_playing && !menuBar) || m_btnMgr.selected(m_gameBtnInfo))
 			{
 				_hideGame(); // stops trailer movie and unloads fanart
-				m_banner.ToggleZoom(); // zoom to full
-				m_banner.ToggleGameSettings(); // dim brightness
+				m_banner.ToggleGameSettings(m_bnr_settings); // zoom to full if requested and dim brightness
+				CoverFlow.fade(1);
 				launch = _gameinfo();
-				m_banner.ToggleGameSettings(); // dim brightness
-				m_banner.ToggleZoom(); // zoom to full
+				CoverFlow.fade(0);
+				m_banner.ToggleGameSettings(m_bnr_settings); // de zoom to small if requested and reset brightness
 				if(m_newGame) // if game info moved coverflow right or left
 					startGameSound = -10;
 				else
@@ -559,7 +559,7 @@ void CMenu::_game(bool launch)
 			/* Controller input guide (plugin) / Cheat codes (wii + channels + gamecube) */
 			else if(m_btnMgr.selected(m_gameBtnCheatOff) || m_btnMgr.selected(m_gameBtnCheatOn))
 			{
-				if(hdr->type == TYPE_PLUGIN) // controller input guide
+				if(hdr->type == TYPE_PLUGIN) // controller input guide for plugins
 				{
 					string guideBG = m_plugin.GetGuideName(hdr->settings[0]);
 					if(guideBG == "")
@@ -578,9 +578,8 @@ void CMenu::_game(bool launch)
 					else
 						m_btnMgr.setTexture(m_gameLblGuide, m_game_guide);
 					_hideGame();
-					_setBg(m_configBg, m_configBg);
-					m_banner.ToggleZoom(); // zoom to full
-					m_banner.ToggleGameSettings(); // dim brightness
+					CoverFlow.fade(1);
+					m_banner.ToggleGameSettings(m_bnr_settings); // zoom to full if requested and dim brightness
 					for(u8 i = 0; i < ARRAY_SIZE(m_gameGuideLblUser); ++i)
 						m_btnMgr.show(m_gameGuideLblUser[i]);
 					m_btnMgr.show(m_gameLblGuide);
@@ -589,7 +588,7 @@ void CMenu::_game(bool launch)
 					m_btnMgr.show(m_configLblTitle);
 					while(!m_exit)
 					{
-						_mainLoopCommon();
+						_mainLoopCommon(true);
 						if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
 							break;
 					}
@@ -598,20 +597,20 @@ void CMenu::_game(bool launch)
 					m_btnMgr.hide(m_gameLblGuide);
 					m_btnMgr.hide(m_configBtnBack);
 					m_btnMgr.hide(m_configLblTitle);
-					m_banner.ToggleZoom(); // zoom to full
-					m_banner.ToggleGameSettings(); // dim brightness
+					m_banner.ToggleGameSettings(m_bnr_settings); // de zoom to small if requested and reset brightness
+					CoverFlow.fade(0);
 					_showGame(fanart, false);
 				}
-				else if(hdr->type != TYPE_HOMEBREW) // cheat codes
+				else if(hdr->type != TYPE_HOMEBREW) // cheat codes for Wii, Wii channels and GC games
 				{
 					_hideGame();
 					//! the mainloop handles drawing banner while in settings
-					m_banner.ToggleZoom(); // zoom to full
-					m_banner.ToggleGameSettings(); // dim brightness
+					m_banner.ToggleGameSettings(m_bnr_settings); // zoom to full if requested and dim brightness
+					CoverFlow.fade(1);
 					_CheatSettings(id);
+					CoverFlow.fade(0);
 					newLabels = true;
-					m_banner.ToggleGameSettings(); // reset brightness
-					m_banner.ToggleZoom(); // de zoom to small
+					m_banner.ToggleGameSettings(m_bnr_settings); // de zoom to small if requested and reset brightness
 					_showGame(fanart, false);
 				}
 			}
@@ -628,11 +627,11 @@ void CMenu::_game(bool launch)
 				else
 				{
 					//! the mainloop handles drawing banner while in settings
-					m_banner.ToggleZoom(); // zoom to full
-					m_banner.ToggleGameSettings(); // dim brightness
+					m_banner.ToggleGameSettings(m_bnr_settings); // zoom to full if requested and dim brightness
+					CoverFlow.fade(1);
 					_gameSettings(hdr, false); // disc is false
-					m_banner.ToggleGameSettings(); // reset brightness
-					m_banner.ToggleZoom(); // de zoom to small					
+					CoverFlow.fade(0);
+					m_banner.ToggleGameSettings(m_bnr_settings); // de zoom to small if requested and reset brightness
 				}
 				newLabels = true;
 				if(m_newGame) // (actually game deleted) exit menu game to avoid a crash if no game left in coverflow

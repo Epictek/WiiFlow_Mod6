@@ -469,8 +469,7 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 		if(multiDiscs)
 		{
 			SetupInput();
-			_setBg(m_configBg, m_configBg);
-			
+			CoverFlow.fade(1);
 			m_btnMgr.setText(m_configLbl[4], _t("disc1", L"Disc 1"));
 			m_btnMgr.setText(m_configBtn[4], _t("cfgne6", L"Start"));
 			m_btnMgr.setText(m_configLbl[5], _t("disc2", L"Disc 2"));
@@ -479,11 +478,15 @@ void CMenu::_launchGC(dir_discHdr *hdr, bool disc)
 			m_btnMgr.show(m_configBtn[4]);
 			m_btnMgr.show(m_configLbl[5]);
 			m_btnMgr.show(m_configBtn[5]);
+			
+			for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+				if(m_configLblUser[i] != -1)
+					m_btnMgr.show(m_configLblUser[i]);
 
 			int choice = -1;
 			while(!m_exit)
 			{
-				_mainLoopCommon();
+				_mainLoopCommon(true);
 				if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 					m_btnMgr.up();
 				else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)

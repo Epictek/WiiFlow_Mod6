@@ -610,12 +610,11 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 		videoOffset = m_gcfg2.getInt(GameHdr->id, "nin_pos", 127);
 	}
 
-	_setBg(m_configBg, m_configBg);
 	_showGameSettings(false, dvd);
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && curPage == MAIN_SETTINGS))
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
@@ -679,10 +678,8 @@ void CMenu::_gameSettings(const dir_discHdr *hdr, bool dvd)
 					//! COVER AND BANNER
 					else if(m_btnMgr.selected(m_configBtnGo[2]) && !dvd)
 					{
-						CoverFlow.stopCoverLoader(true);
 						_hideConfig(true);
 						_CoverBanner();
-						CoverFlow.startCoverLoader();
 						_showGameSettings(false, dvd);
 					}
 					//! CHEAT CODES

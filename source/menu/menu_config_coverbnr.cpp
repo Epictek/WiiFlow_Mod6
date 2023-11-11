@@ -42,7 +42,7 @@ void CMenu::_CoverBanner(void)
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_HELD || BTN_B_OR_1_PRESSED)
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
@@ -62,14 +62,18 @@ void CMenu::_CoverBanner(void)
 			else if(m_btnMgr.selected(m_configBtn[2])) // download cover
 			{
 				_hideConfig(true);
+				CoverFlow.stopCoverLoader(true);
 				_download(id, 1);
+				CoverFlow.startCoverLoader();
 				_showCoverBanner();
 			}
 			else if(m_btnMgr.selected(m_configBtn[3])) // delete cover
 			{
 				if(_error(_t("errcfg5", L"Are you sure?"), true))
 				{
+					CoverFlow.stopCoverLoader(true);
 					RemoveCover(id);
+					CoverFlow.startCoverLoader();
 					_error(_t("dlmsg14", L"Done."));
 				}
 				_showCoverBanner();

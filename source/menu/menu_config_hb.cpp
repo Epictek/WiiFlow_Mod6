@@ -78,13 +78,12 @@ void CMenu::_configHB(u8 startPage)
 {
 	curPage = startPage;
 	
-	_setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showConfigHB();
 
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && (curPage == MAIN_SETTINGS || startPage == GAME_LIST)))
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
@@ -137,6 +136,7 @@ void CMenu::_configHB(u8 startPage)
 						m_current_view = COVERFLOW_HOMEBREW;
 						_showCF(true);
 						_hideMain(true); // quick fix
+						CoverFlow.fade(0);
 						if(_cfTheme())
 						{
 							m_exit = true;
@@ -145,8 +145,8 @@ void CMenu::_configHB(u8 startPage)
 						}
 						m_current_view = m_prev_view;
 						_showCF(true);
+						CoverFlow.fade(2); // to avoid CF flashing after _showCF()
 						_hideMain(true); // quick fix
-						_setBg(m_configBg, m_configBg); // reset background after adjusting CF
 						_showConfigHB();
 					}
 					else if(m_btnMgr.selected(m_checkboxBtn[5])) // box mode

@@ -575,8 +575,10 @@ int CMenu::main(void)
 			else
 			{
 				_hideMain();
+				CoverFlow.fade(1);
 				if(_Home())
 					break; // exit wiiflow
+				CoverFlow.fade(0);
 				cancel_bheld = true;
 				m_refreshGameList = m_refreshGameList || m_gameList.empty();
 				_showMain();
@@ -597,8 +599,10 @@ int CMenu::main(void)
 				if(neek2o())
 				{
 					_hideMain();
+					CoverFlow.fade(1);
 					if(_Home())
 						break; // exit wiiflow
+					CoverFlow.fade(0);
 					_showMain();
 				}
 				//! sourceflow or source menu if they exist
@@ -644,9 +648,10 @@ int CMenu::main(void)
 			else if(m_btnMgr.selected(m_mainBtnCateg) && !m_gameList.empty())
 			{
 				_hideMain();
+				CoverFlow.fade(1);
 				_CategorySettings();
+				CoverFlow.fade(0);
 				cancel_bheld = true;
-				_setMainBg();
 				if(m_refreshGameList)
 				{
 					_initCF();
@@ -683,6 +688,7 @@ int CMenu::main(void)
 			else if(m_btnMgr.selected(m_mainBtnDVD))
 			{
 				_hideMain(true);
+				CoverFlow.fade(1);
 				/* Create fake Header */
 				dir_discHdr hdr;
 				memset(&hdr, 0, sizeof(dir_discHdr));
@@ -691,6 +697,7 @@ int CMenu::main(void)
 				_launchWii(&hdr, true, !BTN_B_OR_1_HELD); // immediately if btn B held, otherwise settings
 				cancel_bheld = true;
 				_showCF(false);
+				CoverFlow.fade(0);
 			}
 			
 			/** Random boot or select **/
@@ -755,7 +762,9 @@ int CMenu::main(void)
 				{
 					_hideMain();
 					char *c = NULL;
+					CoverFlow.fade(1);
 					c = _keyboard();
+					CoverFlow.fade(0);
 					if(strlen(c) > 0)
 					{
 						m_showtimer = 150;
@@ -793,6 +802,7 @@ int CMenu::main(void)
 			{
 				u8 page = m_btnMgr.selected(m_configBtnGo[7]) ? GAME_LIST : MAIN_SETTINGS;
 				_hideMain();
+				CoverFlow.fade(2);
 				if(BTN_B_OR_1_HELD) // shortcut to global settings
 				{
 					bUsed = true;
@@ -809,10 +819,7 @@ int CMenu::main(void)
 					else if(m_current_view & COVERFLOW_PLUGIN)
 					{
 						if(page == GAME_LIST && enabledPluginsCount == 0)
-						{
-							_setBg(m_configBg, m_configBg);
 							_PluginSettings();
-						}
 						else if(page == GAME_LIST && enabledPluginsCount == 1)
 							_configPlugin(MAIN_SETTINGS);
 						else
@@ -826,6 +833,7 @@ int CMenu::main(void)
 				if(m_exit) // end loop immediately to fix green flash on reboot or neek2o launch
 					break;
 				cancel_bheld = true;
+				CoverFlow.fade(0);
 				m_refreshGameList = m_refreshGameList || m_gameList.empty();
 				_showMain();				
 			}

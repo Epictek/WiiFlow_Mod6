@@ -140,7 +140,7 @@ void CMenu::_config(void)
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_HELD || BTN_B_OR_1_PRESSED)
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)

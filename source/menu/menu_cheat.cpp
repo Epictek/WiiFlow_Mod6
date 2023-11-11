@@ -67,13 +67,12 @@ void CMenu::_CheatSettings(const char *id)
 	}
 	enabled = m_gcfg2.getBool(id, "cheat", 0);
 
-	_setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showCheatSettings();
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)

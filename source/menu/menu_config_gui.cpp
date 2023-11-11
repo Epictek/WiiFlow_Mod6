@@ -148,8 +148,10 @@ void CMenu::_configGui(void)
 				{
 					m_refreshGameList = true;
 					_hideConfig();
+					CoverFlow.fade(0);
 					if(_cfTheme())
 						break; // reboot if CF was modified due to possible memory leak with cf_theme
+					CoverFlow.fade(2); // to avoid CF flashing after _showCF()
 					_setBg(m_configBg, m_configBg); // reset background after adjusting CF
 					_showConfigGui();
 				}

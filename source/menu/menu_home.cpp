@@ -47,8 +47,6 @@ bool CMenu::_Home(void)
 {
 	SetupInput();
 	_showHome();
-	
-	m_snapshot_loaded = true; // don't draw coverflow title
 	enlargeButtons = true;
 
 	if(theme.homeSound != NULL) // added
@@ -105,8 +103,9 @@ bool CMenu::_Home(void)
 			{
 				_hideHome();
 				enlargeButtons = false;
-				m_snapshot_loaded = false;
+				CoverFlow.fade(2);
 				_config();
+				CoverFlow.fade(0);
 				break;
 			}
 			else if(m_btnMgr.selected(m_homeBtnClose))
@@ -132,9 +131,7 @@ bool CMenu::_Home(void)
 			m_btnMgr.hide(m_homeLblFooterOn);
 	}
 	
-	m_snapshot_loaded = false; // draw coverflow title
 	enlargeButtons = false;
-	
 	_hideHome();
 	
 	return m_exit;

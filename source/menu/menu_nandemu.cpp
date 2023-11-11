@@ -237,13 +237,12 @@ bool CMenu::_configNandEmu(u8 startPage)
 	channelsType = m_cfg.getInt(channel_domain, "channels_type", CHANNELS_REAL);
 	curPage = startPage;
 
-	_setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showConfigNandEmu();
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if((BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && (curPage == MAIN_SETTINGS || startPage == GAME_LIST))) && !m_thrdWorking)
 			break;
 		else if((BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED) && !m_thrdWorking)
@@ -846,15 +845,13 @@ bool CMenu::_NandDump(int DumpType)
 			return 0;
 	}
 	
-	m_btnMgr.show(m_configLblTitle);
-	m_btnMgr.show(m_wbfsPBar);
-	m_btnMgr.show(m_wbfsLblMessage);
-	m_btnMgr.show(m_configLblDialog);
-	m_btnMgr.setText(m_wbfsLblMessage, L"");
+	_showProgress();
 	if(m_nanddump)
 		m_btnMgr.setText(m_configLblTitle, _t("cfgne12", L"Nand extractor"));
 	else // saves dump
 		m_btnMgr.setText(m_configLblTitle, _t("cfgne13", L"Game save extractor"));
+	m_btnMgr.show(m_configLblTitle);
+	
 	m_thrdStop = false;
 	m_thrdProgress = 0.f;
 	m_thrdWorking = true;
@@ -904,13 +901,11 @@ int CMenu::_FlashGameSave(string gameId)
 	m_thrdMessageAdded = false;
 	m_nandext = false;
 	m_saveExtGameId = gameId;
-
-	m_btnMgr.show(m_configLblTitle);
-	m_btnMgr.show(m_wbfsPBar);
-	m_btnMgr.show(m_wbfsLblMessage);
-	m_btnMgr.show(m_configLblDialog);
-	m_btnMgr.setText(m_wbfsLblMessage, L"");
+	
+	_showProgress();
 	m_btnMgr.setText(m_configLblTitle, _t("cfgne28", L"Game save flasher"));
+	m_btnMgr.show(m_configLblTitle);
+	
 	m_thrdProgress = 0.f;
 	m_thrdWorking = true;
 	LWP_CreateThread(&thread, _NandFlasher, this, 0, 32768, 40);
@@ -967,12 +962,10 @@ int CMenu::_ExtractGameSave(string gameId)
 	bool finished = false;
 	m_nanddump = false;
 
-	m_btnMgr.show(m_configLblTitle);
-	m_btnMgr.show(m_wbfsPBar);
-	m_btnMgr.show(m_wbfsLblMessage);
-	m_btnMgr.show(m_configLblDialog);
-	m_btnMgr.setText(m_wbfsLblMessage, L"");
+	_showProgress();
 	m_btnMgr.setText(m_configLblTitle, _t("cfgne13", L"Game save extractor"));
+	m_btnMgr.show(m_configLblTitle);
+	
 	m_thrdProgress = 0.f;
 	m_thrdWorking = true;
 	LWP_CreateThread(&thread, _NandDumper, this, 0, 32768, 40);

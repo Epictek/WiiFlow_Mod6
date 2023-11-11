@@ -132,11 +132,13 @@ void CMenu::_configSource(void)
 				_hideConfig();
 				m_sourceflow = true;
 				_showCF(true);
+				CoverFlow.fade(0);
 				if(_cfTheme())
 					break; // reboot if CF was modified due to possible memory leak with cf_theme
 				m_sourceflow = false;
 				_getCustomBgTex();
 				_showCF(true);
+				CoverFlow.fade(2);
 				_hideMain(true); // quick fix
 				_setBg(m_configBg, m_configBg); // reset background after adjusting CF
 				_showConfigSource();

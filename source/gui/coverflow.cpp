@@ -229,6 +229,7 @@ CCoverFlow::CCoverFlow(void)
 	m_sorting = SORT_ALPHA;
 	m_normal_speed = 0.1f;
 	m_selected_speed = 0.07f;
+	m_fade_level = 0;
 
 	m_flipSound = NULL;
 	m_hoverSound = NULL;
@@ -1700,6 +1701,15 @@ bool CCoverFlow::_setCurPosToCurItem(const char *id, const char *filename, u32 s
 	return true;
 }
 
+void CCoverFlow::fade(u8 fadeLevel)
+{
+	m_fade_level = fadeLevel;
+	if (m_covers == NULL) return;
+	LockMutex lock(m_mutex);
+	for (u32 i = 0; i < m_range; ++i)
+		_updateTarget(i, false);
+}
+
 void CCoverFlow::_updateAllTargets(bool instant)
 {
 	m_targetCameraPos = m_selected ? m_loSelected.camera : m_loNormal.camera;
@@ -1716,6 +1726,14 @@ void CCoverFlow::_updateTarget(int i, bool instant)
 	int x = i / m_rows;
 	int y = i % m_rows;
 	CCover &cvr = m_covers[i];
+	
+	//! All covers progressively darkened (m_fade_level 1) or invisible (m_fade_level 2)
+	if(m_fade_level > 0)
+	{
+		cvr.targetColor = CColor(80, 80, 80, m_fade_level == 1 ? 255 : 0);
+		cvr.txtTargetColor = 0; // invisible title
+		return;
+	}
 
 	// Left covers
 	if (x < hcenter)

@@ -193,13 +193,12 @@ void CMenu::_configPlugin(u8 startPage)
 	curPage = startPage;
 	start_pos = 0;
 
-	_setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showConfigPlugin();
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && (curPage == MAIN_SETTINGS || startPage == GAME_LIST)))
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
@@ -250,7 +249,9 @@ void CMenu::_configPlugin(u8 startPage)
 					else if(m_btnMgr.selected(m_configBtnGo[start_pos + 1])) // select plugins
 					{
 						_hideConfig(true);
+						_setBg(m_configBg, m_configBg);
 						_PluginSettings();
+						_setMainBg();
 						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[WiiBtn])) // wii settings
@@ -301,7 +302,9 @@ void CMenu::_configPlugin(u8 startPage)
 				else if(m_btnMgr.selected(m_configBtnGo[3])) // Edit plugins
 				{
 					_hideConfig(true);
+					_setBg(m_configBg, m_configBg);
 					_checkboxesMenu(4); // SM editor mode 4 (EDIT_PLUGIN)
+					_setMainBg();
 					_showConfigPlugin();
 				}
 				else if(m_btnMgr.selected(m_checkboxBtn[4])) // plugin database titles

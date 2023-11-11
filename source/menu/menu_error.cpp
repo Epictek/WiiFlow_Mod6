@@ -3,7 +3,6 @@
 
 bool CMenu::_error(const wstringEx &msg, bool dialog)
 {
-	_setBg(m_configBg, m_configBg);
 	SetupInput();
 	
 	_hideWaitMessage();

@@ -37,13 +37,12 @@ bool CMenu::_gameinfo(void)
 	int xtra_skips = 0;
 	curPage = 1;
 
-	// _setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showGameInfo();
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		CoverFlow.tick();
 		
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
@@ -55,13 +54,17 @@ bool CMenu::_gameinfo(void)
 			|| GBTN_RIGHT_PRESSED) // gamecube controller
 		{
 			_hideGameInfoPg(false);
+			CoverFlow.fade(0);
 			CoverFlow.down();
-			m_newGame = true;
+			CoverFlow.fade(1);
 			curPage = 1;
 			amount_of_skips = 0;
 			xtra_skips = 0;
 			_showGameInfo();
-			_playGameSound(); // changes banner and game sound
+			if(m_bnr_settings)
+				_playGameSound(); // changes banner and game sound immediately
+			else
+				m_newGame = true; // banner and game sound will load on exit
 		}
 		else if((wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) && ShowPointer()) // wiimote vertical
 			|| (wBtn_Pressed(WPAD_BUTTON_UP, WPAD_EXP_NONE) && !ShowPointer()) // wiimote sideways
@@ -69,13 +72,17 @@ bool CMenu::_gameinfo(void)
 			|| GBTN_LEFT_PRESSED) // gamecube controller
 		{
 			_hideGameInfoPg(false);
+			CoverFlow.fade(0);
 			CoverFlow.up();
-			m_newGame = true;
+			CoverFlow.fade(1);
 			curPage = 1;
 			amount_of_skips = 0;
 			xtra_skips = 0;
 			_showGameInfo();
-			_playGameSound();
+			if(m_bnr_settings)
+				_playGameSound(); // changes banner and game sound immediately
+			else
+				m_newGame = true; // banner and game sound will load on exit
 		}
 		
 		else if(((wBtn_Pressed(WPAD_BUTTON_DOWN, WPAD_EXP_NONE) || wBtn_Held(WPAD_BUTTON_DOWN, WPAD_EXP_NONE)) && ShowPointer()) // wiimote vertical

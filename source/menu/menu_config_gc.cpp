@@ -195,13 +195,12 @@ void CMenu::_configGC(u8 startPage)
 	
 	curPage = startPage;
 	
-	_setBg(m_configBg, m_configBg);
 	SetupInput();
 	_showConfigGC();
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && (curPage == MAIN_SETTINGS || startPage == GAME_LIST)))
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)

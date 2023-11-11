@@ -147,8 +147,6 @@ void CMenu::_CategorySettings(bool fromGameSet)
 	exit_renameCat = false;
 	gameSet = fromGameSet;
 	
-	_setBg(m_configBg, m_configBg);
-	
 	SetupInput();
 
 	curPage = m_catStartPage;
@@ -197,7 +195,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		CoverFlow.tick();
 			
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
@@ -245,11 +243,15 @@ void CMenu::_CategorySettings(bool fromGameSet)
 			bool left = wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE);
 			_setGameCategories();
 			_hideConfig();
+			CoverFlow.fade(0);
 			left ? CoverFlow.up() : CoverFlow.down();
+			CoverFlow.fade(1);
 			curPage = 1;
-			m_newGame = true;
 			m_categories.assign(m_max_categories, '0');
-			_playGameSound(); // changes banner and game sound
+			if(m_bnr_settings)
+				_playGameSound(); // changes banner and game sound immediately
+			else
+				m_newGame = true; // banner and game sound will load on exit
 			_getGameCategories(CoverFlow.getHdr());
 			_showCategorySettings();
 		}
@@ -365,7 +367,7 @@ void CMenu::_CategorySettings(bool fromGameSet)
 		if(exit_renameCat)
 			break;
 	}
-	
+
 	_hideConfig(true);
 }
 
@@ -417,7 +419,7 @@ void CMenu::_CategoryConfig(void)
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 			break;

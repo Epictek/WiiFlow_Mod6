@@ -85,6 +85,7 @@ public:
 	void showCover(void);
 	void mouse(int chan, int x, int y);
 	bool mouseOver(int x, int y);
+	void fade(u8 fadeLevel); //
 	// Accessors for settings
 	void setCompression(bool enable) { m_compressTextures = enable; }
 	bool getBoxMode(void) const { return m_box;}
@@ -316,6 +317,7 @@ private:
 	u8 m_aniso;
 	bool m_edgeLOD;
 	Sorting m_sorting;
+	u8 m_fade_level;
 	// thread stack
 	static u8 coverThreadStack[32768];
 	static const u32 coverThreadStackSize;

@@ -31,7 +31,7 @@ char *CMenu::_keyboard(void)
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(true);
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 		{
 			text[0] = '\0';

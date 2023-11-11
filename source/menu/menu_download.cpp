@@ -72,6 +72,10 @@ void CMenu::_showProgress(void)
 	m_btnMgr.show(m_wbfsPBar);
 	m_btnMgr.show(m_wbfsLblMessage);
 	m_btnMgr.show(m_configLblDialog);
+	
+	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
+		if(m_configLblUser[i] != -1)
+			m_btnMgr.show(m_configLblUser[i]);
 }
 
 void CMenu::_download(string gameId, int dl_type)
@@ -138,7 +142,6 @@ void CMenu::_download(string gameId, int dl_type)
 				m_refreshGameList = true;
 				_hideConfig();
 				_showProgress();
-
 				_start_pThread();
 				int ret = _coverDownloader(false); // disc = false
 				_stop_pThread();
@@ -155,7 +158,6 @@ void CMenu::_download(string gameId, int dl_type)
 					m_btnMgr.setText(m_configLblDialog, _t("dlmsg30", L"No covers missing."));
 				dl_finished = true;
 				dl_type = 0;
-
 				m_btnMgr.show(m_configBtnBack);
 			}
 			else if(m_btnMgr.selected(m_configBtn[5]) || dl_type == 2) // download banners

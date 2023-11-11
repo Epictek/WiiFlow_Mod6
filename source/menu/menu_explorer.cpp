@@ -106,8 +106,6 @@ void CMenu::_Explorer(void)
 	m_thrdStop = false;
 	m_thrdMessageAdded = false;
 	
-	_setBg(m_configBg, m_configBg);
-	
 	if(!folderExplorer)
 		CoverFlow.clear();
 	strcpy(folderPath, dir); // dir is "explorer_path" from ini file if m_explorer_on_start is true
