@@ -31,33 +31,36 @@ void CMenu::_showConfigWii(bool instant)
 	{
 		m_btnMgr.setText(m_configLblTitle, _t("wii", L"Wii"));
 		m_btnMgr.show(m_configLblTitle);
-		
-		//! File browser
-		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
-		m_btnMgr.show(m_configBtnCenter);
 
+		//! Refresh coverflow list and cover cache
+		m_btnMgr.setText(m_configLbl[1], _t("home2", L"Refresh coverflow list"));
+		m_btnMgr.setText(m_configBtn[1], _t("cfgne6", L"Start"));
+		//! Install Wii game
+		m_btnMgr.setText(m_configLbl[2], _t("wbfsop1", L"Install game"));
 		//! Game location
-		m_btnMgr.setText(m_configLbl[2], _t("cfg813", L"Manage Wii game list"));
+		m_btnMgr.setText(m_configLbl[3], _t("cfg813", L"Manage Wii game list"));
 		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
+		m_btnMgr.setText(m_configLbl[4], _t("cfg3", L"Download covers and info"));
 		//! Global video settings
-		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg803", L"Global video settings"));
 		//! Global nand emulation
-		m_btnMgr.setText(m_configLbl[5], _t("cfg802", L"Global nand emulation"));
+		m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Global nand emulation"));
 		//! Return to WiiFlow channel
-		m_btnMgr.setText(m_configLbl[6], _t("cfgg21", L"Return to WiiFlow channel"));
-		m_checkboxBtn[6] = m_cfg.getString(wii_domain, "returnto") == WFID4 ? m_configChkOn[6] : m_configChkOff[6];
+		m_btnMgr.setText(m_configLbl[7], _t("cfgg21", L"Return to WiiFlow channel"));
+		m_checkboxBtn[7] = m_cfg.getString(wii_domain, "returnto") == WFID4 ? m_configChkOn[7] : m_configChkOff[7];
 		//! Default game language
-		m_btnMgr.setText(m_configLbl[7], _t("cfgb4", L"Default game language"));
+		m_btnMgr.setText(m_configLbl[8], _t("cfgb4", L"Default game language"));
 		i = min(max(0, m_cfg.getInt(wii_domain, "game_language", 0)), (int)ARRAY_SIZE(CMenu::_languages) - 2);
-		m_btnMgr.setText(m_configLblVal[7], _t(CMenu::_languages[i + 1].id, CMenu::_languages[i + 1].text), true);
+		m_btnMgr.setText(m_configLblVal[8], _t(CMenu::_languages[i + 1].id, CMenu::_languages[i + 1].text), true);
 
-		for(i = 2; i < 8; ++i)
+		for(i = 1; i < 9; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i < 6)
+			if(i == 1)
+				m_btnMgr.show(m_configBtn[i], instant);
+			else if(i < 7)
 				m_btnMgr.show(m_configBtnGo[i], instant);
-			else if(i == 6)
+			else if(i == 7)
 				m_btnMgr.show(m_checkboxBtn[i], instant);
 			else
 			{
@@ -76,37 +79,30 @@ void CMenu::_showConfigWii(bool instant)
 		
 		//! Wii game partition
 		const char *partitionname = DeviceName[m_cfg.getInt(wii_domain, "partition", 0)];
-		m_btnMgr.setText(m_configLbl[2], _t("part1", L"Wii partition"));
-		m_btnMgr.setText(m_configLblVal[2], upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[3], _t("part1", L"Wii partition"));
+		m_btnMgr.setText(m_configLblVal[3], upperCase(partitionname));
 		//! Wii preffered partition
 		s8 part = m_cfg.getInt(wii_domain, "preferred_partition", -1);
 		partitionname = DeviceName[part];
-		m_btnMgr.setText(m_configLbl[3], _t("part99", L"Preffered partition at boot"));
-		m_btnMgr.setText(m_configLblVal[3], part == -1 ? _t("none", L"None") : upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[4], _t("part99", L"Preffered partition at boot"));
+		m_btnMgr.setText(m_configLblVal[4], part == -1 ? _t("none", L"None") : upperCase(partitionname));
 		//! Wii game custom path
-		m_btnMgr.setText(m_configLbl[4], _t("cfg778", L"Game folder path"));
-		//! Install Wii game
-		m_btnMgr.setText(m_configLbl[5], _t("wbfsop1", L"Install game"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg778", L"Game folder path"));
 		//! Dump Wii game coverflow list
 		m_btnMgr.setText(m_configLbl[6], _t("cfg783", L"Dump coverflow list"));
 		m_btnMgr.setText(m_configBtn[6], _t("cfgne6", L"Start"));
-		//! Refresh coverflow list and cover cache
-		m_btnMgr.setText(m_configLbl[7], _t("home2", L"Refresh coverflow list"));
-		m_btnMgr.setText(m_configBtn[7], _t("cfgne6", L"Start"));
 		
-		for(u8 i = 2; i < 8; ++i)
+		for(u8 i = 3; i < 7; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i < 4)
+			if(i < 5)
 			{
 				m_btnMgr.show(m_configLblVal[i], instant);
 				m_btnMgr.show(m_configBtnM[i], instant);
 				m_btnMgr.show(m_configBtnP[i], instant);
 			}
-			else if(i < 6)
-				m_btnMgr.show(m_configBtnGo[i], instant);
 			else
-				m_btnMgr.show(m_configBtn[i], instant);
+				m_btnMgr.show(m_configBtnGo[i], instant);
 		}
 	}
 	
@@ -232,46 +228,54 @@ void CMenu::_configWii(u8 startPage)
 			{
 				if(m_btnMgr.selected(m_configBtnBack))
 					break;
-				//! Wii game file browser
-				else if(m_btnMgr.selected(m_configBtnCenter))
-				{
-					_hideConfig(true);
-					const char *gameDir = fmt(wii_games_dir, DeviceName[m_cfg.getInt(wii_domain, "partition", USB1)]);
-					_pluginExplorer(gameDir);
-					_showConfigWii();
-				}
 				else
 				{
+					//! Refresh coverflow list and cover cache
+					if(m_btnMgr.selected(m_configBtn[1]))
+					{
+						m_cfg.setBool(wii_domain, "update_cache", true);
+						if(m_current_view & COVERFLOW_PLUGIN)
+							m_cfg.setBool(plugin_domain, "update_cache", true);
+						m_refreshGameList = true;
+						break;
+					}
+					//! Install Wii game
+					else if(m_btnMgr.selected(m_configBtnGo[2]))
+					{
+						_hideConfig(true);
+						_addGame(TYPE_WII_GAME);
+						_showConfigWii();
+					}
 					//! Game location
-					if(m_btnMgr.selected(m_configBtnGo[2]))
+					else if(m_btnMgr.selected(m_configBtnGo[3]))
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
 						_showConfigWii();
 					}
 					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[3]))
+					else if(m_btnMgr.selected(m_configBtnGo[4]))
 					{
 						_hideConfig(true);
 						_download();
 						_showConfigWii();
 					}
 					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[4]))
+					else if(m_btnMgr.selected(m_configBtnGo[5]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
 						_showConfigWii();
 					}
 					//! Global nand emulation
-					else if(m_btnMgr.selected(m_configBtnGo[5]))
+					else if(m_btnMgr.selected(m_configBtnGo[6]))
 					{
 						_hideConfig(true);
 						curPage = NANDEMU_SETTINGS;
 						_showConfigWii();
 					}
 					//! Return to WiiFlow channel
-					else if(m_btnMgr.selected(m_checkboxBtn[6]))
+					else if(m_btnMgr.selected(m_checkboxBtn[7]))
 					{
 						if(m_cfg.getString(wii_domain, "returnto") == WFID4)
 							m_cfg.remove(wii_domain, "returnto");
@@ -293,12 +297,12 @@ void CMenu::_configWii(u8 startPage)
 							NANDemuView = curNANDemuView;
 						}
 						_showConfigWii(true);
-						m_btnMgr.setSelected(m_checkboxBtn[6]);
+						m_btnMgr.setSelected(m_checkboxBtn[7]);
 					}
 					//! Default game language
-					else if(m_btnMgr.selected(m_configBtnP[7]) || m_btnMgr.selected(m_configBtnM[7]))
+					else if(m_btnMgr.selected(m_configBtnP[8]) || m_btnMgr.selected(m_configBtnM[8]))
 					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[7]) ? 1 : -1;
+						s8 direction = m_btnMgr.selected(m_configBtnP[8]) ? 1 : -1;
 						m_cfg.setInt(wii_domain, "game_language", (int)loopNum(m_cfg.getUInt(wii_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
 						_showConfigWii(true);
 					}
@@ -309,18 +313,18 @@ void CMenu::_configWii(u8 startPage)
 			else if(curPage == GAME_LIST)
 			{
 			//! Wii partition
-				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
+				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_WII); //
 					if(m_current_view & COVERFLOW_WII || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(WII_PMAGIC)))
 						m_refreshGameList = true;
 					_showConfigWii(true);
 				}
 				//! Wii preffered partition
-				else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
+				else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
 					int part = m_cfg.getInt(wii_domain, "preferred_partition", -1);
 					if((part == 8 && direction == 1) || (part == 0 && direction == -1))
 						part = -1;
@@ -332,7 +336,7 @@ void CMenu::_configWii(u8 startPage)
 					_showConfigWii(true);
 				}
 				//! Wii game custom path
-				else if(m_btnMgr.selected(m_configBtnGo[4]))
+				else if(m_btnMgr.selected(m_configBtnGo[5]))
 				{
 					_hideConfig(true);
 					const char *currentPath = fmt(wii_games_dir, DeviceName[m_cfg.getInt(wii_domain, "partition", USB1)]);
@@ -349,27 +353,11 @@ void CMenu::_configWii(u8 startPage)
 					}
 					_showConfigWii();
 				}
-				//! Install Wii game
-				else if(m_btnMgr.selected(m_configBtnGo[5]))
-				{
-					_hideConfig(true);
-					_addGame(TYPE_WII_GAME);
-					_showConfigWii();
-				}
 				//! Dump Wii game coverflow list
-				else if(m_btnMgr.selected(m_configBtn[6]))
+				else if(m_btnMgr.selected(m_configBtnGo[6]))
 				{
 					_dumpGameList();
 					_showConfigWii();
-				}
-				//! Refresh coverflow list and cover cache
-				else if(m_btnMgr.selected(m_configBtn[7]))
-				{
-					m_cfg.setBool(wii_domain, "update_cache", true);
-					if(m_current_view & COVERFLOW_PLUGIN)
-						m_cfg.setBool(plugin_domain, "update_cache", true);
-					m_refreshGameList = true;
-					break;
 				}
 			}
 			

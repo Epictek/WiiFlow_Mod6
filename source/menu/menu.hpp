@@ -72,13 +72,13 @@ private:
 	u8 m_catStartPage;
 	u8 m_max_categories;
 	u8 m_screensaverDelay;
+	u8 m_explorer_on_start;
 	bool m_clearCats;
 	bool m_getFavs;
 	bool m_newGame;
 	bool show_mem;
 	bool cacheCovers;
 	bool SF_enabled;
-	bool m_explorer_on_start;
 	bool tdb_genres;
 	bool m_snapshot_loaded;
 	bool customBg;
@@ -217,10 +217,10 @@ private:
 	TexData texFavOnS;
 	TexData texDVD;
 	TexData texDVDS;
-	TexData texRandom;
-	TexData texRandomS;
-	TexData texSort;
-	TexData texSortS;
+	TexData texFind;
+	TexData texFindS;
+	TexData texView;
+	TexData texViewS;
 	TexData texConfig;
 	TexData texConfigS;
 	TexData texPrev;
@@ -643,6 +643,7 @@ private:
 	void _showCF(bool refreshList = false);
 	void _showCategoryConfig(bool instant = false); //
 	void _showConfigPluginEditor(bool instant = false); //
+	void _showViewOptions(bool instant = false); //
 	
 	/* Menu main functions */
 	bool _error(const wstringEx &msg, bool dialog = false);
@@ -680,6 +681,7 @@ private:
 	void _checkboxesMenu(u8 md);
 	char *_keyboard(void); //
 	void _CategoryConfig(void); //
+	void _viewOptions(void); //
 	bool _Home();
 	bool _ExitTo();
 	

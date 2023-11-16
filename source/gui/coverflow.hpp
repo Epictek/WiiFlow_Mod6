@@ -87,6 +87,7 @@ public:
 	bool mouseOver(int x, int y);
 	void fade(u8 fadeLevel); //
 	// Accessors for settings
+	u8 getFadeLevel(void) { return m_fade_level; } //
 	void setCompression(bool enable) { m_compressTextures = enable; }
 	bool getBoxMode(void) const { return m_box;}
 	void setBufferSize(u32 numCovers);

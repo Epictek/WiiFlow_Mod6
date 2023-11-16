@@ -248,10 +248,8 @@ void CMenu::_CategorySettings(bool fromGameSet)
 			CoverFlow.fade(1);
 			curPage = 1;
 			m_categories.assign(m_max_categories, '0');
-			if(m_bnr_settings)
-				_playGameSound(); // changes banner and game sound immediately
-			else
-				m_newGame = true; // banner and game sound will load on exit
+			_playGameSound(); // changes banner
+			m_newGame = true; // will load banner sound and update icons on exit
 			_getGameCategories(CoverFlow.getHdr());
 			_showCategorySettings();
 		}
@@ -419,7 +417,7 @@ void CMenu::_CategoryConfig(void)
 	
 	while(!m_exit)
 	{
-		_mainLoopCommon(true);
+		_mainLoopCommon();
 		
 		if(BTN_HOME_PRESSED || BTN_B_OR_1_PRESSED)
 			break;

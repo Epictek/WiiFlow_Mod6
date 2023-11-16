@@ -10,12 +10,10 @@
   B + A sur un jeu  =  Lancement immédiat
   B + A sur l'icône source  =  Vue coverflow suivante
   B + A sur l'icône dvd  =  Lancement immédiat
-  B + A sur l'icône aléatoire  =  Lancement immédiat
-  B + A sur l'icône tri  =  Changer le mode de tri
   B + A sur l'icône paramètres  =  Paramètres globaux
-  B + Moins / B + Plus  =  Changer la musique
-  B + Haut / B + Bas  =  Changer le style de coverflow
-  B + Gauche / B + Droite = Changer de nand émulée
+  B + Moins / B + Plus  =  Sélectionner / lancer un jeu aléatoire
+  B + Haut / B + Bas  =  Changer de nand émulée
+  B + Gauche / B + Droite = Changer la musique
   Z  =  Capture d'écran
   
 - Jeu sélectionné :

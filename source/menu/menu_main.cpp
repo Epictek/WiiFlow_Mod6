@@ -23,8 +23,8 @@ s16 m_mainBtnCateg;
 s16 m_mainBtnFavoritesOff;
 s16 m_mainBtnFavoritesOn;
 s16 m_mainBtnDVD;
-s16 m_mainBtnRandom;
-s16 m_mainBtnSort;
+s16 m_mainBtnFind;
+s16 m_mainBtnView;
 s16 m_mainBtnConfig;
 s16 m_mainBtnPrev;
 s16 m_mainBtnNext;
@@ -52,8 +52,8 @@ void CMenu::_hideMain(bool instant)
 	m_btnMgr.hide(m_mainBtnFavoritesOn, instant);
 	m_btnMgr.hide(m_mainBtnFavoritesOff, instant);
 	m_btnMgr.hide(m_mainBtnDVD, instant);
-	m_btnMgr.hide(m_mainBtnRandom, instant);
-	m_btnMgr.hide(m_mainBtnSort, instant);
+	m_btnMgr.hide(m_mainBtnFind, instant);
+	m_btnMgr.hide(m_mainBtnView, instant);
 	m_btnMgr.hide(m_mainBtnConfig, instant);
 	m_btnMgr.hide(m_mainBtnPrev, instant);
 	m_btnMgr.hide(m_mainBtnNext, instant);
@@ -468,22 +468,8 @@ int CMenu::main(void)
 
 	m_vid.set2DViewport(m_cfg.getInt(general_domain, "tv_width", 640), m_cfg.getInt(general_domain, "tv_height", 480), m_cfg.getInt(general_domain, "tv_x", 0), m_cfg.getInt(general_domain, "tv_y", 0));
 	gprintf("Bootup completed!\n");
-	
-	if(!m_explorer_on_start && !m_source_on_start) // make sure it's the main coverflow view
-	{
-		_getCustomBgTex();
-		_setMainBg();
-		_showCF(true); // will hide wait message
-	}
-	else
-	{
-		_hideWaitMessage();
-		if(m_source_on_start)
-		{
-			_getSFlowBgTex();
-			_setMainBg();
-		}
-	}
+
+	_hideWaitMessage();
 
 	if(show_mem)
 	{
@@ -498,10 +484,24 @@ int CMenu::main(void)
 	{
 		u32 plmagic = strtoul(m_cfg.getString(plugin_domain, "cur_magic", WII_PMAGIC).c_str(), NULL, 16);
 		string plpath = m_cfg.getString(general_domain, "explorer_path", "");
-		_pluginExplorer(plpath.c_str(), plmagic, true);
-		m_explorer_on_start = false;
-		m_cfg.setBool(general_domain, "explorer_on_start", false);
-		m_source_on_start = true;
+		_pluginExplorer(plpath.c_str(), plmagic, m_explorer_on_start > 1);
+		if(m_explorer_on_start > 1)
+			m_source_on_start = true; // back to source if explorer_on_start = 2
+		else
+			_showCF(true); // back to main coverflow view if explorer_on_start = 1
+		m_explorer_on_start = 0;
+		m_cfg.setInt(general_domain, "explorer_on_start", 0);
+	}
+	else
+	{
+		if(m_source_on_start)
+			_getSFlowBgTex();
+		else // main coverflow view
+		{
+			_getCustomBgTex();
+			_showCF(true);
+		}
+		_setMainBg();
 	}
 
 	while(!m_exit)
@@ -545,7 +545,6 @@ int CMenu::main(void)
 						_setMainBg();
 						m_clearCats = false;
 						_showCF(true);
-						continue;
 					}
 					else // show source menu
 					{
@@ -555,6 +554,7 @@ int CMenu::main(void)
 						_showMain();
 					}
 					m_source_on_start = false;
+					continue;
 				}
 			}
 		}
@@ -700,50 +700,24 @@ int CMenu::main(void)
 				CoverFlow.fade(0);
 			}
 			
-			/** Random boot or select **/
-			else if(m_btnMgr.selected(m_mainBtnRandom) && !CoverFlow.empty())
+			/** View options **/
+			else if(m_btnMgr.selected(m_mainBtnView) && !CoverFlow.empty())
 			{
 				_hideMain();
-				srand(time(NULL));
-				u16 place = (rand() + rand() + rand()) % CoverFlow.size();
-
-				if(BTN_B_OR_1_HELD) // boot random game immediately
-				{
-					// gprintf("Lets boot the random game number %u\n", place);
-					const dir_discHdr *gameHdr = CoverFlow.getSpecificHdr(place);
-					if(gameHdr != NULL)
-					{
-						_setCurrentItem(gameHdr);
-						_launch(gameHdr);
-					}
-					_showCF(false); // this shouldn't happen
-				}
-				else // select random game
-				{
-					CoverFlow.setSelected(place);
-					_game(false);
-					if(m_exit)
-						break;
-					cancel_bheld = true;
-					if(m_refreshGameList) // if changes were made to favorites, parental lock, or categories
-					{
-						_initCF();
-						m_refreshGameList = false;
-					}
-					else
-						CoverFlow.cancel();
-					_setMainBg(); // in case fanart changed the background
-				}
+				CoverFlow.fade(1);
+				_viewOptions();
+				CoverFlow.fade(0);
+				cancel_bheld = true;
 			}
 			
 			/** Search by first letters / Sort coverflow list **/
-			else if(m_btnMgr.selected(m_mainBtnSort) && !CoverFlow.empty())
+			else if(m_btnMgr.selected(m_mainBtnFind) && !CoverFlow.empty())
 			{
 				const char *domain = _domainFromView();
 				int sort = m_cfg.getInt(domain, "sort", SORT_ALPHA);
 				bool sortChange = false;
 				cancel_bheld = true;
-				
+				/*
 				if(BTN_B_OR_1_HELD) // cycle sort modes
 				{
 					bUsed = true;
@@ -759,6 +733,7 @@ int CMenu::main(void)
 					CoverFlow._setCurPos(0); // force first cover of new sort as coverflow current position
 				}
 				else // search by first letters
+				*/
 				{
 					_hideMain();
 					char *c = NULL;
@@ -887,35 +862,59 @@ int CMenu::main(void)
 			else
 			{
 				/** Change song (music player) **/
-				if(BTN_MINUS_PRESSED) // previous song
+				if(BTN_LEFT_PRESSED) // previous song
 				{
 					bUsed = true;
 					MusicPlayer.Previous();
 				}
-				else if(BTN_PLUS_PRESSED) // next song
+				else if(BTN_RIGHT_PRESSED) // next song
 				{
 					bUsed = true;
 					MusicPlayer.Next();
 				}
-				
-				/** Change coverflow layout **/
-				else if((BTN_UP_PRESSED || BTN_DOWN_PRESSED) && !CoverFlow.empty())
+
+				/** Random boot or select **/
+				else if((BTN_MINUS_PRESSED || BTN_PLUS_PRESSED) && !CoverFlow.empty())
 				{
 					bUsed = true;
-					u32 curPos = CoverFlow._currentPos();				
-					s8 direction = BTN_DOWN_PRESSED ? 1 : -1;
-					int cfVersion = 1 + loopNum((_getCFVersion() - 1) + direction, m_numCFVersions);
-					_setCFVersion(cfVersion);
-					_loadCFLayout(cfVersion);
-					CoverFlow._setCurPos(curPos);
-					CoverFlow.applySettings(false);
+					_hideMain();
+					srand(time(NULL));
+					u16 place = (rand() + rand() + rand()) % CoverFlow.size();
+
+					if(BTN_PLUS_PRESSED) // boot random game immediately
+					{
+						// gprintf("Lets boot the random game number %u\n", place);
+						const dir_discHdr *gameHdr = CoverFlow.getSpecificHdr(place);
+						if(gameHdr != NULL)
+						{
+							_setCurrentItem(gameHdr);
+							_launch(gameHdr);
+						}
+						_showCF(false); // this shouldn't happen
+					}
+					else // select random game
+					{
+						CoverFlow.setSelected(place);
+						_game(false);
+						if(m_exit)
+							break;
+						cancel_bheld = true;
+						if(m_refreshGameList) // if changes were made to favorites, parental lock, or categories
+						{
+							_initCF();
+							m_refreshGameList = false;
+						}
+						else
+							CoverFlow.cancel();
+						_setMainBg(); // in case fanart changed the background
+					}
 				}
-				
+
 				/** Change emunand **/
-				else if((BTN_LEFT_PRESSED || BTN_RIGHT_PRESSED) && !m_sourceflow)
+				else if((BTN_UP_PRESSED || BTN_DOWN_PRESSED) && !m_sourceflow)
 				{
 					bUsed = true;
-					s8 direction =  BTN_RIGHT_PRESSED ? 1 : -1;
+					s8 direction =  BTN_DOWN_PRESSED ? 1 : -1;
 					string new_nand = _SetEmuNand(direction);
 					if(new_nand != "")
 					{
@@ -1025,8 +1024,8 @@ int CMenu::main(void)
 				m_btnMgr.hide(m_mainBtnDVD);
 				m_btnMgr.hide(m_mainLblInfo[3]);
 			}
-			m_btnMgr.show(m_mainBtnRandom);
-			m_btnMgr.show(m_mainBtnSort);
+			m_btnMgr.show(m_mainBtnFind);
+			m_btnMgr.show(m_mainBtnView);
 			m_btnMgr.show(m_mainBtnConfig);
 			
 			for(u8 i = 0; i < ARRAY_SIZE(m_mainLblUser); ++i)
@@ -1085,10 +1084,10 @@ extern const u8 icon_fav_s_png[];
 extern const u8 icon_fav_on_png[];
 extern const u8 icon_dvd_png[];
 extern const u8 icon_dvd_s_png[];
-extern const u8 icon_random_png[];
-extern const u8 icon_random_s_png[];
-extern const u8 icon_sort_png[];
-extern const u8 icon_sort_s_png[];
+extern const u8 icon_find_png[];
+extern const u8 icon_find_s_png[];
+extern const u8 icon_view_png[];
+extern const u8 icon_view_s_png[];
 extern const u8 icon_config_png[];
 extern const u8 icon_config_s_png[];
 
@@ -1114,10 +1113,10 @@ void CMenu::_initMainMenu()
 	TexHandle.fromPNG(texFavOnS, icon_fav_s_png);
 	TexHandle.fromPNG(texDVD, icon_dvd_png);
 	TexHandle.fromPNG(texDVDS, icon_dvd_s_png);
-	TexHandle.fromPNG(texRandom, icon_random_png);
-	TexHandle.fromPNG(texRandomS, icon_random_s_png);
-	TexHandle.fromPNG(texSort, icon_sort_png);
-	TexHandle.fromPNG(texSortS, icon_sort_s_png);
+	TexHandle.fromPNG(texFind, icon_find_png);
+	TexHandle.fromPNG(texFindS, icon_find_s_png);
+	TexHandle.fromPNG(texView, icon_view_png);
+	TexHandle.fromPNG(texViewS, icon_view_s_png);
 	TexHandle.fromPNG(texConfig, icon_config_png);
 	TexHandle.fromPNG(texConfigS, icon_config_s_png);
 	
@@ -1133,8 +1132,8 @@ void CMenu::_initMainMenu()
 	m_mainBtnFavoritesOff = _addPicButton("MAIN/FAVORITES_OFF", texFavOff, texFavOffS, 237, 410, 42, 42);
 	m_mainBtnFavoritesOn = _addPicButton("MAIN/FAVORITES_ON", texFavOn, texFavOnS, 237, 410, 42, 42);
 	m_mainBtnDVD = _addPicButton("MAIN/DVD_BTN", texDVD, texDVDS, 299, 410, 42, 42);
-	m_mainBtnRandom = _addPicButton("MAIN/RANDOM_BTN", texRandom, texRandomS, 361, 410, 42, 42);
-	m_mainBtnSort = _addPicButton("MAIN/SORT_BTN", texSort, texSortS, 423, 410, 42, 42);
+	m_mainBtnFind = _addPicButton("MAIN/FIND_BTN", texFind, texFindS, 361, 410, 42, 42);
+	m_mainBtnView = _addPicButton("MAIN/VIEW_BTN", texView, texViewS, 423, 410, 42, 42);
 	m_mainBtnConfig = _addPicButton("MAIN/CONFIG_BTN", texConfig, texConfigS, 485, 410, 42, 42);
 
 	m_mainBtnPrev = _addPicButton("MAIN/PREV_BTN", texPrev, texPrevS, 20, 200, 80, 80);
@@ -1185,8 +1184,8 @@ void CMenu::_initMainMenu()
 	_setHideAnim(m_mainBtnFavoritesOff, "MAIN/FAVORITES_OFF", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnFavoritesOn, "MAIN/FAVORITES_ON", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnDVD, "MAIN/DVD_BTN", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnRandom, "MAIN/RANDOM_BTN", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnSort, "MAIN/SORT_BTN", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnFind, "MAIN/FIND_BTN", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnView, "MAIN/VIEW_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnConfig, "MAIN/CONFIG_BTN", 0, 40, 0.f, 0.f);
 	
 	_setHideAnim(m_mainBtnPrev, "MAIN/PREV_BTN", 0, 0, 0.f, 0.f);
@@ -1211,8 +1210,8 @@ void CMenu::_textInfoMain(void)
 	m_btnMgr.setText(m_mainLblInfo[1], _t("infomain2", L"Categories"));
 	m_btnMgr.setText(m_mainLblInfo[2], _t("infomain3", L"Favorites"));
 	m_btnMgr.setText(m_mainLblInfo[3], _t("infomain4", L"Launch DVD"));
-	m_btnMgr.setText(m_mainLblInfo[4], _t("infomain5", L"Random game"));
-	m_btnMgr.setText(m_mainLblInfo[5], _t("infomain6", L"Go to / Sort"));
+	m_btnMgr.setText(m_mainLblInfo[4], _t("infomain5", L"Go to"));
+	m_btnMgr.setText(m_mainLblInfo[5], _t("infomain6", L"View"));
 }
 
 /*******************************************************************************************************/
@@ -1220,19 +1219,19 @@ void CMenu::_textInfoMain(void)
 wstringEx CMenu::_sortLabel(int sort)
 {
 	if(sort == SORT_ALPHA)
-		return m_loc.getWString(m_curLanguage, "alphabetically", L"Alphabetically");
+		return m_loc.getWString(m_curLanguage, "alphabetically", L"Alphabetical");
 	else if(sort == SORT_PLAYCOUNT)
-		return m_loc.getWString(m_curLanguage, "byplaycount", L"By play count");
+		return m_loc.getWString(m_curLanguage, "byplaycount", L"Play count");
 	else if(sort == SORT_LASTPLAYED)
-		return m_loc.getWString(m_curLanguage, "bylastplayed", L"By last played");
+		return m_loc.getWString(m_curLanguage, "bylastplayed", L"Last played");
 	else if(sort == SORT_YEAR)
-		return m_loc.getWString(m_curLanguage, "byyear", L"By released year");
+		return m_loc.getWString(m_curLanguage, "byyear", L"Release year");
 	else if(sort == SORT_GAMEID)
-		return m_loc.getWString(m_curLanguage, "bygameid", L"By game ID");
+		return m_loc.getWString(m_curLanguage, "bygameid", L"Game ID");
 	else if(sort == SORT_WIFIPLAYERS)
-		return m_loc.getWString(m_curLanguage, "bywifiplayers", L"By wifi players");
+		return m_loc.getWString(m_curLanguage, "bywifiplayers", L"Wifi players");
 	else if(sort == SORT_PLAYERS)
-		return m_loc.getWString(m_curLanguage, "byplayers", L"By players");
+		return m_loc.getWString(m_curLanguage, "byplayers", L"Players");
 	return L"";
 }
 

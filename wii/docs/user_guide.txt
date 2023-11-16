@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update December 7, 2022.
+Update November 12, 2023
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -46,13 +46,13 @@ Select your Wii / GameCube game directory (optional, default are dev:/wbfs for W
 Note that you shouldn't change default directories if you plan to use other loaders to launch your games.
 
 Dump your discs using:
-> Wii (or GameCube) settings > Manage Wii (or GameCube) game list > Install game
+> Wii (or GameCube) settings > Install game
 Or put your already dumped WBFS / ISO folders and files in Wii (or Gamecube) games directory.
 
 To organize your game coverflows, read "source_menu_readme.txt" to know more about source menu setup.
 
 If you add games to your drive outside of Wiiflow, refresh coverflow list each time you add a new game:
-> Wii (or GameCube) settings > Manage Wii (or GameCube) game list > Refresh coverflow list
+> Wii (or GameCube) settings > Refresh coverflow list
 
 NB: Gamecube games are dumped by default in 1:1 ISO files but Nintendont accepts compressed games (including CISO).
 
@@ -80,7 +80,7 @@ Extract your NAND:
 Your NAND is now dumped on your drive, in dev:/(vwii)nands/[default], with all the Wii channels, forwarders and saves it contains.
 
 To add games to it, you must have them packed in WAD files in a folder on your drive, then go to:
-> Wii channels settings > Manage Wii channel list > Install Wii channel (Wad file) > (select wad file)
+> Wii channels settings > Install Wii channel (Wad file) > (select wad file)
 
 You can select one file only or a whole folder containing multiple wad files:
 > Wii channels settings > Manage Wii channel list > Batch install folder > (select wad folder)
@@ -119,8 +119,13 @@ To see your games in coverflow, select "[plugin name]" in Plugins settings:
 Or create a source menu entry for each source (source=plugin + magic=[magic#]).
 Read "source_menu_readme.txt" to know more about source menu setup.
 
-Refresh coverflow list each time a new game is added outside of Wiiflow:
-> Plugins settings > Manage Plugin game list > Refresh coverflow list
+To add a game on your drive using the FTP server:
+> Plugins settings > Install game via FTP
+
+Start the FTP server and transfer your files in the corresponding game folders using a FTP client such as FileZilla on your computer.
+
+Refresh coverflow list each time new games are added outside of Wiiflow or via FTP:
+> Plugins settings > Refresh coverflow list
 
 
 ==================================================================================
@@ -194,7 +199,7 @@ Update your dev:/wiiflow/plugins/[plugin name].ini files "coverfolder" field:
 coverfolder=[folder name]
 
 Once in Wiiflow, you may need to cache your new images by refreshing coverflow list:
-> Plugins settings > Manage Plugin game list > Refresh coverflow list
+> Plugins settings > Refresh coverflow list
 
 Once cached, PNG files can be removed from your drive.
 
@@ -411,7 +416,7 @@ How do I do that?
 
 First you must make sure you have a working neek2o setup on your USB drive (Wiiflow in neek2o mode won't work on SD). That means you should have your emunand folder and sneek kernel on USB.
 Your emunand must have Wiiflow forwarder channel installed, you can install it using:
-> Wii channels settings > Manage Wii channel list > Install Wii channel (Wad file)
+> Wii channels settings > Install Wii channel (Wad file)
 
 Then launch Wiiflow in neek2o mode:
 > Wii channels settings > Global nand emulation > Neek2o Wiiflow channel

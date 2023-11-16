@@ -61,10 +61,8 @@ bool CMenu::_gameinfo(void)
 			amount_of_skips = 0;
 			xtra_skips = 0;
 			_showGameInfo();
-			if(m_bnr_settings)
-				_playGameSound(); // changes banner and game sound immediately
-			else
-				m_newGame = true; // banner and game sound will load on exit
+			_playGameSound(); // changes banner
+			m_newGame = true; // will load banner sound and update icons on exit
 		}
 		else if((wBtn_Pressed(WPAD_BUTTON_LEFT, WPAD_EXP_NONE) && ShowPointer()) // wiimote vertical
 			|| (wBtn_Pressed(WPAD_BUTTON_UP, WPAD_EXP_NONE) && !ShowPointer()) // wiimote sideways
@@ -79,10 +77,8 @@ bool CMenu::_gameinfo(void)
 			amount_of_skips = 0;
 			xtra_skips = 0;
 			_showGameInfo();
-			if(m_bnr_settings)
-				_playGameSound(); // changes banner and game sound immediately
-			else
-				m_newGame = true; // banner and game sound will load on exit
+			_playGameSound(); // changes banner
+			m_newGame = true; // will load banner sound and update icons on exit
 		}
 		
 		else if(((wBtn_Pressed(WPAD_BUTTON_DOWN, WPAD_EXP_NONE) || wBtn_Held(WPAD_BUTTON_DOWN, WPAD_EXP_NONE)) && ShowPointer()) // wiimote vertical

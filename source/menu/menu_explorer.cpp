@@ -419,7 +419,7 @@ void CMenu::_Explorer(void)
 								_showExplorer();
 								break;
 							}
-							else if(fromSource)
+							else
 							{
 								m_cfg.setInt(general_domain, "explorer_page", curPage);
 								m_cfg.setString(general_domain, "explorer_path", dir);
@@ -448,7 +448,7 @@ void CMenu::_Explorer(void)
 								fclose(fp);
 								memcpy(tmpHdr.id, wii_hdr.id, 6);
 								currentPartition = explorer_partition;
-								m_cfg.setBool(general_domain, "explorer_on_start", fromSource);
+								m_cfg.setInt(general_domain, "explorer_on_start", fromSource + 1);
 								if(wii_hdr.magic == WII_MAGIC)
 									_launchWii(&tmpHdr, false);
 								else if(wii_hdr.gc_magic == GC_MAGIC)
@@ -460,7 +460,7 @@ void CMenu::_Explorer(void)
 							{
 								_hideExplorer();
 								vector<string> arguments = _getMetaXML(file);
-								m_cfg.setBool(general_domain, "explorer_on_start", fromSource);
+								m_cfg.setInt(general_domain, "explorer_on_start", fromSource + 1);
 								_launchHomebrew(file, arguments);
 								_showExplorer();
 							}
@@ -481,7 +481,7 @@ void CMenu::_Explorer(void)
 										tmpHdr.settings[0] = magic;
 										tmpHdr.type = TYPE_PLUGIN;
 										currentPartition = explorer_partition;
-										m_cfg.setBool(general_domain, "explorer_on_start", fromSource);
+										m_cfg.setInt(general_domain, "explorer_on_start", fromSource + 1);
 										_launchPlugin(&tmpHdr);
 										_showExplorer();
 									}
@@ -773,9 +773,14 @@ void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 
 	fromSource = source && !m_cfg.getBool(general_domain, "source_on_start", false);
 	forbidRoot = true;
+	bool prev_sourceflow = m_sourceflow;
+	m_sourceflow = false;
+	_getCustomBgTex();
+	_setMainBg();
 	
 	_Explorer();
 	
+	m_sourceflow = prev_sourceflow;
 	forbidRoot = false;
 	fromSource = false;
 	pluginExplorer = false;

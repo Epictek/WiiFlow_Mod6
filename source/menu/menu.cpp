@@ -494,12 +494,12 @@ bool CMenu::init(bool usb_mounted)
 	m_bnr_settings = m_cfg.getBool(general_domain, "banner_in_settings", true);	
 	
 	/* Explorer on start if last game was launched from Explorer (unless Source menu on start below) */
-	m_explorer_on_start = (m_cfg.getBool(general_domain, "explorer_on_start", 0) && !neek2o());
+	m_explorer_on_start = neek2o() ? 0 : m_cfg.getInt(general_domain, "explorer_on_start", 0);
 	
 	/* Source Menu on start reset tiers before build menus */
 	if(m_cfg.getBool(general_domain, "source_on_start", false))
 	{
-		m_explorer_on_start = false;
+		m_explorer_on_start = 0;
 		m_cfg.remove(SOURCEFLOW_DOMAIN, "tiers");
 		m_cfg.remove(SOURCEFLOW_DOMAIN, "numbers");
 	}	
@@ -585,10 +585,10 @@ void CMenu::_Theme_Cleanup(void)
 	TexHandle.Cleanup(texFavOnS);
 	TexHandle.Cleanup(texDVD);
 	TexHandle.Cleanup(texDVDS);
-	TexHandle.Cleanup(texRandom);
-	TexHandle.Cleanup(texRandomS);
-	TexHandle.Cleanup(texSort);
-	TexHandle.Cleanup(texSortS);
+	TexHandle.Cleanup(texFind);
+	TexHandle.Cleanup(texFindS);
+	TexHandle.Cleanup(texView);
+	TexHandle.Cleanup(texViewS);
 	TexHandle.Cleanup(texConfig);
 	TexHandle.Cleanup(texConfigS);
 
@@ -1625,14 +1625,14 @@ void CMenu::_mainLoopCommon(bool withCF, bool adjusting)
 		m_gamesound_changed means a new game sound is loaded and ready to play
 		the previous game sound needs to stop before playing new sound
 		and the bg music volume needs to be 0 before playing game sound */
-	if(withCF && m_gameSelected && m_gamesound_changed && !m_gameSound.IsPlaying() && MusicPlayer.GetVolume() == 0)
+	if(withCF && CoverFlow.getFadeLevel() == 0 && m_gameSelected && m_gamesound_changed && !m_gameSound.IsPlaying() && MusicPlayer.GetVolume() == 0)
 	{
 		_stopGameSoundThread(); // stop game sound loading thread
 		m_gameSound.Play(m_bnrSndVol); // play game sound
 		m_gamesound_changed = false;
 	}
 	/* Stop game/banner sound from playing if we exited game selected menu or if we move to new game */
-	else if((withCF && m_gameSelected && m_gamesound_changed && m_gameSound.IsPlaying()) || (!m_gameSelected && m_gameSound.IsPlaying()))
+	else if((withCF && CoverFlow.getFadeLevel() == 0 && m_gameSelected && m_gamesound_changed && m_gameSound.IsPlaying()) || (!m_gameSelected && m_gameSound.IsPlaying()))
 		m_gameSound.Stop();
 
 	/* Decrease music volume to zero if any of these are true:

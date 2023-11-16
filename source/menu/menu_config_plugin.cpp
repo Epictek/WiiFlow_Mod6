@@ -1,7 +1,7 @@
 
 #include "menu.hpp"
 
-#define NB_BUTTONS 2
+#define NB_BUTTONS 4 // 4 not 2
 
 static u8 curPage;
 static u8 start_pos;
@@ -94,20 +94,23 @@ void CMenu::_showConfigPlugin(bool instant)
 		m_btnMgr.setText(m_configLblTitle, _t("plugins", L"Plugins"));
 		m_btnMgr.show(m_configLblTitle);
 		
-		//! File browser
-		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
-		if(enabledPluginsCount == 1)
-			m_btnMgr.show(m_configBtnCenter);
-
+		//! Refresh coverflow list and cover cache
+		m_btnMgr.setText(m_configLbl[start_pos], _t("home2", L"Refresh coverflow list"));
+		m_btnMgr.setText(m_configBtn[start_pos], _t("cfgne6", L"Start"));
+		//! Install plugin game using FTP
+		m_btnMgr.setText(m_configLbl[start_pos + 1], _t("cfg849", L"Install game via FTP"));
 		//! Game location
-		m_btnMgr.setText(m_configLbl[start_pos], _t("cfg816", L"Manage Plugin game list"));
+		m_btnMgr.setText(m_configLbl[start_pos + 2], _t("cfg816", L"Manage Plugin game list"));
 		//! Select plugins
-		m_btnMgr.setText(m_configLbl[start_pos + 1], _t("cfgpl1", L"Select plugins"));		
+		m_btnMgr.setText(m_configLbl[start_pos + 3], _t("cfgpl1", L"Select plugins"));		
 
-		for(u8 i = start_pos; i < (start_pos + 2); ++i)
+		for(u8 i = start_pos; i < (start_pos + 4); ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			m_btnMgr.show(m_configBtnGo[i], instant);
+			if(i == start_pos)
+				m_btnMgr.show(m_configBtn[i], instant);
+			else
+				m_btnMgr.show(m_configBtnGo[i], instant);
 		}
 
 		//! The following buttons will only show up if their corresponding plugin is selected
@@ -151,37 +154,33 @@ void CMenu::_showConfigPlugin(bool instant)
 		m_btnMgr.setText(m_configLblTitle, _t("cfg816", L"Manage Plugin game list"));
 		m_btnMgr.show(m_configLblTitle);
 		//! Plugin default partition
-		m_btnMgr.setText(m_configLbl[2], _t("part4", L"Plugins default partition"));
+		m_btnMgr.setText(m_configLbl[3], _t("part4", L"Plugins default partition"));
 		const char *partitionname = DeviceName[m_cfg.getInt(plugin_domain, "partition", 0)];
-		m_btnMgr.setText(m_configLblVal[2], upperCase(partitionname));
+		m_btnMgr.setText(m_configLblVal[3], upperCase(partitionname));
 		//! Edit plugins
-		m_btnMgr.setText(m_configLbl[3], _t("smedit7", L"Edit plugins"));
+		m_btnMgr.setText(m_configLbl[4], _t("smedit7", L"Edit plugins"));
 		//! Use plugin database names
-		m_btnMgr.setText(m_configLbl[4], _t("cfg727", L"Use plugin database titles"));
-		m_checkboxBtn[4] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[4] : m_configChkOn[4]; // default true
+		m_btnMgr.setText(m_configLbl[5], _t("cfg727", L"Use plugin database titles"));
+		m_checkboxBtn[5] = m_cfg.getOptBool(plugin_domain, "database_titles", 1) == 0 ? m_configChkOff[5] : m_configChkOn[5]; // default true
 		//! Dump plugin game coverflow list
-		m_btnMgr.setText(m_configLbl[5], _t("cfg783", L"Dump coverflow list"));
-		//! Refresh coverflow list and cover cache
-		m_btnMgr.setText(m_configLbl[6], _t("home2", L"Refresh coverflow list"));
+		m_btnMgr.setText(m_configLbl[6], _t("cfg783", L"Dump coverflow list"));
+		m_btnMgr.setText(m_configBtn[6], _t("cfgne6", L"Start"));
 
-		for(u8 i = 2; i < 7; ++i)
+		for(u8 i = 3; i < 7; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i == 2)
+			if(i == 3)
 			{
 				m_btnMgr.show(m_configLblVal[i], instant);
 				m_btnMgr.show(m_configBtnM[i], instant);
 				m_btnMgr.show(m_configBtnP[i], instant);
 			}
-			else if(i < 4)
-				m_btnMgr.show(m_configBtnGo[i], instant);
 			else if(i == 4)
+				m_btnMgr.show(m_configBtnGo[i], instant);
+			else if(i == 5)
 				m_btnMgr.show(m_checkboxBtn[i], instant);
 			else
-			{
-				m_btnMgr.setText(m_configBtn[i], _t("cfgne6", L"Start"));
 				m_btnMgr.show(m_configBtn[i], instant);
-			}
 		}
 	}
 }
@@ -229,24 +228,27 @@ void CMenu::_configPlugin(u8 startPage)
 			{
 				if(m_btnMgr.selected(m_configBtnBack))
 					break;
-				else if(m_btnMgr.selected(m_configBtnCenter)) // file explorer
-				{
-					_hideConfig(true);
-					u8 i = 0;
-					while(m_plugin.PluginExist(i) && !m_plugin.GetEnabledStatus(i)) { ++i; }
-					u32 plmagic = m_plugin.GetPluginMagic(i);
-					_pluginExplorer(m_plugin.GetExplorerPath(plmagic), plmagic, false); // false = not from source
-					_showConfigPlugin();
-				}
 				else
 				{
-					if(m_btnMgr.selected(m_configBtnGo[start_pos])) //  game location
+					if(m_btnMgr.selected(m_configBtn[start_pos])) // refresh list
+					{
+						m_cfg.setBool(plugin_domain, "update_cache", true);
+						m_refreshGameList = true;
+						break;
+					}
+					else if(m_btnMgr.selected(m_configBtnGo[start_pos + 1]))
+					{
+						_hideConfig(true);
+						_FTP();
+						_showConfigPlugin();
+					}
+					else if(m_btnMgr.selected(m_configBtnGo[start_pos + 2])) //  game location
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
 						_showConfigPlugin();
 					}
-					else if(m_btnMgr.selected(m_configBtnGo[start_pos + 1])) // select plugins
+					else if(m_btnMgr.selected(m_configBtnGo[start_pos + 3])) // select plugins
 					{
 						_hideConfig(true);
 						_setBg(m_configBg, m_configBg);
@@ -258,24 +260,32 @@ void CMenu::_configPlugin(u8 startPage)
 					{
 						_hideConfig(true);
 						_configWii();
+						if(m_refreshGameList)
+							break;
 						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[ChanBtn])) // channels settings
 					{
 						_hideConfig(true);
 						_configNandEmu();
+						if(m_refreshGameList)
+							break;
 						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[GCBtn])) // gamecube settings
 					{
 						_hideConfig(true);
 						_configGC();
+						if(m_refreshGameList)
+							break;
 						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[HBBtn])) // homebrew settings
 					{
 						_hideConfig(true);
 						_configHB();
+						if(m_refreshGameList)
+							break;
 						_showConfigPlugin();
 					}
 					else if(m_btnMgr.selected(m_configBtnGo[PlBtn])) //  single plugin edition
@@ -291,15 +301,15 @@ void CMenu::_configPlugin(u8 startPage)
 			/** PLUGIN GAME LOCATION **/
 			else if(curPage == GAME_LIST)
 			{
-				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])) // plugin default partition
+				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])) // plugin default partition
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_PLUGIN);
 					if(m_current_view & COVERFLOW_PLUGIN)
 						m_refreshGameList = true;
 					_showConfigPlugin(true);
 				}
-				else if(m_btnMgr.selected(m_configBtnGo[3])) // Edit plugins
+				else if(m_btnMgr.selected(m_configBtnGo[4])) // Edit plugins
 				{
 					_hideConfig(true);
 					_setBg(m_configBg, m_configBg);
@@ -307,23 +317,17 @@ void CMenu::_configPlugin(u8 startPage)
 					_setMainBg();
 					_showConfigPlugin();
 				}
-				else if(m_btnMgr.selected(m_checkboxBtn[4])) // plugin database titles
+				else if(m_btnMgr.selected(m_checkboxBtn[5])) // plugin database titles
 				{
 					cur_db_titles = !cur_db_titles;
 					m_cfg.setBool(plugin_domain, "database_titles", cur_db_titles);
 					_showConfigPlugin(true);
-					m_btnMgr.setSelected(m_checkboxBtn[4]);
+					m_btnMgr.setSelected(m_checkboxBtn[5]);
 				}
-				else if(m_btnMgr.selected(m_configBtn[5])) // dump list
+				else if(m_btnMgr.selected(m_configBtn[6])) // dump list
 				{
 					_dumpGameList();
 					_showConfigPlugin();
-				}
-				else if(m_btnMgr.selected(m_configBtn[6])) // refresh list
-				{
-					m_cfg.setBool(plugin_domain, "update_cache", true);
-					m_refreshGameList = true;
-					break;
 				}
 			}
 		}

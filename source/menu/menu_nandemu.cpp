@@ -52,35 +52,43 @@ void CMenu::_showConfigNandEmu(bool instant)
 		m_btnMgr.setText(m_configLblTitle, _t("wiichannels", L"Wii channels"));
 		m_btnMgr.show(m_configLblTitle);
 
+		//! Refresh coverflow list and cover cache
+		m_btnMgr.setText(m_configLbl[1], _t("home2", L"Refresh coverflow list"));
+		m_btnMgr.setText(m_configBtn[1], _t("cfgne6", L"Start"));
+		//! Install Wad file
+		m_btnMgr.setText(m_configLbl[2], _t("wad98", L"Install Wii channel (Wad file)"));
 		//! Game location
-		m_btnMgr.setText(m_configLbl[2], _t("cfg814", L"Manage Wii channel list"));
+		m_btnMgr.setText(m_configLbl[3], _t("cfg814", L"Manage Wii channel list"));
 		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
+		m_btnMgr.setText(m_configLbl[4-a], _t("cfg3", L"Download covers and info"));
 		//! Global video settings
-		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLbl[5-a], _t("cfg803", L"Global video settings"));
 		if(!a)
 		{
 			//! Global nand emulation
-			m_btnMgr.setText(m_configLbl[5], _t("cfg802", L"Global nand emulation"));
+			m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Global nand emulation"));
 			//! Return to Wiiflow channel
-			m_btnMgr.setText(m_configLbl[6], _t("cfgg21", L"Return to WiiFlow channel"));
-			m_checkboxBtn[6] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[6] : m_configChkOff[6];
-			m_btnMgr.show(m_configLbl[6], instant);
-			m_btnMgr.show(m_checkboxBtn[6], instant);
+			m_btnMgr.setText(m_configLbl[7], _t("cfgg21", L"Return to WiiFlow channel"));
+			m_checkboxBtn[7] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[7] : m_configChkOff[7];
+			m_btnMgr.show(m_configLbl[7], instant);
+			m_btnMgr.show(m_checkboxBtn[7], instant);
 		}
 		//! Default game language
-		m_btnMgr.setText(m_configLbl[7-(2*a)], _t("cfgb4", L"Default game language"));
+		m_btnMgr.setText(m_configLbl[8-(3*a)], _t("cfgb4", L"Default game language"));
 		i = min(max(0, m_cfg.getInt(channel_domain, "game_language", 0)), (int)ARRAY_SIZE(CMenu::_languages) - 2);
-		m_btnMgr.setText(m_configLblVal[7-(2*a)], _t(CMenu::_languages[i + 1].id, CMenu::_languages[i + 1].text), true);
-		m_btnMgr.show(m_configLbl[7-(2*a)], instant);
-		m_btnMgr.show(m_configLblVal[7-(2*a)], instant);
-		m_btnMgr.show(m_configBtnM[7-(2*a)], instant);
-		m_btnMgr.show(m_configBtnP[7-(2*a)], instant);
+		m_btnMgr.setText(m_configLblVal[8-(3*a)], _t(CMenu::_languages[i + 1].id, CMenu::_languages[i + 1].text), true);
+		m_btnMgr.show(m_configLbl[8-(3*a)], instant);
+		m_btnMgr.show(m_configLblVal[8-(3*a)], instant);
+		m_btnMgr.show(m_configBtnM[8-(3*a)], instant);
+		m_btnMgr.show(m_configBtnP[8-(3*a)], instant);
 
-		for(u8 i = (2 + a); i < (6 - a); ++i)
+		for(u8 i = (1+(2*a)); i < (7-(2*a)); ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			m_btnMgr.show(m_configBtnGo[i], instant);
+			if(i == 1)
+				m_btnMgr.show(m_configBtn[i], instant);
+			else
+				m_btnMgr.show(m_configBtnGo[i], instant);
 		}
 	}
 
@@ -92,35 +100,33 @@ void CMenu::_showConfigNandEmu(bool instant)
 		
 		//! Wii channel game partition
 		const char *partitionname = DeviceName[m_cfg.getInt(channel_domain, "partition", 0)];
-		m_btnMgr.setText(m_configLbl[0], _t("part3", L"Emunands partition"));
-		m_btnMgr.setText(m_configLblVal[0], upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[1], _t("part3", L"Emunands partition"));
+		m_btnMgr.setText(m_configLblVal[1], upperCase(partitionname));
 		//! Wii channel preffered partition
 		s8 part = m_cfg.getInt(channel_domain, "preferred_partition", -1);
 		partitionname = DeviceName[part];
-		m_btnMgr.setText(m_configLbl[1], _t("part99", L"Preffered partition at boot"));
-		m_btnMgr.setText(m_configLblVal[1], part == -1 ? _t("none", L"None") : upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[2], _t("part99", L"Preffered partition at boot"));
+		m_btnMgr.setText(m_configLblVal[2], part == -1 ? _t("none", L"None") : upperCase(partitionname));
 		//! Select wii channel emunand
-		m_btnMgr.setText(m_configLbl[2], _t("cfgne37", L"Channel emunand folder"));
-		m_btnMgr.setText(m_configLblVal[2], emuNands[curEmuNand]);	
+		m_btnMgr.setText(m_configLbl[3], _t("cfgne37", L"Channel emunand folder"));
+		m_btnMgr.setText(m_configLblVal[3], emuNands[curEmuNand]);	
 		//! Channel mode: emunand/realnand/bothnands
-		m_btnMgr.setText(m_configLbl[3], _t("cfgb7", L"Channel mode"));
+		m_btnMgr.setText(m_configLbl[4], _t("cfgb7", L"Channel mode"));
 		if(m_current_view & COVERFLOW_PLUGIN) // disable channel type selection if coverflow plugin
 		{
-			m_btnMgr.setText(m_configBtn[3], _t("plugins", L"Plugins"));
-			m_btnMgr.show(m_configBtn[3], instant);
+			m_btnMgr.setText(m_configBtn[4], _t("plugins", L"Plugins"));
+			m_btnMgr.show(m_configBtn[4], instant);
 		}
 		else
 		{
 			i = min(max(1, channelsType), (int)ARRAY_SIZE(CMenu::_ChannelsType)) - 1;
-			m_btnMgr.setText(m_configLblVal[3], _t(CMenu::_ChannelsType[i].id, CMenu::_ChannelsType[i].text), true);
-			m_btnMgr.show(m_configLblVal[3], instant);
-			m_btnMgr.show(m_configBtnM[3], instant);
-			m_btnMgr.show(m_configBtnP[3], instant);
+			m_btnMgr.setText(m_configLblVal[4], _t(CMenu::_ChannelsType[i].id, CMenu::_ChannelsType[i].text), true);
+			m_btnMgr.show(m_configLblVal[4], instant);
+			m_btnMgr.show(m_configBtnM[4], instant);
+			m_btnMgr.show(m_configBtnP[4], instant);
 		}
 		//! Create new emunand folder
-		m_btnMgr.setText(m_configLbl[4], _t("cfg821", L"Create new emunand folder"));
-		//! Install Wad file
-		m_btnMgr.setText(m_configLbl[5], _t("wad98", L"Install Wii channel (Wad file)"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg821", L"Create new emunand folder"));
 		//! Install Wad folder
 		m_btnMgr.setText(m_configLbl[6], _t("wad96", L"Batch install folder"));
 		//! Extract nand to emunand
@@ -129,20 +135,17 @@ void CMenu::_showConfigNandEmu(bool instant)
 		//! Dump Wii channel coverflow list
 		m_btnMgr.setText(m_configLbl[8], _t("cfg783", L"Dump coverflow list"));
 		m_btnMgr.setText(m_configBtn[8], _t("cfgne6", L"Start"));
-		//! Refresh coverflow list and cover cache
-		m_btnMgr.setText(m_configLbl[9], _t("home2", L"Refresh coverflow list"));
-		m_btnMgr.setText(m_configBtn[9], _t("cfgne6", L"Start"));
-		
-		for(u8 i = 0; i < 10; ++i)
+
+		for(u8 i = 1; i < 9; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i < 3)
+			if(i < 4)
 			{
 				m_btnMgr.show(m_configLblVal[i], instant);
 				m_btnMgr.show(m_configBtnM[i], instant);
 				m_btnMgr.show(m_configBtnP[i], instant);
 			}
-			else if(i > 3 && i < 7)
+			else if(i > 4 && i < 7)
 				m_btnMgr.show(m_configBtnGo[i], instant);
 			else if(i > 6)
 				m_btnMgr.show(m_configBtn[i], instant);
@@ -277,36 +280,52 @@ bool CMenu::_configNandEmu(u8 startPage)
 				else
 				{
 					bool a = neek2o() || isWiiVC;
+					//! Refresh coverflow list and cover cache
+					if(m_btnMgr.selected(m_configBtn[1]))
+					{
+						m_cfg.setBool(channel_domain, "update_cache", true);
+						if(m_current_view & COVERFLOW_PLUGIN)
+							m_cfg.setBool(plugin_domain, "update_cache", true);
+						m_refreshGameList = true;
+						break;
+					}
+					//! Install wad file
+					else if(m_btnMgr.selected(m_configBtnGo[2]))
+					{
+						_hideConfig(true);
+						_wadExplorer();
+						_showConfigNandEmu();
+					}
 					//! Game location
-					if(m_btnMgr.selected(m_configBtnGo[2]))
+					else if(m_btnMgr.selected(m_configBtnGo[3]) && !a)
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
 						_showConfigNandEmu();
 					}
 					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[3]))
+					else if(m_btnMgr.selected(m_configBtnGo[4-a]))
 					{
 						_hideConfig(true);
 						_download();
 						_showConfigNandEmu();
 					}
 					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[4]))
+					else if(m_btnMgr.selected(m_configBtnGo[5-a]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
 						_showConfigNandEmu();
 					}
 					//! Global nand emulation
-					else if(m_btnMgr.selected(m_configBtnGo[5]) && !a)
+					else if(m_btnMgr.selected(m_configBtnGo[6]))
 					{
 						_hideConfig(true);
 						curPage = NANDEMU_SETTINGS;
 						_showConfigNandEmu();
 					}
 					//! Return to WiiFlow channel
-					else if(m_btnMgr.selected(m_checkboxBtn[6]) && !a)
+					else if(m_btnMgr.selected(m_checkboxBtn[7]))
 					{
 						if(m_cfg.getString(channel_domain, "returnto") == WFID4)
 							m_cfg.remove(channel_domain, "returnto");
@@ -327,12 +346,12 @@ bool CMenu::_configNandEmu(u8 startPage)
 							NANDemuView = curNANDemuView;
 						}
 						_showConfigNandEmu(true);
-						m_btnMgr.setSelected(m_checkboxBtn[6]);
+						m_btnMgr.setSelected(m_checkboxBtn[7]);
 					}
 					//! Default game language
-					else if(m_btnMgr.selected(m_configBtnP[7-(2*a)]) || m_btnMgr.selected(m_configBtnM[7-(2*a)]))
+					else if(m_btnMgr.selected(m_configBtnP[8-(3*a)]) || m_btnMgr.selected(m_configBtnM[8-(3*a)]))
 					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[7-(2*a)]) ? 1 : -1;
+						s8 direction = m_btnMgr.selected(m_configBtnP[8-(3*a)]) ? 1 : -1;
 						m_cfg.setInt(channel_domain, "game_language", (int)loopNum(m_cfg.getUInt(channel_domain, "game_language", 0) + direction, ARRAY_SIZE(CMenu::_languages) - 1));
 						_showConfigNandEmu(true);
 					}
@@ -343,9 +362,9 @@ bool CMenu::_configNandEmu(u8 startPage)
 			else if(curPage == GAME_LIST)
 			{
 				//! Wii channel partition
-				if(m_btnMgr.selected(m_configBtnP[0]) || m_btnMgr.selected(m_configBtnM[0]))
+				if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[0]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_CHANNEL);
 					_checkEmuNandSettings(EMU_NAND); // refresh emunands in case the partition was changed
 					if((m_current_view & COVERFLOW_CHANNEL) || (m_prev_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(ENAND_PMAGIC)))
@@ -353,9 +372,9 @@ bool CMenu::_configNandEmu(u8 startPage)
 					_showConfigNandEmu(true);
 				}
 				//! Wii channel preffered partition
-				else if(m_btnMgr.selected(m_configBtnP[1]) || m_btnMgr.selected(m_configBtnM[1]))
+				else if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[1]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
 					int part = m_cfg.getInt(channel_domain, "preferred_partition", -1);
 					if((part == 8 && direction == 1) || (part == 0 && direction == -1))
 						part = -1;
@@ -367,25 +386,25 @@ bool CMenu::_configNandEmu(u8 startPage)
 					_showConfigNandEmu(true);
 				}
 				//! Select wii channel emunand
-				else if((m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2])))
+				else if((m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					curEmuNand = loopNum(curEmuNand + direction, emuNands.size());
 					m_cfg.setString(channel_domain, "current_emunand", emuNands[curEmuNand]);
 					_FullNandCheck(EMU_NAND);
 					_showConfigNandEmu(true);
 				}
 				//! Channel mode: emunand/realnand/bothnands
-				else if((m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3])))
+				else if((m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4])))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
 					channelsType = 1 + (int)loopNum((channelsType) - 1 + direction, ARRAY_SIZE(CMenu::_ChannelsType));
 					m_cfg.setInt(channel_domain, "channels_type", channelsType);
 					_showConfigNandEmu(true);
 					m_refreshGameList = true;
 				}
 				//! Create new emunand folder
-				else if(m_btnMgr.selected(m_configBtnGo[4]))
+				else if(m_btnMgr.selected(m_configBtnGo[5]))
 				{
 					_hideConfig(true);
 					char *c = NULL;
@@ -400,13 +419,6 @@ bool CMenu::_configNandEmu(u8 startPage)
 							_error(_t("dlmsg14", L"Done."));
 						}
 					}
-					_showConfigNandEmu();
-				}
-				//! Install wad file
-				else if(m_btnMgr.selected(m_configBtnGo[5]))
-				{
-					_hideConfig(true);
-					_wadExplorer();
 					_showConfigNandEmu();
 				}
 				//! Install wad folder
@@ -431,15 +443,6 @@ bool CMenu::_configNandEmu(u8 startPage)
 				{
 					_dumpGameList();
 					_showConfigNandEmu();
-				}
-				//! Refresh coverflow list and cover cache
-				else if(m_btnMgr.selected(m_configBtn[9]))
-				{
-					m_cfg.setBool(channel_domain, "update_cache", true);
-					if(m_current_view & COVERFLOW_PLUGIN)
-						m_cfg.setBool(plugin_domain, "update_cache", true);
-					m_refreshGameList = true;
-					break;
 				}
 			}
 			

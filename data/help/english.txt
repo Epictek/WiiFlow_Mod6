@@ -10,12 +10,10 @@
   B + A on game cover  =  Launch game immediately
   B + A on source icon  =  Cycle through coverflow views
   B + A on dvd icon  =  Launch DVD immediately
-  B + A on random icon  =  Launch random game immediately
-  B + A on sort icon  =  Cycle through sort modes
   B + A on settings icon  =  Global settings
-  B + Minus / B + Plus  =  Previous / next song
-  B + Up / B + Down  =  Previous / next coverflow layout
-  B + Left / B + Right  =  Previous / next emunand
+  B + Minus / B + Plus  =  Select / launch random game
+  B + Up / B + Down  =  Previous / next emunand
+  B + Left / B + Right  =  Previous / next song
   Z  =  Screenshot
 
 - Game selected:

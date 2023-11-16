@@ -170,6 +170,7 @@ void CMenu::_getSFlowBgTex(void)
 	if(fn.length() > 0)
 	{
 		/* Backgrounds for sourceflow view */
+		/*
 		if(m_sourceflow)
 		{
 			if(TexHandle.fromImageFile(m_mainCustomBg[curCustBg], fmt("%s/backgrounds/%s/sourceflow/%s", m_sourceDir.c_str(), m_themeName.c_str(), fn.c_str())) != TE_OK)
@@ -190,8 +191,9 @@ void CMenu::_getSFlowBgTex(void)
 			customBg = true;
 			return;
 		}
-		/* Backgrounds for classic source menu */
 		else
+		*/
+		/* Backgrounds for classic source menu */
 		{
 			if(TexHandle.fromImageFile(m_mainCustomBg[curCustBg], fmt("%s/backgrounds/%s/%s", m_sourceDir.c_str(), m_themeName.c_str(), fn.c_str())) != TE_OK)
 			{

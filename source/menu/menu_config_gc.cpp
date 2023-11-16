@@ -25,32 +25,36 @@ void CMenu::_showConfigGC(bool instant)
 		m_btnMgr.setText(m_configLblTitle, _t("gc", L"GameCube"));
 		m_btnMgr.show(m_configLblTitle);
 		
-		//! File browser
-		m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
-		m_btnMgr.show(m_configBtnCenter);
-
+		//! Refresh coverflow list and cover cache
+		m_btnMgr.setText(m_configLbl[1], _t("home2", L"Refresh coverflow list"));
+		m_btnMgr.setText(m_configBtn[1], _t("cfgne6", L"Start"));
+		//! Install GC game
+		m_btnMgr.setText(m_configLbl[2], _t("wbfsop1", L"Install game"));
+		m_btnMgr.show(m_configBtnGo[2], instant);
 		//! Game location
-		m_btnMgr.setText(m_configLbl[2], _t("cfg815", L"Manage GameCube game list"));
+		m_btnMgr.setText(m_configLbl[3], _t("cfg815", L"Manage GameCube game list"));
 		//! Download covers and info
-		m_btnMgr.setText(m_configLbl[3], _t("cfg3", L"Download covers and info"));
+		m_btnMgr.setText(m_configLbl[4], _t("cfg3", L"Download covers and info"));
 		//! Global video settings
-		m_btnMgr.setText(m_configLbl[4], _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg803", L"Global video settings"));
 		//! Global emulation settings
-		m_btnMgr.setText(m_configLbl[5], _t("cfg804", L"Global emulation settings"));
+		m_btnMgr.setText(m_configLbl[6], _t("cfg804", L"Global emulation settings"));
 		//! Gamecube banner sound
-		m_btnMgr.setText(m_configLbl[6], _t("cfg720", L"GameCube banner sounds"));
-		m_checkboxBtn[6] = m_cfg.getOptBool(gc_domain, "play_banner_sound", 1) == 0 ? m_configChkOff[6] : m_configChkOn[6];
+		m_btnMgr.setText(m_configLbl[7], _t("cfg720", L"GameCube banner sounds"));
+		m_checkboxBtn[7] = m_cfg.getOptBool(gc_domain, "play_banner_sound", 1) == 0 ? m_configChkOff[7] : m_configChkOn[7];
 		//! Default game language
-		m_btnMgr.setText(m_configLbl[7], _t("cfgb4", L"Default game language"));
+		m_btnMgr.setText(m_configLbl[8], _t("cfgb4", L"Default game language"));
 		i = min(max(0, m_cfg.getInt(gc_domain, "game_language", 0)), (int)ARRAY_SIZE(CMenu::_GClanguages) - 2);
-		m_btnMgr.setText(m_configLblVal[7], _t(CMenu::_GClanguages[i + 1].id, CMenu::_GClanguages[i + 1].text), true);
+		m_btnMgr.setText(m_configLblVal[8], _t(CMenu::_GClanguages[i + 1].id, CMenu::_GClanguages[i + 1].text), true);
 
-		for(i = 2; i < 8; ++i)
+		for(i = 1; i < 9; ++i)
 		{
-			m_btnMgr.show(m_configLbl[i]);
-			if(i < 6)
-				m_btnMgr.show(m_configBtnGo[i], instant);
+			m_btnMgr.show(m_configLbl[i], instant);
+			if(i == 1)
+				m_btnMgr.show(m_configBtn[i], instant);
 			else if(i < 7)
+				m_btnMgr.show(m_configBtnGo[i], instant);
+			else if(i == 7)
 				m_btnMgr.show(m_checkboxBtn[i], instant);
 			else
 			{
@@ -69,39 +73,31 @@ void CMenu::_showConfigGC(bool instant)
 		
 		//! GC game partition
 		const char *partitionname = DeviceName[m_cfg.getInt(gc_domain, "partition", 0)];
-		m_btnMgr.setText(m_configLbl[2], _t("part2", L"GameCube partition"));
-		m_btnMgr.setText(m_configLblVal[2], upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[3], _t("part2", L"GameCube partition"));
+		m_btnMgr.setText(m_configLblVal[3], upperCase(partitionname));
 		//! GC preffered partition
 		s8 part = m_cfg.getInt(gc_domain, "preferred_partition", -1);
 		partitionname = DeviceName[part];
-		m_btnMgr.setText(m_configLbl[3], _t("part99", L"Preffered partition at boot"));
-		m_btnMgr.setText(m_configLblVal[3], part == -1 ? _t("none", L"None") : upperCase(partitionname));
+		m_btnMgr.setText(m_configLbl[4], _t("part99", L"Preffered partition at boot"));
+		m_btnMgr.setText(m_configLblVal[4], part == -1 ? _t("none", L"None") : upperCase(partitionname));
 		//! GC game custom path
-		m_btnMgr.setText(m_configLbl[4], _t("cfg778", L"Game folder path"));
-		m_btnMgr.show(m_configBtnGo[4], instant);
-		//! Install GC game
-		m_btnMgr.setText(m_configLbl[5], _t("wbfsop1", L"Install game"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg778", L"Game folder path"));
 		m_btnMgr.show(m_configBtnGo[5], instant);
 		//! Dump GC game coverflow list
 		m_btnMgr.setText(m_configLbl[6], _t("cfg783", L"Dump coverflow list"));
 		m_btnMgr.setText(m_configBtn[6], _t("cfgne6", L"Start"));
-		//! Refresh coverflow list and cover cache
-		m_btnMgr.setText(m_configLbl[7], _t("home2", L"Refresh coverflow list"));
-		m_btnMgr.setText(m_configBtn[7], _t("cfgne6", L"Start"));
 		
-		for(i = 2; i < 8; ++i)
+		for(u8 i = 3; i < 7; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i < 4)
+			if(i < 5)
 			{
 				m_btnMgr.show(m_configLblVal[i], instant);
 				m_btnMgr.show(m_configBtnM[i], instant);
 				m_btnMgr.show(m_configBtnP[i], instant);
 			}
-			else if(i < 6)
-				m_btnMgr.show(m_configBtnGo[i], instant);
 			else
-				m_btnMgr.show(m_configBtn[i], instant);
+				m_btnMgr.show(m_configBtnGo[i], instant);
 		}
 	}
 	
@@ -232,56 +228,64 @@ void CMenu::_configGC(u8 startPage)
 			{
 				if(m_btnMgr.selected(m_configBtnBack))
 					break;
-				//! GC game file browser
-				else if(m_btnMgr.selected(m_configBtnCenter))
-				{
-					_hideConfig(true);
-					const char *gameDir = fmt(gc_games_dir, DeviceName[m_cfg.getInt(gc_domain, "partition", USB1)]);
-					_pluginExplorer(gameDir);
-					_showConfigGC();
-				}
 				else
 				{
+					//! Refresh coverflow list and cover cache
+					if(m_btnMgr.selected(m_configBtn[1]))
+					{
+						m_cfg.setBool(gc_domain, "update_cache", true);
+						if(m_current_view & COVERFLOW_PLUGIN)
+							m_cfg.setBool(plugin_domain, "update_cache", true);
+						m_refreshGameList = true;
+						break;
+					}
+					//! Install GC game
+					else if(m_btnMgr.selected(m_configBtnGo[2]))
+					{
+						_hideConfig(true);
+						_addGame(TYPE_GC_GAME);
+						_showConfigGC();
+					}
 					//! Game location
-					if(m_btnMgr.selected(m_configBtnGo[2]))
+					if(m_btnMgr.selected(m_configBtnGo[3]))
 					{
 						_hideConfig(true);
 						curPage = GAME_LIST;
 						_showConfigGC();
 					}
 					//! Download covers and info
-					else if(m_btnMgr.selected(m_configBtnGo[3]))
+					else if(m_btnMgr.selected(m_configBtnGo[4]))
 					{
 						_hideConfig(true);
 						_download();
 						_showConfigGC();
 					}
 					//! Global video settings
-					else if(m_btnMgr.selected(m_configBtnGo[4]))
+					else if(m_btnMgr.selected(m_configBtnGo[5]))
 					{
 						_hideConfig(true);
 						curPage = VIDEO_SETTINGS;
 						_showConfigGC();
 					}
 					//! Global emulation settings
-					else if(m_btnMgr.selected(m_configBtnGo[5]))
+					else if(m_btnMgr.selected(m_configBtnGo[6]))
 					{
 						_hideConfig(true);
 						curPage = COMPAT_SETTINGS;
 						_showConfigGC();
 					}
 					//! GC banner (& default) sound
-					else if(m_btnMgr.selected(m_checkboxBtn[6]))
+					else if(m_btnMgr.selected(m_checkboxBtn[7]))
 					{
 						m_gc_play_banner_sound = !m_gc_play_banner_sound;
 						m_cfg.setBool(gc_domain, "play_banner_sound", m_gc_play_banner_sound);
 						_showConfigGC(true);
-						m_btnMgr.setSelected(m_checkboxBtn[6]);
+						m_btnMgr.setSelected(m_checkboxBtn[7]);
 					}
 					//! Default game language
-					else if(m_btnMgr.selected(m_configBtnP[7]) || m_btnMgr.selected(m_configBtnM[7]))
+					else if(m_btnMgr.selected(m_configBtnP[8]) || m_btnMgr.selected(m_configBtnM[8]))
 					{
-						s8 direction = m_btnMgr.selected(m_configBtnP[7]) ? 1 : -1;
+						s8 direction = m_btnMgr.selected(m_configBtnP[8]) ? 1 : -1;
 						int i = loopNum(m_cfg.getInt(gc_domain, "game_language", 0) + direction, (int)ARRAY_SIZE(CMenu::_GClanguages) - 1);
 						m_cfg.setInt(gc_domain, "game_language", i);
 						_showConfigGC(true);
@@ -293,18 +297,18 @@ void CMenu::_configGC(u8 startPage)
 			else if(curPage == GAME_LIST)
 			{
 				//! GC game partition
-				if(m_btnMgr.selected(m_configBtnP[2]) || m_btnMgr.selected(m_configBtnM[2]))
+				if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[2]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
 					_setPartition(direction, COVERFLOW_GAMECUBE);
 					if(m_current_view & COVERFLOW_GAMECUBE || (m_current_view & COVERFLOW_PLUGIN && m_plugin.GetEnabledStatus(GC_PMAGIC)))
 						m_refreshGameList = true;
 					_showConfigGC(true);
 				}
 				//! GC preffered partition
-				else if(m_btnMgr.selected(m_configBtnP[3]) || m_btnMgr.selected(m_configBtnM[3]))
+				else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4]))
 				{
-					s8 direction = m_btnMgr.selected(m_configBtnP[3]) ? 1 : -1;
+					s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
 					int part = m_cfg.getInt(gc_domain, "preferred_partition", -1);
 					if((part == 8 && direction == 1) || (part == 0 && direction == -1))
 						part = -1;
@@ -316,7 +320,7 @@ void CMenu::_configGC(u8 startPage)
 					_showConfigGC(true);
 				}
 				//! GC game custom path
-				else if(m_btnMgr.selected(m_configBtnGo[4]))
+				else if(m_btnMgr.selected(m_configBtnGo[5]))
 				{
 					_hideConfig(true);
 					const char *currentPath = fmt(gc_games_dir, DeviceName[m_cfg.getInt(gc_domain, "partition", USB1)]);
@@ -333,27 +337,11 @@ void CMenu::_configGC(u8 startPage)
 					}
 					_showConfigGC();
 				}
-				//! Install GC game
-				else if(m_btnMgr.selected(m_configBtnGo[5]))
-				{
-					_hideConfig(true);
-					_addGame(TYPE_GC_GAME);
-					_showConfigGC();
-				}
 				//! Dump GC game coverflow list
-				else if(m_btnMgr.selected(m_configBtn[6]))
+				else if(m_btnMgr.selected(m_configBtnGo[6]))
 				{
 					_dumpGameList();
 					_showConfigGC();
-				}
-				//! Refresh coverflow list and cover cache
-				else if(m_btnMgr.selected(m_configBtn[7]))
-				{
-					m_cfg.setBool(gc_domain, "update_cache", true);
-					if(m_current_view & COVERFLOW_PLUGIN)
-						m_cfg.setBool(plugin_domain, "update_cache", true);
-					m_refreshGameList = true;
-					break;
 				}
 			}
 			
