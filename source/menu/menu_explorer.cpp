@@ -710,10 +710,9 @@ void CMenu::_wadExplorer(void)
 
 /** Plugin explorer
 Will restrict browser to startPath and allow launch of roms (if magic > 0)
+WiiFlow will restart on same subfolder and page on next boot
 If "explorer_path" is different from "romdir" and defined in plugin.ini file it will allow to
- copy ("import") roms from "explorer_path" (startPath) to "romdir" (coverflow rom directory)
-If launched from source menu using an "explorer" source button defined in source_menu.ini file
- WiiFlow will restart on same subfolder and page on next boot **/
+ copy ("import") roms from "explorer_path" (startPath) to "romdir" (coverflow rom directory) **/
 void CMenu::_pluginExplorer(const char *startPath, u32 magic, bool source)
 {
 	memset(dir, 0, MAX_FAT_PATH);

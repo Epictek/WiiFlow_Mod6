@@ -479,7 +479,7 @@ int CMenu::main(void)
 
 	SetupInput(true);
 
-	/* Show explorer if last game was launched using explorer in source menu */
+	/* Show explorer if last game was launched using explorer */
 	if(m_explorer_on_start)
 	{
 		u32 plmagic = strtoul(m_cfg.getString(plugin_domain, "cur_magic", WII_PMAGIC).c_str(), NULL, 16);
@@ -495,13 +495,17 @@ int CMenu::main(void)
 	else
 	{
 		if(m_source_on_start)
+		{
 			_getSFlowBgTex();
+			_setMainBg();
+			
+		}
 		else // main coverflow view
 		{
 			_getCustomBgTex();
+			_setMainBg();
 			_showCF(true);
 		}
-		_setMainBg();
 	}
 
 	while(!m_exit)

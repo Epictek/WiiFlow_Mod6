@@ -107,7 +107,7 @@ void CMenu::_viewOptions(void)
 				CoverFlow.fade(1);
 				_showViewOptions(true);
 			}
-			else if(m_btnMgr.selected(m_configBtnGo[6])) // explorer
+			else if(m_btnMgr.selected(m_configBtnGo[6]) && !m_locked) // explorer
 			{
 				const char *gameDir = NULL;
 				u32 plmagic = 0;

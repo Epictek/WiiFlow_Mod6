@@ -576,7 +576,6 @@ void CCoverFlow::setBlur(unsigned int blurResolution, unsigned int blurRadius, f
 	static const struct { u32 x; u32 y; } blurRes[] = {
 		{ 64, 48 }, { 96, 72 }, { 128, 96 }, { 192, 144 }
 	};
-	// u32 i = min(max(0ul, blurResolution), sizeof blurRes / sizeof blurRes[0] - 1ul);
 	u32 i = min(max(0u, blurResolution), sizeof blurRes / sizeof blurRes[0] - 1u);
 	m_effectTex.width = blurRes[i].x;
 	m_effectTex.height = blurRes[i].y;
@@ -585,7 +584,6 @@ void CCoverFlow::setBlur(unsigned int blurResolution, unsigned int blurRadius, f
 		free(m_effectTex.data);
 		m_effectTex.data = NULL;
 	}
-	// m_blurRadius = min(max(1ul, blurRadius), 3ul);
 	m_blurRadius = min(max(1u, blurRadius), 3u);
 	m_blurFactor = min(max(1.f, blurFactor), 2.f);
 }
@@ -1891,9 +1889,6 @@ void CCoverFlow::_updateTarget(int i, bool instant)
 				cvr.targetShadowColor.a = 0;
 			}
 		}
-	//! instant title positioning	
-	// cvr.txtAngle = cvr.txtTargetAngle;
-	// cvr.txtPos = cvr.txtTargetPos;
 	
 	if (instant)
 		_instantTarget(i);
@@ -2346,7 +2341,8 @@ bool CCoverFlow::findTitle(char *c, bool jump)
 
 	_completeJump();
 	u32 curPos = _currentPos();
-	
+/** This loop looks for the "c" string at the beginning of the title name **/
+/**/
 	for(i = 1; i < n; ++i)
 	{
 		for(j = 0; j < strlen(c); j++)
@@ -2362,6 +2358,31 @@ bool CCoverFlow::findTitle(char *c, bool jump)
 		if(found)
 			break;
 	}
+/**/
+/** This loop looks for the "c" string anywhere in the title name **/
+/**
+	u8 k = 0;
+	for(i = 1; i < n; ++i)
+	{
+		for(k = 0; k < (wcslen(m_items[loopNum(curPos + i, n)].hdr->title) - strlen(c) + 1); k++)
+		{
+			for(j = 0; j < strlen(c); j++)
+			{
+				if(upperCaseWChar(m_items[loopNum(curPos + i, n)].hdr->title[j+k]) != c[j])
+				{
+					found = false;
+					break;
+				}
+				else
+					found = true;
+			}
+			if(found)
+				break;
+		}
+		if(found)
+			break;
+	}
+**/
 	if(found && jump)
 		_setJump(i);
 
