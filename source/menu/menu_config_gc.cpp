@@ -36,9 +36,9 @@ void CMenu::_showConfigGC(bool instant)
 		//! Download covers and info
 		m_btnMgr.setText(m_configLbl[4], _t("cfg3", L"Download covers and info"));
 		//! Global video settings
-		m_btnMgr.setText(m_configLbl[5], _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLbl[5], _t("cfg803", L"Default video settings"));
 		//! Global emulation settings
-		m_btnMgr.setText(m_configLbl[6], _t("cfg804", L"Global emulation settings"));
+		m_btnMgr.setText(m_configLbl[6], _t("cfg804", L"Default emulation settings"));
 		//! Gamecube banner sound
 		m_btnMgr.setText(m_configLbl[7], _t("cfg720", L"GameCube banner sounds"));
 		m_checkboxBtn[7] = m_cfg.getOptBool(gc_domain, "play_banner_sound", 1) == 0 ? m_configChkOff[7] : m_configChkOn[7];
@@ -104,7 +104,7 @@ void CMenu::_showConfigGC(bool instant)
 	/** GLOBAL VIDEO SETTINGS **/
 	else if(curPage == VIDEO_SETTINGS)
 	{	
-		m_btnMgr.setText(m_configLblTitle, _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLblTitle, _t("cfg803", L"Default video settings"));
 		m_btnMgr.show(m_configLblTitle);
 
 		//! GC WiiU widescreen patch
@@ -151,7 +151,7 @@ void CMenu::_showConfigGC(bool instant)
 	/** GLOBAL EMULATION SETTINGS **/
 	else if(curPage == COMPAT_SETTINGS)
 	{
-		m_btnMgr.setText(m_configLblTitle, _t("cfg804", L"Global emulation settings"));
+		m_btnMgr.setText(m_configLblTitle, _t("cfg804", L"Default emulation settings"));
 		m_btnMgr.show(m_configLblTitle);
 
 		//! GC MemCard emulation

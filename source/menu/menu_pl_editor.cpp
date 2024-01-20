@@ -51,9 +51,13 @@ void CMenu::_showConfigPluginEditor(bool instant)
 		default: coverColorIndex = 0; // black
 	}
 	m_btnMgr.setText(m_configLblVal[6], _t(CMenu::_coverColor[coverColorIndex].id, CMenu::_coverColor[coverColorIndex].text));
+	//! Plugin box mode
+	m_btnMgr.setText(m_configLbl[7], _t("dl99", L"Cover style"));
+	s8 boxModeIndex = m_plugin.GetBoxMode(p); // -1 = default, 0 = flat (off), 1 = box (on)
+	m_btnMgr.setText(m_configLblVal[7], boxModeIndex > -1 ? (boxModeIndex == 0 ? _t("dl95", L"Flat") : _t("dl96", L"Box")) : _t("def", L"Default"));
 	//! Use plugin database names
-	m_btnMgr.setText(m_configLbl[7], _t("cfg847", L"Force file names as titles"));
-	m_checkboxBtn[7] = m_plugin.GetFileNamesAsTitles(p) == false ? m_configChkOff[7] : m_configChkOn[7]; // default false
+	m_btnMgr.setText(m_configLbl[8], _t("cfg847", L"Force file names as titles"));
+	m_checkboxBtn[8] = m_plugin.GetFileNamesAsTitles(p) == false ? m_configChkOff[8] : m_configChkOn[8]; // default false
 
 	u32 magic = m_plugin.GetPluginMagic(p);
 	if(magic == WII_PMAGICN || magic == GC_PMAGICN) // explorer path only for wii and gc plugins
@@ -63,19 +67,20 @@ void CMenu::_showConfigPluginEditor(bool instant)
 	}
 	else
 	{
-		for(u8 i = 1; i < 8; ++i)
+		for(u8 i = 1; i < 9; ++i)
 		{
 			m_btnMgr.show(m_configLbl[i], instant);
-			if(i == 1 || i == 6)
+			if(i == 1 || i == 6 || i == 7)
 			{
 				m_btnMgr.show(m_configLblVal[i], instant);
 				m_btnMgr.show(m_configBtnM[i], instant);
 				m_btnMgr.show(m_configBtnP[i], instant);
 			}
-			else if(i < 6)
-				m_btnMgr.show(m_configBtnGo[i], instant);
-			else if(i == 7)
+			else if(i == 8)
 				m_btnMgr.show(m_checkboxBtn[i], instant);
+			else
+				m_btnMgr.show(m_configBtnGo[i], instant);
+
 		}
 	}
 }
@@ -105,6 +110,7 @@ void CMenu::_configPluginEditor(u8 pos)
 	u32 prev_caseColor = cur_caseColor;
 	bool cur_noDBTitles = m_plugin.GetFileNamesAsTitles(p);
 	bool prev_noDBTitles = cur_noDBTitles;
+	int box_mode = m_plugin.GetBoxMode(p);
 	
 	SetupInput();
 	_showConfigPluginEditor();
@@ -219,13 +225,28 @@ void CMenu::_configPluginEditor(u8 pos)
 				m_plugin_cfg.setString(PLUGIN, "covercolor", fmt("%06x", cur_caseColor));
 				_showConfigPluginEditor(true);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[7])) // force no database titles
+			else if(m_btnMgr.selected(m_configBtnP[7]) || m_btnMgr.selected(m_configBtnM[7])) // box mode
+			{
+				s8 direction = m_btnMgr.selected(m_configBtnP[7]) ? 1 : -1;
+				if(box_mode == 1 && direction == 1)
+					box_mode = -1;
+				else if(box_mode == -1 && direction == -1)
+					box_mode = 1;
+				else
+					box_mode = box_mode + direction;
+				m_plugin.SetBoxMode(p, box_mode);
+				m_plugin_cfg.setInt(PLUGIN, "boxmode", box_mode);
+				if(m_current_view & COVERFLOW_PLUGIN)
+					m_refreshGameList = true;
+				_showConfigPluginEditor(true);
+			}
+			else if(m_btnMgr.selected(m_checkboxBtn[8])) // force no database titles
 			{
 				cur_noDBTitles = !cur_noDBTitles;
 				m_plugin.SetFileNamesAsTitles(p, cur_noDBTitles);
 				m_plugin_cfg.setBool(PLUGIN, "filenamesastitles", cur_noDBTitles);
 				_showConfigPluginEditor(true);
-				m_btnMgr.setSelected(m_checkboxBtn[7]);
+				m_btnMgr.setSelected(m_checkboxBtn[8]);
 			}
 		}
 	}

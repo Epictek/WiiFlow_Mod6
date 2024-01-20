@@ -98,6 +98,7 @@ public:
 	void SetEnablePlugin(u8 pos, u8 ForceMode = 0);
 	void SetCoverFolderName(u8 pos, const string &cf); //
 	void SetPluginName(u8 pos, const string &cf); //
+	void SetBoxMode(u8 pos, int mode); //
 
 	void init(const string& m_pluginsDir);
 	void AddPlugin(Config &plugin, const string &iniPath);

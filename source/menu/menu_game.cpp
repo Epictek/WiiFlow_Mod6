@@ -426,11 +426,8 @@ void CMenu::_game(bool launch)
 			{
 				menuBar = !menuBar;
 				if(!menuBar) // disable menu bar
-				{
-					_hideGame();
-					_showGame(fanart, false);
-				}
-				else
+					m_btnMgr.deselect();
+				else // highlight first icon
 					m_btnMgr.setSelected(m_gameBtnCategories);
 			}
 		}

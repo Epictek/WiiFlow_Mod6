@@ -210,6 +210,11 @@ void CMenu::_showCF(bool refreshList)
 		//! view name
 		m_btnMgr.setText(m_mainLblTitle, view);
 	}
+	else // if m_sourceflow
+	{
+		m_btnMgr.setText(m_configBtnCenter, _t("cfg837", L"Options"));
+		m_btnMgr.setText(m_configLblPage, _t("cfg851", L"Scroll"));
+	}
 
 	if(refreshList)
 	{
@@ -498,7 +503,6 @@ int CMenu::main(void)
 		{
 			_getSFlowBgTex();
 			_setMainBg();
-			
 		}
 		else // main coverflow view
 		{
@@ -595,6 +599,49 @@ int CMenu::main(void)
 			if(m_btnMgr.selected(m_mainBtnNext) || m_btnMgr.selected(m_mainBtnPrev))
 			{
 				_sortCF(m_btnMgr.selected(m_mainBtnPrev));
+			}
+			/** Sourceflow back button **/
+			else if(m_btnMgr.selected(m_configBtnBack))
+			{			
+				m_sourceflow = false;
+				_getCustomBgTex();
+				_setMainBg();
+				m_clearCats = false;
+				_showCF(true);
+				continue;
+			}
+			/** Sourceflow previous page **/
+			else if(m_btnMgr.selected(m_configBtnPageM))
+			{
+				CoverFlow.pageUp();
+			}
+			/** Sourceflow next page **/
+			else if(m_btnMgr.selected(m_configBtnPageP))
+			{
+				CoverFlow.pageDown();
+			}
+			/** Sourceflow (source menu) options **/
+			else if(m_btnMgr.selected(m_configBtnCenter))
+			{
+				_hideMain();
+				m_btnMgr.hide(m_configBtnCenter);
+				m_btnMgr.hide(m_configBtnPageM);
+				m_btnMgr.hide(m_configBtnPageP);
+				m_btnMgr.hide(m_configLblPage);
+				CoverFlow.fade(2);
+				_configSource();
+				if(m_exit) // end loop immediately to fix green flash on reboot or neek2o launch
+					break;
+				CoverFlow.fade(0);
+				cancel_bheld = true;
+				if(!SF_enabled) // sourceflow has just been disabled
+				{
+					m_sourceflow = false;
+					m_source_on_start = true; // only once at next loop iteration
+					continue;
+				}
+				_getCustomBgTex();
+				_showMain();
 			}
 			/** Change coverflow view **/
 			else if(m_btnMgr.selected(m_mainBtnHome))
@@ -938,16 +985,13 @@ int CMenu::main(void)
 			{
 				if(ShowPointer())
 					CoverFlow.pageUp();
-				else if(!m_sourceflow) // access to menu bar
+				else // access to menu bar
 				{
 					menuBar = !menuBar; // switch menu bar
 					if(!menuBar) // disable menu bar
-					{
-						_hideMain();
-						_showMain();
-					}
+						m_btnMgr.deselect();
 					else // highlight first icon
-						m_btnMgr.setSelected(m_mainBtnHome);
+						m_btnMgr.setSelected(m_sourceflow ? m_configBtnPageM : m_mainBtnHome);
 				}
 			}
 			
@@ -998,6 +1042,11 @@ int CMenu::main(void)
 		/* Display icons */
 		if(!m_sourceflow)
 		{
+			m_btnMgr.hide(m_configBtnCenter, true);
+			m_btnMgr.hide(m_configLblPage, true);
+			m_btnMgr.hide(m_configBtnPageP, true);
+			m_btnMgr.hide(m_configBtnPageM, true);
+			m_btnMgr.hide(m_configBtnBack, true);
 			if(!m_gameList.empty() && m_show_zone_prev)
 				m_btnMgr.show(m_mainBtnPrev);
 			else
@@ -1036,8 +1085,16 @@ int CMenu::main(void)
 				if(m_mainLblUser[i] != -1)
 					m_btnMgr.show(m_mainLblUser[i]);	
 		}
-		else
+		else // if m_sourceflow
+		{
 			_hideMain();
+			m_btnMgr.show(m_configBtnCenter);
+			m_btnMgr.show(m_configLblPage);
+			m_btnMgr.show(m_configBtnPageP);
+			m_btnMgr.show(m_configBtnPageM);
+			m_btnMgr.show(m_configBtnBack);
+		}
+
 		
 		/* Set song title and display it if music info is allowed */
 		if(m_music_info && MusicPlayer.SongChanged() && !MusicPlayer.OneSong)

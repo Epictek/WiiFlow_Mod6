@@ -8,7 +8,7 @@ void CMenu::_showConfigSource(bool instant)
 {
 	_hideCheckboxes(true); // reset checkboxes
 	
-	m_btnMgr.setText(m_configLblTitle, _t("cfg796", L"Source menu settings"));
+	m_btnMgr.setText(m_configLblTitle, _t("cfg796", L"Source menu options"));
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
 
@@ -31,12 +31,13 @@ void CMenu::_showConfigSource(bool instant)
 	//! Sort sourceflow
 	m_btnMgr.setText(m_configLbl[5], _t("cfg811", L"Sort sourceflow alphabetically"));
 	m_checkboxBtn[5] = m_cfg.getInt(sourceflow_domain, "sort", SORT_ALPHA) == SORT_ALPHA ? m_configChkOn[5] : m_configChkOff[5];
-	//! Hide source buttons
-	m_btnMgr.setText(m_configLbl[6], _t("smedit5", L"Hide source buttons"));
-	//! Link source buttons to plugins
-	m_btnMgr.setText(m_configLbl[7], _t("smedit6", L"Link source buttons to plugins"));
 	//! Adjust sourceflow coverflow
-	m_btnMgr.setText(m_configLbl[8], _t("cfgc4", L"Adjust coverflow"));
+	m_btnMgr.setText(m_configLbl[6], _t("cfgc4", L"Adjust coverflow"));
+	//! Hide source buttons
+	m_btnMgr.setText(m_configLbl[7], _t("smedit1", L"Hide source buttons"));
+	//! Link source buttons to plugins
+	m_btnMgr.setText(m_configLbl[8], _t("smedit6", L"Link source buttons to plugins"));
+
 
 	for(u8 i = 1; i < 9; ++i)
 	{
@@ -61,13 +62,14 @@ void CMenu::_configSource(void)
 	cur_smallbox = prev_smallbox;
 	bool prev_box_mode = m_cfg.getBool(sourceflow_domain, "box_mode", false);
 	cur_box_mode = prev_box_mode;
+	bool sm_edit = false;
 
 	SetupInput();
 	_showConfigSource();
 
 	while(!m_exit)
 	{
-		_mainLoopCommon();
+		_mainLoopCommon(m_sourceflow);
 		if(BTN_HOME_HELD || BTN_B_OR_1_PRESSED)
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
@@ -110,48 +112,59 @@ void CMenu::_configSource(void)
 			{
 				int val = m_cfg.getInt(sourceflow_domain, "sort", SORT_ALPHA);
 				m_cfg.setInt(sourceflow_domain, "sort", val == SORT_ALPHA ? SORT_BTN_NUMBERS : SORT_ALPHA);
+				if(m_sourceflow)
+				{
+					_initCF(); // set coverflow to new sorting
+					CoverFlow._setCurPos(0); // force first cover of new sort as coverflow current position
+				}
 				_showConfigSource(true);
 				m_btnMgr.setSelected(m_checkboxBtn[5]);
 			}
-			else if(m_btnMgr.selected(m_configBtnGo[6])) // hide source buttons
+			else if(m_btnMgr.selected(m_configBtnGo[6])) // adjust CF
+			{
+				_hideConfig();
+				bool prev_sourceflow = m_sourceflow;
+				m_sourceflow = true;
+				_showCF(true);
+				if(prev_sourceflow)
+					CoverFlow.fade(0);
+				if(_cfTheme())
+					break; // reboot if CF was modified due to possible memory leak with cf_theme
+				m_sourceflow = prev_sourceflow;
+				_showCF(true);
+				if(prev_sourceflow)
+					CoverFlow.fade(2);
+				_hideMain(true); // quick fix
+				_showConfigSource();
+			}
+			else if(m_btnMgr.selected(m_configBtnGo[7])) // hide source buttons
 			{
 				_hideConfig(true);
 				_srcTierBack(true);
 				_checkboxesMenu(1); // SM editor mode 1 (HIDE_SOURCES)
+				sm_edit = true;
 				_showConfigSource();
 			}
-			else if(m_btnMgr.selected(m_configBtnGo[7])) // link source buttons to plugins
+			else if(m_btnMgr.selected(m_configBtnGo[8])) // link source buttons to plugins
 			{
 				_hideConfig(true);
 				_srcTierBack(true);
 				_checkboxesMenu(2); // SM editor mode 2 (SELECT_BUTTON)
-				_showConfigSource();
-			}
-			else if(m_btnMgr.selected(m_configBtnGo[8])) // adjust CF
-			{
-				_hideConfig();
-				m_sourceflow = true;
-				_showCF(true);
-				CoverFlow.fade(0);
-				if(_cfTheme())
-					break; // reboot if CF was modified due to possible memory leak with cf_theme
-				m_sourceflow = false;
-				_getCustomBgTex();
-				_showCF(true);
-				CoverFlow.fade(2);
-				_hideMain(true); // quick fix
-				_setBg(m_configBg, m_configBg); // reset background after adjusting CF
+				sm_edit = true;
 				_showConfigSource();
 			}
 		}
 	}
-	
-	if((prev_SF_enabled != SF_enabled) || (cur_smallbox != prev_smallbox) || (cur_box_mode != prev_box_mode))
+
+	if(sm_edit || (prev_SF_enabled != SF_enabled) || (cur_smallbox != prev_smallbox) || (cur_box_mode != prev_box_mode))		
 	{
 		m_cfg.remove(sourceflow_domain, "numbers");
 		m_cfg.remove(sourceflow_domain, "tiers");
 		m_cfg.removeDomain("SOURCEFLOW_CACHE");
+		sm_tier = true; // will force _srcTierBack() and reload ini file
 		_srcTierBack(true);
+		if(SF_enabled)
+			m_refreshGameList = true;
 	}
 	
 	_hideConfig(true);

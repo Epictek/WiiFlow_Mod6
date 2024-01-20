@@ -62,11 +62,11 @@ void CMenu::_showConfigNandEmu(bool instant)
 		//! Download covers and info
 		m_btnMgr.setText(m_configLbl[4-a], _t("cfg3", L"Download covers and info"));
 		//! Global video settings
-		m_btnMgr.setText(m_configLbl[5-a], _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLbl[5-a], _t("cfg803", L"Default video settings"));
 		if(!a)
 		{
 			//! Global nand emulation
-			m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Global nand emulation"));
+			m_btnMgr.setText(m_configLbl[6], _t("cfg802", L"Default nand emulation"));
 			//! Return to Wiiflow channel
 			m_btnMgr.setText(m_configLbl[7], _t("cfgg21", L"Return to WiiFlow channel"));
 			m_checkboxBtn[7] = m_cfg.getString(channel_domain, "returnto") == WFID4 ? m_configChkOn[7] : m_configChkOff[7];
@@ -155,7 +155,7 @@ void CMenu::_showConfigNandEmu(bool instant)
 	/** GLOBAL VIDEO SETTINGS **/
 	else if(curPage == VIDEO_SETTINGS)
 	{
-		m_btnMgr.setText(m_configLblTitle, _t("cfg803", L"Global video settings"));
+		m_btnMgr.setText(m_configLblTitle, _t("cfg803", L"Default video settings"));
 		m_btnMgr.show(m_configLblTitle);
 		
 		//! Wii channel video mode
@@ -187,7 +187,7 @@ void CMenu::_showConfigNandEmu(bool instant)
 	/** GLOBAL NAND EMULATION SETTINGS **/
 	else if(curPage == NANDEMU_SETTINGS)
 	{
-		m_btnMgr.setText(m_configLblTitle, _t("cfg802", L"Global nand emulation"));
+		m_btnMgr.setText(m_configLblTitle, _t("cfg802", L"Default nand emulation"));
 		m_btnMgr.show(m_configLblTitle);
 		
 		//! Wii channel emunand mode

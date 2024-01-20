@@ -225,6 +225,7 @@ void CMenu::_hideSource(bool instant)
 	m_btnMgr.hide(m_configBtnPageM, instant);
 	m_btnMgr.hide(m_configBtnPageP, instant);
 	m_btnMgr.hide(m_configBtnBack, instant);
+	m_btnMgr.hide(m_configBtnCenter, instant);
 
 	for(i = 0; i < ARRAY_SIZE(m_sourceLblUser); ++i)
 		if(m_sourceLblUser[i] != -1)
@@ -245,6 +246,8 @@ void CMenu::_showSource(void)
 
 	m_btnMgr.show(m_configLblTitle);
 	m_btnMgr.show(m_configBtnBack);
+	m_btnMgr.setText(m_configBtnCenter, _t("cfg837", L"Options"));
+	m_btnMgr.show(m_configBtnCenter);
 }
 
 void CMenu::_getSourcePage(bool home)
@@ -352,6 +355,21 @@ bool CMenu::_Source(bool home)
 
 		if((BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)) || BTN_HOME_PRESSED)
 			break;
+		else if(BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnCenter))
+		{
+			_hideSource(true);
+			_configSource();
+			if(SF_enabled) // sourceflow has just been enabled
+			{
+				m_sourceflow = true;
+				exitSource = true;
+			}
+			else
+			{
+				_showSource();
+				updateSource = true;
+			}
+		}
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 			m_btnMgr.up();
 		else if(BTN_RIGHT_REV_PRESSED || BTN_DOWN_PRESSED)

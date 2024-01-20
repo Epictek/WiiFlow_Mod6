@@ -256,6 +256,11 @@ s8 Plugin::GetBoxMode(u8 pos)
 	return Plugins[pos].boxMode;
 }
 
+void Plugin::SetBoxMode(u8 pos, int mode) //
+{
+	Plugins[pos].boxMode = mode;
+}
+
 wstringEx Plugin::GetPluginName(u8 pos)
 {
 	return Plugins[pos].DisplayName;
