@@ -654,11 +654,11 @@ private:
 	void _configMusic(void);
 	void _configPaths(void);
 	void _configNet(void); //
-	void _configWii(u8 startPage = MAIN_SETTINGS);
-	bool _configNandEmu(u8 startPage = MAIN_SETTINGS);
-	void _configGC(u8 startPage = MAIN_SETTINGS);
-	void _configHB(u8 startPage = MAIN_SETTINGS);
-	void _configPlugin(u8 startPage = MAIN_SETTINGS);
+	void _configWii(void);
+	bool _configNandEmu(void);
+	void _configGC(void);
+	void _configHB(void);
+	void _configPlugin(void);
 	void _configDownload(bool fromGameSet = false);
 	void _configSource(void);
 	void _configBoot(void);

@@ -353,7 +353,7 @@ bool CMenu::_Source(bool home)
 		updateSource = false;
 		_mainLoopCommon();
 
-		if((BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)) || BTN_HOME_PRESSED)
+		if(BTN_HOME_PRESSED)
 			break;
 		else if(BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnCenter))
 		{
@@ -388,7 +388,7 @@ bool CMenu::_Source(bool home)
 				m_btnMgr.click(m_configBtnPageP);
 			_updateSourceBtns();
 		}
-		else if(BTN_B_OR_1_PRESSED)
+		else if(BTN_B_OR_1_PRESSED || (BTN_A_OR_2_PRESSED && m_btnMgr.selected(m_configBtnBack)))
 		{
 			if(!sm_tier)
 				break;

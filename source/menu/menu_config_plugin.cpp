@@ -185,11 +185,11 @@ void CMenu::_showConfigPlugin(bool instant)
 	}
 }
 
-void CMenu::_configPlugin(u8 startPage)
+void CMenu::_configPlugin(void)
 {
 	bool cur_db_titles = m_cfg.getBool(plugin_domain, "database_titles", true);
 	bool prev_db_titles = cur_db_titles;
-	curPage = startPage;
+	curPage = MAIN_SETTINGS;
 	start_pos = 0;
 
 	SetupInput();
@@ -198,7 +198,7 @@ void CMenu::_configPlugin(u8 startPage)
 	while(!m_exit)
 	{
 		_mainLoopCommon(true);
-		if(BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && (curPage == MAIN_SETTINGS || startPage == GAME_LIST)))
+		if(BTN_HOME_HELD)
 			break;
 		else if(BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED)
 			m_btnMgr.up();
@@ -206,22 +206,22 @@ void CMenu::_configPlugin(u8 startPage)
 			m_btnMgr.down();
 		else if(BTN_B_OR_1_PRESSED)
 		{
-			_hideConfig(true);
-			curPage = MAIN_SETTINGS;
-			 _showConfigPlugin();
+			if(curPage == MAIN_SETTINGS)
+				break;
+			else
+			{
+				_hideConfig(true);
+				curPage = MAIN_SETTINGS;
+				 _showConfigPlugin();
+			}
 		}
 		else if(BTN_A_OR_2_PRESSED)
 		{
 			if((m_btnMgr.selected(m_configBtnBack) && curPage != MAIN_SETTINGS))
 			{
-				if(startPage == GAME_LIST)
-					break;
-				else
-				{
-					_hideConfig(true);
-					curPage = MAIN_SETTINGS;
-					 _showConfigPlugin();
-				}
+				_hideConfig(true);
+				curPage = MAIN_SETTINGS;
+				 _showConfigPlugin();
 			}
 			/** MAIN PAGE **/
 			else if(curPage == MAIN_SETTINGS)

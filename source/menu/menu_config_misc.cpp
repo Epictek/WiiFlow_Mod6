@@ -1,5 +1,6 @@
 
 #include "menu.hpp"
+#include "loader/nk.h"
 
 void CMenu::_showConfigMisc(bool instant)
 {
@@ -15,8 +16,8 @@ void CMenu::_showConfigMisc(bool instant)
 		if(m_configLblUser[i] != -1)
 			m_btnMgr.show(m_configLblUser[i]);
 
-	//! Credits
-	m_btnMgr.setText(m_configLbl[0], _t("home4", L"Credits"));
+	//! File explorer
+	m_btnMgr.setText(m_configLbl[0], _t("home8", L"File explorer"));
 	//! Dump theme
 	m_btnMgr.setText(m_configLbl[1], _t("cfg799", L"Dump theme config file"));
 	m_btnMgr.setText(m_configBtn[1], _t("cfgne6", L"Start"));
@@ -45,7 +46,7 @@ void CMenu::_showConfigMisc(bool instant)
 	m_btnMgr.setText(m_configLbl[9], _t("cfg786", L"Show memory next boot"));
 	m_checkboxBtn[9] = m_cfg.getBool("DEBUG", "show_mem", 0) == 0 ? m_configChkOff[9] : m_configChkOn[9];
 	
-	for(u8 i = 0; i < 10; ++i)
+	for(u8 i = (0 + (isWiiVC || neek2o())); i < 10; ++i)
 	{
 		m_btnMgr.show(m_configLbl[i], instant);
 		if(i == 0)
@@ -93,10 +94,10 @@ void CMenu::_configMisc(void)
 				show_error = false;
 				break;
 			}
-			else if(m_btnMgr.selected(m_configBtnGo[0])) // credits
+			else if(m_btnMgr.selected(m_configBtnGo[0])) // file explorer
 			{
 				_hideConfig(true);
-				_about(false);
+				_Explorer();
 				_showConfigMisc();
 			}
 			else if(m_btnMgr.selected(m_configBtn[1])) // dump theme

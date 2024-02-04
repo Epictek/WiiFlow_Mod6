@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update November 12, 2023
+Update January 21, 2024
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -30,7 +30,7 @@ Update November 12, 2023
 			1. Installing Wii and Gamecube games
 ==================================================================================
 
-To launch Wii games you must have D2X v8 or v10 installed with at least cIOS 249 base 57 and cIOS 250 base 56 installed (+ cIOS 251 base 58 for a very little amount of games). Many partition formats are supported.
+To launch Wii games you must have D2X v8 or above installed, with at least cIOS 249 base 57 and cIOS 250 base 56 installed (+ cIOS 251 base 58 for a very little amount of games). Many partition formats are supported: FAT32, WBFS, and NTFS either on MBR or GPT formatted drives are supported (NTFS partitions with GPT drives still cause issues though, and saves on emunand feature requires FAT32 anyway).
 To launch Gamecube games you must have Nintendont installed and your drive should be formatted to FAT32 (DML and Devolution are not supported).
 
 Note that cIOS can be launched directly during WiiFlow startup to boot Wii games faster (base 57 recommended for better stability):

@@ -205,10 +205,13 @@ void CMenu::_showCF(bool refreshList)
 					view = m_loc.getWString(m_curLanguage, "plugins", L"Plugins");
 				break;
 		}
-		//! settings icon info
-		m_btnMgr.setText(m_mainLblInfo[6], wfmt(_fmt("infomain7", L"%s settings"), m_current_view == COVERFLOW_PLUGIN ? m_loc.getWString(m_curLanguage, "plugins", L"Plugins").toUTF8().c_str() : view.toUTF8().c_str()));
 		//! view name
 		m_btnMgr.setText(m_mainLblTitle, view);
+		//! settings icon info
+		view = wfmt(_fmt("infomain7", L"%s settings"), m_current_view == COVERFLOW_PLUGIN ? m_loc.getWString(m_curLanguage, "plugins", L"Plugins").toUTF8().c_str() : view.toUTF8().c_str());
+		m_btnMgr.setText(m_configLbl[7], view);
+		m_btnMgr.setText(m_mainLblInfo[6], view); // will show up if m_gameList empty
+		
 	}
 	else // if m_sourceflow
 	{
@@ -249,7 +252,7 @@ void CMenu::_showCF(bool refreshList)
 					if(enabledPluginsCount == 0)
 						Msg = _t("main6", L"No plugins selected");
 					else if(enabledPluginsCount > 1)
-						Msg = _t("main5", L"No items found");
+						Msg = _t("main5", L"No items");
 					else
 					{
 						Msg = _t("main2", L"No games found in");
@@ -278,7 +281,6 @@ void CMenu::_showCF(bool refreshList)
 			m_showtimer = 0;
 			m_btnMgr.show(m_mainLblTitle);
 			//! Show shortcut to game location settings
-			m_btnMgr.setText(m_configLbl[7], _t("cfg801", L"Manage game list"));
 			m_btnMgr.show(m_configLbl[7]);
 			m_btnMgr.show(m_configBtnGo[7]);
 			
@@ -434,7 +436,7 @@ void CMenu::_showCF(bool refreshList)
 	if(totalGames > 0)
 		m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 	else
-		m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+		m_btnMgr.setText(m_mainLblView, _t("main5", L"No items"));
 	wstringEx curSort = _sortLabel(m_cfg.getInt(_domainFromView(), "sort", 0));
 	m_btnMgr.setText(m_mainLblNotice, curSort);
 	m_btnMgr.setText(m_mainLblLetter, neek2o() ? L"Neek2o" : isWiiVC ? L"WiiU VC" : L"");
@@ -602,8 +604,9 @@ int CMenu::main(void)
 			}
 			/** Sourceflow back button **/
 			else if(m_btnMgr.selected(m_configBtnBack))
-			{			
-				m_sourceflow = false;
+			{
+				if(!_srcTierBack(false)) // back a tier
+					m_sourceflow = false;
 				_getCustomBgTex();
 				_setMainBg();
 				m_clearCats = false;
@@ -713,7 +716,7 @@ int CMenu::main(void)
 					if(totalGames > 0)
 						m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 					else
-						m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+						m_btnMgr.setText(m_mainLblView, _t("main5", L"No items"));
 					m_btnMgr.show(m_mainLblView);
 				}
 			}
@@ -731,7 +734,7 @@ int CMenu::main(void)
 				if(totalGames > 0)
 					m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
 				else
-					m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+					m_btnMgr.setText(m_mainLblView, _t("main5", L"No items"));
 				m_btnMgr.show(m_mainLblView);
 			}
 			
@@ -809,7 +812,7 @@ int CMenu::main(void)
 						}
 						else
 						{
-							m_btnMgr.setText(m_mainLblView, _t("main5", L"No items found"));
+							m_btnMgr.setText(m_mainLblView, _t("main5", L"No items"));
 							m_btnMgr.show(m_mainLblView);
 						}
 					}
@@ -826,7 +829,7 @@ int CMenu::main(void)
 			/** Settings menu **/
 			else if(m_btnMgr.selected(m_mainBtnConfig) || m_btnMgr.selected(m_configBtnGo[7]))
 			{
-				u8 page = m_btnMgr.selected(m_configBtnGo[7]) ? GAME_LIST : MAIN_SETTINGS;
+				// u8 page = m_btnMgr.selected(m_configBtnGo[7]) ? GAME_LIST : MAIN_SETTINGS;
 				_hideMain();
 				CoverFlow.fade(2);
 				if(BTN_B_OR_1_HELD) // shortcut to global settings
@@ -837,22 +840,15 @@ int CMenu::main(void)
 				else if(!m_locked)
 				{
 					if(m_current_view & COVERFLOW_WII)
-						_configWii(page);
+						_configWii();
 					else if(m_current_view & COVERFLOW_CHANNEL)
-						_configNandEmu(page);
+						_configNandEmu();
 					else if(m_current_view & COVERFLOW_GAMECUBE)
-						_configGC(page);
+						_configGC();
 					else if(m_current_view & COVERFLOW_PLUGIN)
-					{
-						if(page == GAME_LIST && enabledPluginsCount == 0)
-							_PluginSettings();
-						else if(page == GAME_LIST && enabledPluginsCount == 1)
-							_configPlugin(MAIN_SETTINGS);
-						else
-							_configPlugin(page);
-					}
+							_configPlugin();
 					else if(m_current_view & COVERFLOW_HOMEBREW)
-						_configHB(page);
+						_configHB();
 				}
 				else // locked
 					_error(_t("errgame15", L"Unlock parental control to use this feature!"));

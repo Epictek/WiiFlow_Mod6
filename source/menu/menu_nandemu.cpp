@@ -231,14 +231,14 @@ void CMenu::_showConfigNandEmu(bool instant)
 	}
 }
 
-bool CMenu::_configNandEmu(u8 startPage)
+bool CMenu::_configNandEmu(void)
 {
 	int prev_channelsType = channelsType;
 	bool ExtNand = false;
 	string emuNand = m_cfg.getString(channel_domain, "current_emunand");
 	
 	channelsType = m_cfg.getInt(channel_domain, "channels_type", CHANNELS_REAL);
-	curPage = startPage;
+	curPage = MAIN_SETTINGS;
 
 	SetupInput();
 	_showConfigNandEmu();
@@ -246,7 +246,7 @@ bool CMenu::_configNandEmu(u8 startPage)
 	while(!m_exit)
 	{
 		_mainLoopCommon(true);
-		if((BTN_HOME_HELD || (BTN_B_OR_1_PRESSED && (curPage == MAIN_SETTINGS || startPage == GAME_LIST))) && !m_thrdWorking)
+		if(BTN_HOME_HELD && !m_thrdWorking)
 			break;
 		else if((BTN_LEFT_REV_PRESSED || BTN_UP_PRESSED) && !m_thrdWorking)
 			m_btnMgr.up();
@@ -254,22 +254,22 @@ bool CMenu::_configNandEmu(u8 startPage)
 			m_btnMgr.down();
 		else if(BTN_B_OR_1_PRESSED && !m_thrdWorking)
 		{
-			_hideConfig(true);
-			curPage = MAIN_SETTINGS;
-			 _showConfigNandEmu();
+			if(curPage == MAIN_SETTINGS)
+				break;
+			else
+			{
+				_hideConfig(true);
+				curPage = MAIN_SETTINGS;
+				 _showConfigNandEmu();
+			}
 		}
 		else if(BTN_A_OR_2_PRESSED)
 		{
 			if((m_btnMgr.selected(m_configBtnBack) && curPage != MAIN_SETTINGS) && !m_thrdWorking)
 			{
-				if(startPage == GAME_LIST)
-					break;
-				else
-				{
-					_hideConfig(true);
-					curPage = MAIN_SETTINGS;
-					 _showConfigNandEmu();
-				}
+				_hideConfig(true);
+				curPage = MAIN_SETTINGS;
+				 _showConfigNandEmu();
 			}
 			
 			/** MAIN PAGE **/

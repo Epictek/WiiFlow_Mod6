@@ -51,7 +51,7 @@ void CMenu::_hideCheckboxes(bool instant)
 
 void CMenu::_showConfigMain(bool instant)
 {
-	// bool a = isWiiVC || neek2o();
+	bool a = isWiiVC || neek2o();
 	
 	for(u8 i = 0; i < ARRAY_SIZE(m_configLblUser); ++i)
 		if(m_configLblUser[i] != -1)
@@ -69,26 +69,32 @@ void CMenu::_showConfigMain(bool instant)
 	if(m_locked)
 		return;
 
+	// if(!a)
+	// {
+		// m_btnMgr.setText(m_configBtnCenter, _t("home8", L"File explorer"));
+		// m_btnMgr.show(m_configBtnCenter);
+	// }
+
 	m_btnMgr.setText(m_configLbl[1], _t("cfg795", L"User interface"));
 	m_btnMgr.setText(m_configLbl[2], _t("cfg793", L"Screen adjustment"));
 	m_btnMgr.setText(m_configLbl[3], _t("cfg791", L"Startup and shutdown"));
-	m_btnMgr.setText(m_configLbl[4], _t("cfg792", L"Music settings"));
-	m_btnMgr.setText(m_configLbl[5], _t("cfgd4", L"Path manager"));
-	m_btnMgr.setText(m_configLbl[6], _t("home8", L"File explorer"));
-	m_btnMgr.setText(m_configLbl[7], _t("cfgg98", L"Network settings"));
-	m_btnMgr.setText(m_configLbl[8], _t("cfg794", L"Misc settings"));
-	m_btnMgr.setText(m_configLbl[9], _t("cfgc9", L"WiiFlow language"));
-	m_btnMgr.setText(m_configLblVal[9], m_curLanguage);
+	m_btnMgr.setText(m_configLbl[4-a], _t("cfg792", L"Music settings"));
+	m_btnMgr.setText(m_configLbl[5-a], _t("cfgd4", L"Path manager"));
+	m_btnMgr.setText(m_configLbl[6-a], _t("cfgg98", L"Network settings"));
+	m_btnMgr.setText(m_configLbl[7-a], _t("cfg794", L"Misc settings"));
+	m_btnMgr.setText(m_configLbl[8-a], _t("home4", L"Credits"));
+	m_btnMgr.setText(m_configLbl[9-a], _t("cfgc9", L"WiiFlow language"));
+	m_btnMgr.setText(m_configLblVal[9-a], m_curLanguage);
 
-	for(u8 i = 1; i < 9; ++i)
+	for(u8 i = 1; i < 9-a; ++i)
 	{
 		m_btnMgr.show(m_configLbl[i], instant);
 		m_btnMgr.show(m_configBtnGo[i], instant);
 	}
-	m_btnMgr.show(m_configLbl[9], instant);
-	m_btnMgr.show(m_configLblVal[9], instant);
-	m_btnMgr.show(m_configBtnM[9], instant);
-	m_btnMgr.show(m_configBtnP[9], instant);
+	m_btnMgr.show(m_configLbl[9-a], instant);
+	m_btnMgr.show(m_configLblVal[9-a], instant);
+	m_btnMgr.show(m_configBtnM[9-a], instant);
+	m_btnMgr.show(m_configBtnP[9-a], instant);
 }
 
 template <class T> static inline T loopNum(T i, T s)
@@ -110,6 +116,8 @@ void AddLanguage(char *Path)
 
 void CMenu::_config(void)
 {
+	bool a = isWiiVC || neek2o();
+	
 	/* WF language */
 	languages_available.clear();
 	languages_available.push_back("Default");
@@ -144,7 +152,12 @@ void CMenu::_config(void)
 		{
 			if(m_btnMgr.selected(m_configBtnBack))
 				break;
-
+			// else if(m_btnMgr.selected(m_configBtnCenter)) // file explorer
+			// {
+				// _hideConfig(true);
+				// _Explorer();
+				// _showConfigMain();
+			// }
 			//! CHILD LOCK
 			else if(m_btnMgr.selected(m_configBtnGo[m_locked ? 4 : 0]))
 			{
@@ -190,52 +203,51 @@ void CMenu::_config(void)
 				_showConfigMain();
 			}
 			//! STARTUP AND SHUTDOWN SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[3]) && !(isWiiVC || neek2o()))
-				
+			else if(m_btnMgr.selected(m_configBtnGo[3]) && !a)
 			{
 				_hideConfig(true);
 				_configBoot();
 				_showConfigMain();
 			}
 			//! MUSIC SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[4]))
+			else if(m_btnMgr.selected(m_configBtnGo[4-a]))
 			{
 				_hideConfig(true);
 				_configMusic();
 				_showConfigMain();
 			}
 			//! CUSTOM PATHS
-			else if(m_btnMgr.selected(m_configBtnGo[5]))
+			else if(m_btnMgr.selected(m_configBtnGo[5-a]))
 			{
 				_hideConfig(true);
 				_configPaths();
 				_showConfigMain();
 			}
-			//! FILE EXPLORER
-			else if(m_btnMgr.selected(m_configBtnGo[6]))
-			{
-				_hideConfig(true);
-				_Explorer();
-				_showConfigMain();
-			}
 			//! NETWORK SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[7]))
+			else if(m_btnMgr.selected(m_configBtnGo[6-a]))
 			{
 				_hideConfig(true);
 				_configNet();
 				_showConfigMain();
 			}
 			//! MISC SETTINGS
-			else if(m_btnMgr.selected(m_configBtnGo[8]))
+			else if(m_btnMgr.selected(m_configBtnGo[7-a]))
 			{
 				_hideConfig(true);
 				_configMisc();
 				_showConfigMain();
 			}
-			//! WIIFLOW LANGUAGE
-			else if(m_btnMgr.selected(m_configBtnP[9]) || m_btnMgr.selected(m_configBtnM[9]))
+			//! CREDITS
+			else if(m_btnMgr.selected(m_configBtnGo[8-a]))
 			{
-				s8 direction = m_btnMgr.selected(m_configBtnP[9]) ? 1 : -1;
+				_hideConfig(true);
+				_about(false);
+				_showConfigMain();
+			}
+			//! WIIFLOW LANGUAGE
+			else if(m_btnMgr.selected(m_configBtnP[9-a]) || m_btnMgr.selected(m_configBtnM[9-a]))
+			{
+				s8 direction = m_btnMgr.selected(m_configBtnP[9-a]) ? 1 : -1;
 				if(languages_available.size() > 1)
 				{
 					m_loc.unload();
@@ -496,7 +508,10 @@ const char *CMenu::getBoxPath(const dir_discHdr *element, bool fullName)
 		const char *coverImg = strrchr(element->path, '/') + 1;
 		if(coverImg == NULL)
 			return NULL;
-		return fmt("%s/full_covers/%s", m_sourceDir.c_str(), coverImg);
+		const char *coverPath = fmt("%s/full_covers/%s", m_sourceDir.c_str(), coverImg);
+		if(!fsop_FileExist(coverPath))
+			coverPath = fmt("%s/full_covers/%s/%s", m_sourceDir.c_str(), m_themeName.c_str(), coverImg);
+		return coverPath;
 	}
 	return fmt("%s/%s.png", m_boxPicDir.c_str(), element->id);
 }
@@ -590,18 +605,9 @@ const char *CMenu::getFrontPath(const dir_discHdr *element, bool fullName, bool 
 		const char *coverImg = strrchr(element->path, '/') + 1;
 		if(coverImg == NULL)
 			return NULL;
-		const char *coverPath = fmt("%s/front_covers/%s", m_sourceDir.c_str(), coverImg);
-		if(smallBox || !fsop_FileExist(coverPath))
-		{
-			string themeName = m_cfg.getString(general_domain, "theme", "default");
-			coverPath = fmt("%s/small_covers/%s/%s", m_sourceDir.c_str(), themeName.c_str(), coverImg);
-			if(!fsop_FileExist(coverPath))
-			{
-				coverPath = fmt("%s/small_covers/%s", m_sourceDir.c_str(), coverImg);
-				if(!fsop_FileExist(coverPath))
-					return element->path;
-			}
-		}
+		const char *coverPath = fmt("%s/%s/%s", m_sourceDir.c_str(), smallBox ? "small_covers" : "front_covers", coverImg);
+		if(!fsop_FileExist(coverPath))
+			coverPath = fmt("%s/%s/%s/%s", m_sourceDir.c_str(), smallBox ? "small_covers" : "front_covers", m_themeName.c_str(), coverImg);
 		return coverPath;
 	}
 	return fmt("%s/%s.png", m_picDir.c_str(), element->id);
