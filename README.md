@@ -1,5 +1,6 @@
 # WiiFlow Mod6
-My mod of the Wii USB Loader WiiFlow
+The unofficial WiiFlow 6
+https://github.com/iamerror80/WiiFlow_Mod6/releases
 
 ## Description
 I've been working on this fork of WiiFlow for quite a long time for my own personal use and decided I should eventually release it.
@@ -18,6 +19,8 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 - If no categories ini file is found, a set of 20 basic categories (Action, platformer, racing...) is created.
 - Added ability to create new custom categories within WiiFlow interface.
 - Added ability to translate categories in language ini file.
+- Added a plugin editor menu
+- Added a new snapshot view to coverflow to use along with Wiimpathy's plugin snapshot databases.
 - Added ability to launch an explorer view within source menu and coverflow config menu (text list view of games without coverflow), all games including plugins can be launched from there.
 - The game folder browsed can be different from the one used by coverflow, and you can "import" games from this other folder to the coverflow, including CD based games (folder with BIN/CUE files).
 - CD based games (folder with BIN/CUE files) can now be deleted.
@@ -26,7 +29,7 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 - Added ability to display a game input guide for plugins in game menu.
 - Added other features to plugins (listed in plugins_readme.txt).
 - Added ability to create multiple emunand folders within WiiFlow interface.
-- You can quickly switch to a specific emunand using B+left / B+right.
+- You can quickly switch to a specific emunand using a controller shortcut.
 - Emunand folder can also be declared in source_menu.ini file for emunand source.
 - Inputs have been rewritten so that Wiimote can be used either in vertical mode or sideways (A is 2, B is 1).
 - All default images and useful binary files are now embedded in boot.dol, no more bins and images folder.
@@ -54,10 +57,15 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 ## Screenshots
 ![Keyboard](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/keyboard.png?raw=true)
 ![Categories](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/categories.png?raw=true)
+![Category options]
+(https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/category_options.png?raw=true)
 ![Settings](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/settings.png?raw=true)
+![Plugin editor](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/plugin_editor.png?raw=true)
+![Snapshot view](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/snapshot_view.png?raw=true)
 ![Cheats](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/cheats.png?raw=true)
 ![Game info](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/gameinfo.png?raw=true)
 ![Input guide](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/inputguide.png?raw=true)
 
 ## Booting
-To start WiiFlow Mod6 you will need the Homebrew Channel or a WiiFlow forwarder channel installed on your Wii or vWii system menu.
+To start WiiFlow Mod6 use the Homebrew Channel or install one of the WiiFlow forwarder channel you'll find on the release page
+https://github.com/iamerror80/WiiFlow_Mod6/releases

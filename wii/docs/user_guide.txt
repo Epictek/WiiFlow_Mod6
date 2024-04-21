@@ -4,7 +4,7 @@
 *                                                                                *
 **********************************************************************************
 
-Update January 21, 2024
+Update April 21, 2024
 
 1. Installing Wii and Gamecube games
 2. Installing Wii Channels and Virtual console games
@@ -185,7 +185,7 @@ On your PC, get Tetsuo Shima cover collections for emulators:
 
 https://gbatemp.net/threads/cover-collections-part-2.559649/
 
-You can also take a look at the older collection from Mastershoes:
+You can also take a look at the older collection from Mastershoes.
 
 Create a folder for each plugin and put:
 
@@ -552,7 +552,7 @@ where "coverfolder" is the same subfolder name used by the plugin for covers.
 
 You can add a banner to any plugin game by creating a BNR file.
 You'll find more information about how to do this here:
-https://sites.google.com/site/wiibannerguide/
+https://gbatemp.net/threads/wii-banner-creation-editing-guide.291151/
 
 Rename the *.bnr file to the rom name with extension (rom_name.ext.bnr) and place the file into 
 dev:/wiiflow/custom_banners/[coverfolder]
@@ -563,10 +563,9 @@ where "coverfolder" is the same subfolder name used by the plugin for covers.
 			16. Adding fanart backgrounds and animations
 ==================================================================================
 
-You can add a fanart custom background with animation to any game. You'll find more information about how to do this here:
-https://sites.google.com/site/wiiflowiki4/wiiflow-fanart
+You can add a fanart custom background with animation to any game.
 
-You'll also find a set of premade fanart themes shared by fledge68 here:
+You'll find a set of premade fanart themes shared by fledge68 here:
 http://www.mediafire.com/?bmqi2md844ayc
 
 Place the fanart folder for each game into 
