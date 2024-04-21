@@ -57,8 +57,7 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 ## Screenshots
 ![Keyboard](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/keyboard.png?raw=true)
 ![Categories](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/categories.png?raw=true)
-![Category options]
-(https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/category_options.png?raw=true)
+![Category options](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/category_options.png?raw=true)
 ![Settings](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/settings.png?raw=true)
 ![Plugin editor](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/plugin_editor.png?raw=true)
 ![Snapshot view](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/snapshot_view.png?raw=true)
