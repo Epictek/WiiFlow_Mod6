@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Cache
         id: cache-1
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: cache
           key: ${{ runner.os }}-cache-1
@@ -48,7 +48,7 @@ jobs:
           echo "sha=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with: 
           name: wiiflow_lite_${{ env.sha }}
           path: |

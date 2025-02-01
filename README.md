@@ -1,7 +1,6 @@
 # WiiFlow Mod6
 The unofficial WiiFlow 6
 https://github.com/iamerror80/WiiFlow_Mod6/releases
-January 2025 important note: the folder structure issue in main zip file that prevented the app from booting has been fixed.
 
 January 2025 important note: the folder structure issue in main zip file that prevented the app from booting has been fixed.
 
