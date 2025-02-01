@@ -4,14 +4,14 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache
         id: cache-1
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: cache
           key: ${{ runner.os }}-cache-1
@@ -41,16 +41,15 @@ jobs:
         run: |
           PATH=$(pwd)/devkitpro/devkitPPC/bin:$PATH DEVKITPPC=$(pwd)/devkitpro/devkitPPC DEVKITPRO=$(pwd)/devkitpro make
       - name: Package
-        id: pack
         run: |
           cp -r wii/apps apps
           mkdir -p apps/wiiflow/
           cp out/boot.dol apps/wiiflow/
-          echo "::set-output name=sha::$(echo ${GITHUB_SHA} | head -c 7)"
+          echo "sha=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with: 
-          name: wiiflow_lite_${{ steps.pack.outputs.sha }}
+          name: wiiflow_lite_${{ env.sha }}
           path: |
             apps

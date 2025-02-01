@@ -2,6 +2,8 @@
 The unofficial WiiFlow 6
 https://github.com/iamerror80/WiiFlow_Mod6/releases
 
+January 2025 important note: the folder structure issue in main zip file that prevented the app from booting has been fixed.
+
 ## Description
 I've been working on this fork of WiiFlow for quite a long time for my own personal use and decided I should eventually release it.
 It brings back some features of WiiFlow 4 and many new features and quality of life changes.
@@ -57,8 +59,7 @@ It brings back some features of WiiFlow 4 and many new features and quality of l
 ## Screenshots
 ![Keyboard](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/keyboard.png?raw=true)
 ![Categories](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/categories.png?raw=true)
-![Category options]
-(https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/category_options.png?raw=true)
+![Category options](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/category_options.png?raw=true)
 ![Settings](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/settings.png?raw=true)
 ![Plugin editor](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/plugin_editor.png?raw=true)
 ![Snapshot view](https://github.com/iamerror80/WiiFlow_Mod6/blob/master/wii/wiiflow/screenshots/snapshot_view.png?raw=true)
