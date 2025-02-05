@@ -751,14 +751,9 @@ int CMenu::_loadGameIOS(u8 gameIOS, int userIOS, bool RealNAND_Channels)
 		return LOAD_IOS_SUCCEEDED;
 	}	
 	
-	/*  If IOS is not 'auto' and set to a specific cIOS then set gameIOS to that cIOS if it's installed */
-	if(userIOS)
+	/*  If IOS is not 'default' and set to a specific cIOS then set gameIOS to that cIOS if it's installed */
+	if(userIOS) // We need to find it in case the gameconfig has been manually edited or that cios deleted
 	{
-		/**/
-		gameIOS = userIOS;
-		/**/
-		/** We need to find it in case the gameconfig has been manually edited or that cios deleted. **/
-		/**
 		bool found = false;
 		for(CIOSItr itr = _installed_cios.begin(); itr != _installed_cios.end(); itr++)
 		{
@@ -771,7 +766,6 @@ int CMenu::_loadGameIOS(u8 gameIOS, int userIOS, bool RealNAND_Channels)
 		}
 		if(!found)
 			gameIOS = mainIOS;
-		**/
 	}
 	else
 		gameIOS = mainIOS; // mainIOS is usually 249 unless changed by boot args or on startup settings

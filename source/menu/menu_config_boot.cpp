@@ -41,7 +41,7 @@ void CMenu::_showConfigBoot(bool instant)
 	if(cur_ios > 0)
 		m_btnMgr.setText(m_configLblVal[2], wfmt(L"%i", cur_ios));
 	else
-		m_btnMgr.setText(m_configLblVal[2], L"AUTO"); // cIOS 249 unless the user changed it via the meta.xml
+		m_btnMgr.setText(m_configLblVal[2], _t("def", L"Default")); // cIOS 249 unless the user changed it via the meta.xml
 	//! Set USB port 0 or 1
 	m_btnMgr.setText(m_configLbl[3], _t("cfgbt4", L"USB port"));
 	m_btnMgr.setText(m_configLblVal[3], wfmt(L"%i", set_port));

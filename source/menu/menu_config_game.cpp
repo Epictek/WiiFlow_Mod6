@@ -484,17 +484,11 @@ void CMenu::_showGameSettings(bool instant, bool dvd)
 			m_btnMgr.setText(m_configLblTitle, _t("cfgg93", L"Compatibility"));
 			//! CIOS
 			m_btnMgr.setText(m_configLbl[3], _t("cfgg10", L"cIOS"));
-			int j = 0;
-			if(m_gcfg2.getInt(GameHdr->id, "ios", &j) && _installed_cios.size() > 0)
-			{
-				CIOSItr itr = _installed_cios.find(j);
-				j = (itr == _installed_cios.end()) ? 0 : itr->first;
-			}
-			else j = 0;
+			int j = m_gcfg2.getInt(GameHdr->id, "ios", 0);
 			if(j > 0)
 				m_btnMgr.setText(m_configLblVal[3], wfmt(L"%i", j));
 			else
-				m_btnMgr.setText(m_configLblVal[3], L"AUTO");
+				m_btnMgr.setText(m_configLblVal[3], _t("def", L"Default"));
 			m_btnMgr.show(m_configLbl[3], instant);
 			m_btnMgr.show(m_configLblVal[3], instant);
 			m_btnMgr.show(m_configBtnM[3], instant);
