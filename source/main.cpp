@@ -152,30 +152,12 @@ int main(int argc, char **argv)
 		m_vid.usbImage(false); // splash usb not connected
 	DeviceHandle.SetMountUSB(usingUSB);
 	
-	bool usb_mounted = false;
-	int retry_count = 0;
-	const int MAX_RETRIES = 5; // Maximum number of retries before asking user
-	
-	while(usingUSB && !usb_mounted && retry_count < MAX_RETRIES)
-	{
-		usb_mounted = DeviceHandle.MountAllUSB();
-		if(!usb_mounted)
-		{
-			retry_count++;
-			if(retry_count < MAX_RETRIES)
-			{
-				// Wait a bit before retrying
-				usleep(1000000); // Wait 1 second between retries
-				continue;
-			}
-		}
-	}
+	bool usb_mounted = DeviceHandle.MountAllUSB();
 	
 	if(!usb_mounted)
 	{
-		DeviceHandle.SetMountUSB(false);
 		// Power cycle the Wii instead of enabling SD-only mode
-		gprintf("No USB device found after %d retries. Power cycling Wii...\n", MAX_RETRIES);
+		gprintf("No USB device found. Power cycling Wii...\n");
 		ShutdownBeforeExit(); // unmount devices and close inputs
 		Sys_Exit(); // This will power cycle the Wii
 	}
