@@ -1,4 +1,3 @@
-
 #include <ogc/system.h>
 
 #include "defines.h"
@@ -152,15 +151,33 @@ int main(int argc, char **argv)
 	if(usingUSB && showFlashImg)
 		m_vid.usbImage(false); // splash usb not connected
 	DeviceHandle.SetMountUSB(usingUSB);
-	bool usb_mounted = DeviceHandle.MountAllUSB(); // only mounts any USB if usingUSB
+	
+	bool usb_mounted = false;
+	int retry_count = 0;
+	const int MAX_RETRIES = 5; // Maximum number of retries before asking user
+	
+	while(usingUSB && !usb_mounted && retry_count < MAX_RETRIES)
+	{
+		usb_mounted = DeviceHandle.MountAllUSB();
+		if(!usb_mounted)
+		{
+			retry_count++;
+			if(retry_count < MAX_RETRIES)
+			{
+				// Wait a bit before retrying
+				usleep(1000000); // Wait 1 second between retries
+				continue;
+			}
+		}
+	}
+	
 	if(!usb_mounted)
 	{
-		DeviceHandle.SetMountUSB(false); // in case usingUSB was true and MountUSB failed
-		if(!sdOnly) // set SD Only to on in case it was off and USB failed to mount
-		{
-			sdOnly = true;
-			InternalSave.SaveSDOnly();
-		}
+		DeviceHandle.SetMountUSB(false);
+		// Power cycle the Wii instead of enabling SD-only mode
+		gprintf("No USB device found after %d retries. Power cycling Wii...\n", MAX_RETRIES);
+		ShutdownBeforeExit(); // unmount devices and close inputs
+		Sys_Exit(); // This will power cycle the Wii
 	}
 	else if(showFlashImg)
 		m_vid.usbImage(true); // splash usb connected
