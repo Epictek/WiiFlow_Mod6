@@ -233,7 +233,7 @@ private:
 	TexData m_onePlayerOn;
 	TexData m_multiPlayerOff;
 	TexData m_multiPlayerOn;
-	TexData m_configBtn;
+	s16 m_configBtn[10];
 	TexData m_configBtnS;
 
 	/* Game selected */
