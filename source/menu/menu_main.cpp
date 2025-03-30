@@ -1,4 +1,3 @@
-
 // #include <unistd.h>
 // #include <fstream>
 // #include <sys/stat.h>
@@ -644,7 +643,7 @@ int CMenu::main(void)
 					continue;
 				}
 				_getCustomBgTex();
-				_showMain();
+				_showMain();				
 			}
 			/** Change coverflow view **/
 			else if(m_btnMgr.selected(m_mainBtnHome))
@@ -1449,6 +1448,13 @@ void CMenu::_setCFVersion(int version)
 
 void CMenu::exitHandler(int ExitTo)
 {
+	/* Check if exit is disabled */
+	if(m_cfg.getBool(general_domain, "disable_exit", false))
+	{
+		_error(_t("cfg721", L"Exit functionality is disabled"));
+		return;
+	}
+
 	/* Write thumbnail view status and category start page to config */
 	m_cfg.setBool(general_domain, "thumbnails", m_thumbnail);
 	m_cfg.setInt(general_domain, "cat_startpage", m_catStartPage);

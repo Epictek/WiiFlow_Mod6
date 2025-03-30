@@ -1,4 +1,3 @@
-
 #include "menu.hpp"
 #include "channel/nand_save.hpp"
 
@@ -54,12 +53,15 @@ void CMenu::_showConfigBoot(bool instant)
 	m_checkboxBtn[5] = cur_load == 0 ? m_configChkOff[5] : m_configChkOn[5];
 	//! Mount SD only
 	m_btnMgr.setText(m_configLbl[6], _t("cfg719", L"Mount SD only"));
-	m_checkboxBtn[6] = sdOnly == 0 ? m_configChkOff[6] : m_configChkOn[6];
+	m_checkboxBtn[6] = cur_load == 0 ? m_configChkOff[6] : m_configChkOn[6];
+	//! Disable exit
+	m_btnMgr.setText(m_configLbl[7], _t("cfg720", L"Disable exit"));
+	m_checkboxBtn[7] = m_cfg.getBool(general_domain, "disable_exit", false) ? m_configChkOn[7] : m_configChkOff[7];
 	//! Force standby mode if WC24 enabled (ignore idle)
-	m_btnMgr.setText(m_configLbl[7], _t("cfg725", L"Ignore idle shutdown"));
-	m_checkboxBtn[7] = m_cfg.getOptBool(general_domain, "force_standby", 0) == 0 ? m_configChkOff[7] : m_configChkOn[7];
+	m_btnMgr.setText(m_configLbl[8], _t("cfg725", L"Ignore idle shutdown"));
+	m_checkboxBtn[8] = m_cfg.getOptBool(general_domain, "force_standby", 0) == 0 ? m_configChkOff[8] : m_configChkOn[8];
 
-	for(i = 2; i < 8; ++i)
+	for(i = 2; i < 9; ++i)
 		m_btnMgr.show(m_configLbl[i], instant);
 	for(i = 2; i < 5; ++i)
 	{
@@ -67,7 +69,7 @@ void CMenu::_showConfigBoot(bool instant)
 		m_btnMgr.show(m_configBtnM[i], instant);
 		m_btnMgr.show(m_configBtnP[i], instant);
 	}
-	for(i = 5; i < 8; ++i)
+	for(i = 5; i < 9; ++i)
 		m_btnMgr.show(m_checkboxBtn[i], instant);
 }
 
@@ -142,11 +144,17 @@ void CMenu::_configBoot(void)
 				_showConfigBoot(true);
 				m_btnMgr.setSelected(m_checkboxBtn[6]);
 			}
-			else if(m_btnMgr.selected(m_checkboxBtn[7])) // force standby (if wc24)
+			else if(m_btnMgr.selected(m_checkboxBtn[7])) // disable exit
+			{
+				m_cfg.setBool(general_domain, "disable_exit", !m_cfg.getBool(general_domain, "disable_exit"));
+				_showConfigBoot(true);
+				m_btnMgr.setSelected(m_checkboxBtn[7]);
+			}
+			else if(m_btnMgr.selected(m_checkboxBtn[8])) // force standby (if wc24)
 			{
 				m_cfg.setBool(general_domain, "force_standby", !m_cfg.getBool(general_domain, "force_standby"));
 				_showConfigBoot(true);
-				m_btnMgr.setSelected(m_checkboxBtn[7]);
+				m_btnMgr.setSelected(m_checkboxBtn[8]);
 			}
 		}
 	}
