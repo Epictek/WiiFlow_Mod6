@@ -1,4 +1,3 @@
-
 // #include <unistd.h>
 // #include <fstream>
 // #include <sys/stat.h>
@@ -644,7 +643,7 @@ int CMenu::main(void)
 					continue;
 				}
 				_getCustomBgTex();
-				_showMain();
+				_showMain();				
 			}
 			/** Change coverflow view **/
 			else if(m_btnMgr.selected(m_mainBtnHome))
@@ -1464,6 +1463,14 @@ void CMenu::exitHandler(int ExitTo)
 	{
 		ExitTo = m_cfg.getBool(general_domain, "force_standby", false) ? SHUTDOWN_STANDBY : POWEROFF_CONSOLE;
 	}
+	
+	// Check if exit is disabled
+	if(ExitTo == 4) // Disabled option
+	{
+		m_exit = false; // Prevent exit
+		return;
+	}
+	
 	if(ExitTo != WIIFLOW_DEF) // if not using wiiflows exit option then go ahead and set the exit to
 		Sys_ExitTo(ExitTo);
 }

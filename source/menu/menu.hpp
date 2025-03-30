@@ -894,7 +894,7 @@ private:
 	static const SOption _vidModePatch[4];
 	static const SOption _debugger[3];
 	static const SOption _hooktype[8];
-	static const SOption _exitTo[4];
+	static const SOption _exitTo[5];
 	static const SOption _AddRegionCover[10];
 	static const SOption _privateServer[3];
 	static const SOption _DeflickerOptions[7];

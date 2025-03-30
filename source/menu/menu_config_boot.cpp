@@ -1,4 +1,3 @@
-
 #include "menu.hpp"
 #include "channel/nand_save.hpp"
 
@@ -10,11 +9,12 @@ template <class T> static inline T loopNum(T i, T s)
 }
 
 /* Exit to */
-const CMenu::SOption CMenu::_exitTo[4] = {
+const CMenu::SOption CMenu::_exitTo[5] = {
 	{ "menu", L"Wii Menu" },
 	{ "homebrew", L"Homebrew" },	
 	{ "shutdown", L"Shutdown" },
 	{ "wiiu", L"WiiU" },
+	{ "disabled", L"Disabled" },
 };
 
 void CMenu::_showConfigBoot(bool instant)
