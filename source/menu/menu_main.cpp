@@ -670,7 +670,6 @@ int CMenu::main(void)
 						_setMainBg();
 						m_clearCats = false;
 						_showCF(true);
-						continue;
 					}
 					else // show source menu
 					{
@@ -805,7 +804,6 @@ int CMenu::main(void)
 			{
 				const char *domain = _domainFromView();
 				int sort = m_cfg.getInt(domain, "sort", SORT_ALPHA);
-				bool sortChange = false;
 				cancel_bheld = true;
 				{
 					_hideMain();
@@ -822,7 +820,6 @@ int CMenu::main(void)
 							{
 								sort = SORT_ALPHA;
 								m_cfg.setInt(domain, "sort", sort);
-								sortChange = true;
 								_initCF();
 							}
 							CoverFlow.findTitle(c, true); // actually jump to letter
@@ -1196,12 +1193,16 @@ void CMenu::_initMainMenu()
 
 	m_mainBtnHome = _addPicButton("MAIN/MENU_BTN", texHome, texHomeS, 113, 410, 42, 42);
 	m_mainBtnCateg = _addPicButton("MAIN/CATEG_BTN", texCateg, texCategS, 175, 410, 42, 42);
-	m_mainBtnFavoritesOff = _addPicButton("MAIN/MENU", m_favoritesOff, m_favoritesOff, 20, 400, 50, 50);
-	m_mainBtnFavoritesOn = _addPicButton("MAIN/MENU", m_favoritesOn, m_favoritesOn, 20, 400, 50, 50);
-	m_mainBtnDVD = _addPicButton("MAIN/DVD_BTN", texDVD, texDVDS, 299, 410, 42, 42);
-	m_mainBtnFind = _addPicButton("MAIN/FIND_BTN", texFind, texFindS, 361, 410, 42, 42);
-	m_mainBtnView = _addPicButton("MAIN/VIEW_BTN", texView, texViewS, 423, 410, 42, 42);
-	m_mainBtnConfig = _addPicButton("MAIN/MENU", m_configBtn, m_configBtn, 200, 400, 50, 50);
+	m_mainBtnFavoritesOff = _addPicButton("MAIN/FAVORITES_OFF", texFavOff, texFavOffS, 237, 410, 42, 42);
+	m_mainBtnFavoritesOn = _addPicButton("MAIN/FAVORITES_ON", texFavOn, texFavOnS, 237, 410, 42, 42);
+	m_mainBtnOnePlayerOff = _addPicButton("MAIN/ONE_PLAYER_OFF", texFavOff, texFavOffS, 299, 410, 42, 42);
+	m_mainBtnOnePlayerOn = _addPicButton("MAIN/ONE_PLAYER_ON", texFavOn, texFavOnS, 299, 410, 42, 42);
+	m_mainBtnMultiPlayerOff = _addPicButton("MAIN/MULTI_PLAYER_OFF", texFavOff, texFavOffS, 361, 410, 42, 42);
+	m_mainBtnMultiPlayerOn = _addPicButton("MAIN/MULTI_PLAYER_ON", texFavOn, texFavOnS, 361, 410, 42, 42);
+	m_mainBtnDVD = _addPicButton("MAIN/DVD_BTN", texDVD, texDVDS, 423, 410, 42, 42);
+	m_mainBtnFind = _addPicButton("MAIN/FIND_BTN", texFind, texFindS, 485, 410, 42, 42);
+	m_mainBtnView = _addPicButton("MAIN/VIEW_BTN", texView, texViewS, 547, 410, 42, 42);
+	m_mainBtnConfig = _addPicButton("MAIN/CONFIG_BTN", texConfig, texConfigS, 609, 410, 42, 42);
 
 	m_mainBtnPrev = _addPicButton("MAIN/PREV_BTN", texPrev, texPrevS, 20, 200, 80, 80);
 	m_mainBtnNext = _addPicButton("MAIN/NEXT_BTN", texNext, texNextS, 540, 200, 80, 80);
@@ -1248,12 +1249,12 @@ void CMenu::_initMainMenu()
 
 	_setHideAnim(m_mainBtnHome, "MAIN/MENU_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnCateg, "MAIN/CATEG_BTN", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnFavoritesOff, "MAIN/MENU", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnFavoritesOn, "MAIN/MENU", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnFavoritesOff, "MAIN/FAVORITES_OFF", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnFavoritesOn, "MAIN/FAVORITES_ON", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnDVD, "MAIN/DVD_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnFind, "MAIN/FIND_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnView, "MAIN/VIEW_BTN", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnConfig, "MAIN/MENU", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnConfig, "MAIN/CONFIG_BTN", 0, 40, 0.f, 0.f);
 	
 	_setHideAnim(m_mainBtnPrev, "MAIN/PREV_BTN", 0, 0, 0.f, 0.f);
 	_setHideAnim(m_mainBtnNext, "MAIN/NEXT_BTN", 0, 0, 0.f, 0.f);

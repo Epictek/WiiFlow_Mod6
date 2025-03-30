@@ -227,6 +227,14 @@ private:
 	TexData texPrevS;
 	TexData texNext;
 	TexData texNextS;
+	TexData m_favoritesOff;
+	TexData m_favoritesOn;
+	TexData m_onePlayerOff;
+	TexData m_onePlayerOn;
+	TexData m_multiPlayerOff;
+	TexData m_multiPlayerOn;
+	TexData m_configBtn;
+	TexData m_configBtnS;
 
 	/* Game selected */
 	int snapbg_x, snapbg_y, snapbg_w, snapbg_h;
