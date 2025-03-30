@@ -309,7 +309,6 @@ private:
 	s16 m_configLblTitle;
 	s16 m_configLblUser[4];
 	
-	s16 m_configBtn[10];
 	s16 m_configLbl[10];
 	s16 m_configLblVal[10];
 	s16 m_configBtnM[10];
