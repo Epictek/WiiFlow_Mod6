@@ -46,6 +46,7 @@ static const wstringEx PLAYER_BATTERY_LABEL("P1 %003.f%% | P2 %003.f%% | P3 %003
 bool CMenu::_Home(void)
 {
 	SetupInput();
+	_hideHome();
 	_showHome();
 	enlargeButtons = true;
 
@@ -61,6 +62,12 @@ bool CMenu::_Home(void)
 			min((float)wd[1]->battery_level, 100.f), min((float)wd[2]->battery_level, 100.f), min((float)wd[3]->battery_level, 100.f)));
 		if(BTN_HOME_PRESSED)
 		{
+			/* Check if exit is disabled */
+			if(m_cfg.getBool(general_domain, "disable_exit", false))
+			{
+				_error(_t("cfg721", L"Exit functionality is disabled"));
+				break;
+			}
 			if(isWiiVC)
 				exitHandler(EXIT_TO_MENU);
 			else
@@ -77,6 +84,12 @@ bool CMenu::_Home(void)
 		{
 			if(m_btnMgr.selected(m_homeBtnExitTo))
 			{
+				/* Check if exit is disabled */
+				if(m_cfg.getBool(general_domain, "disable_exit", false))
+				{
+					_error(_t("cfg721", L"Exit functionality is disabled"));
+					break;
+				}
 				_hideHome();
 				if(isWiiVC)
 				{
@@ -111,7 +124,7 @@ bool CMenu::_Home(void)
 			else if(m_btnMgr.selected(m_homeBtnClose))
 				break;
 		}
-		
+
 		/* Show header and footer */
 		if(m_show_zone_header)
 		{
