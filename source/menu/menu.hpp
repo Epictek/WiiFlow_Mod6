@@ -913,6 +913,14 @@ private:
 	void _FTP();
 	bool m_init_ftp;
 	bool m_ftp_inited;
+
+	s16 m_mainBtnFavoritesOn;
+	s16 m_mainBtnFavoritesOff;
+	s16 m_mainBtnOnePlayerOn;
+	s16 m_mainBtnOnePlayerOff;
+	s16 m_mainBtnMultiPlayerOn;
+	s16 m_mainBtnMultiPlayerOff;
+	s16 m_mainBtnConfig;
 };
 
 extern CMenu mainMenu;

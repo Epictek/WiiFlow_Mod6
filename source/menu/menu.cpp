@@ -1,4 +1,3 @@
-
 // #include <fstream>
 // #include <sys/stat.h>
 // #include <dirent.h>
@@ -1911,6 +1910,10 @@ void CMenu::_initCF(bool dumpGameList)
 	u8 numSelCats = selectedCats.length();
 	u8 numHidCats = hiddenCats.length();
 	
+	// Add player count filter
+	bool filterOnePlayer = m_cfg.getBool(general_domain, "filter_one_player", false);
+	bool filterMultiPlayer = m_cfg.getBool(general_domain, "filter_multi_player", false);
+	
 	char id[74];
 	char catID[64];	
 
@@ -1952,6 +1955,26 @@ void CMenu::_initCF(bool dumpGameList)
 		
 		if((!m_favorites || m_gcfg1.getBool(favDomain, id, false)) && (!m_locked || !m_gcfg1.getBool(adultDomain, id, false)))
 		{
+			// Apply player count filter
+			if(filterOnePlayer || filterMultiPlayer)
+			{
+				int players = 1;
+				if(hdr->type != TYPE_HOMEBREW)
+				{
+					GameTDB gametdb;
+					if(gametdb.OpenFile(m_cacheDir.c_str()))
+					{
+						players = gametdb.GetPlayers(id);
+						gametdb.CloseFile();
+					}
+				}
+				
+				if(filterOnePlayer && players > 1)
+					continue;
+				if(filterMultiPlayer && players <= 1)
+					continue;
+			}
+			
 			string catDomain = "";
 			if(hdr->type == TYPE_CHANNEL)
 				catDomain = "NAND";

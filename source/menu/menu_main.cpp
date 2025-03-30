@@ -1,4 +1,3 @@
-
 // #include <unistd.h>
 // #include <fstream>
 // #include <sys/stat.h>
@@ -644,7 +643,7 @@ int CMenu::main(void)
 					continue;
 				}
 				_getCustomBgTex();
-				_showMain();
+				_showMain();				
 			}
 			/** Change coverflow view **/
 			else if(m_btnMgr.selected(m_mainBtnHome))
@@ -738,6 +737,44 @@ int CMenu::main(void)
 				m_btnMgr.show(m_mainLblView);
 			}
 			
+			/** Toggle 1 player games filter **/
+			else if((m_btnMgr.selected(m_mainBtnOnePlayerOn) || m_btnMgr.selected(m_mainBtnOnePlayerOff)) && !m_gameList.empty())
+			{
+				change = true;
+				bool currentFilter = m_cfg.getBool(general_domain, "filter_one_player", false);
+				m_cfg.setBool(general_domain, "filter_one_player", !currentFilter);
+				if(currentFilter)
+					m_cfg.setBool(general_domain, "filter_multi_player", false);
+				_initCF();
+				//! show new game total
+				m_showtimer = 150;
+				u32 totalGames = CoverFlow.size();
+				if(totalGames > 0)
+					m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
+				else
+					m_btnMgr.setText(m_mainLblView, _t("main5", L"No items"));
+				m_btnMgr.show(m_mainLblView);
+			}
+			
+			/** Toggle 2+ player games filter **/
+			else if((m_btnMgr.selected(m_mainBtnMultiPlayerOn) || m_btnMgr.selected(m_mainBtnMultiPlayerOff)) && !m_gameList.empty())
+			{
+				change = true;
+				bool currentFilter = m_cfg.getBool(general_domain, "filter_multi_player", false);
+				m_cfg.setBool(general_domain, "filter_multi_player", !currentFilter);
+				if(currentFilter)
+					m_cfg.setBool(general_domain, "filter_one_player", false);
+				_initCF();
+				//! show new game total
+				m_showtimer = 150;
+				u32 totalGames = CoverFlow.size();
+				if(totalGames > 0)
+					m_btnMgr.setText(m_mainLblView, wfmt(_fmt("main7", L"%i games"), totalGames));
+				else
+					m_btnMgr.setText(m_mainLblView, _t("main5", L"No items"));
+				m_btnMgr.show(m_mainLblView);
+			}
+			
 			/** Boot DVD in drive **/
 			else if(m_btnMgr.selected(m_mainBtnDVD))
 			{
@@ -746,7 +783,6 @@ int CMenu::main(void)
 				/* Create fake Header */
 				dir_discHdr hdr;
 				memset(&hdr, 0, sizeof(dir_discHdr));
-				// memcpy(&hdr.id, "dvddvd", 6); // this used to be set for neek2o
 				/* Boot the disc */
 				_launchWii(&hdr, true, !BTN_B_OR_1_HELD); // immediately if btn B held, otherwise settings
 				cancel_bheld = true;
@@ -771,23 +807,6 @@ int CMenu::main(void)
 				int sort = m_cfg.getInt(domain, "sort", SORT_ALPHA);
 				bool sortChange = false;
 				cancel_bheld = true;
-				/*
-				if(BTN_B_OR_1_HELD) // cycle sort modes
-				{
-					bUsed = true;
-					if(m_current_view & COVERFLOW_HOMEBREW)
-						sort = loopNum(sort + 1, SORT_YEAR); // alpha, playcount & lastplayed only
-					else if(m_current_view & COVERFLOW_PLUGIN) // alpha, playcount, lastplayed & year only
-						sort = loopNum(sort + 1, SORT_GAMEID);
-					else // change all other coverflow sort mode
-						sort = loopNum(sort + 1, SORT_MAX);
-					m_cfg.setInt(domain, "sort", sort);
-					sortChange = true;
-					_initCF(); // set coverflow to new sorting
-					CoverFlow._setCurPos(0); // force first cover of new sort as coverflow current position
-				}
-				else // search by first letters
-				*/
 				{
 					_hideMain();
 					char *c = NULL;
@@ -817,19 +836,11 @@ int CMenu::main(void)
 						}
 					}
 				}
-				//! set sort mode text and display it
-				if(sortChange)
-				{
-					m_showtimer = 150;
-					m_btnMgr.setText(m_mainLblNotice, _sortLabel(sort));
-					m_btnMgr.show(m_mainLblNotice);
-				}
 			}
 			
 			/** Settings menu **/
 			else if(m_btnMgr.selected(m_mainBtnConfig) || m_btnMgr.selected(m_configBtnGo[7]))
 			{
-				// u8 page = m_btnMgr.selected(m_configBtnGo[7]) ? GAME_LIST : MAIN_SETTINGS;
 				_hideMain();
 				CoverFlow.fade(2);
 				if(BTN_B_OR_1_HELD) // shortcut to global settings
@@ -930,7 +941,6 @@ int CMenu::main(void)
 
 					if(BTN_PLUS_PRESSED) // boot random game immediately
 					{
-						// gprintf("Lets boot the random game number %u\n", place);
 						const dir_discHdr *gameHdr = CoverFlow.getSpecificHdr(place);
 						if(gameHdr != NULL)
 						{
@@ -1186,12 +1196,12 @@ void CMenu::_initMainMenu()
 
 	m_mainBtnHome = _addPicButton("MAIN/MENU_BTN", texHome, texHomeS, 113, 410, 42, 42);
 	m_mainBtnCateg = _addPicButton("MAIN/CATEG_BTN", texCateg, texCategS, 175, 410, 42, 42);
-	m_mainBtnFavoritesOff = _addPicButton("MAIN/FAVORITES_OFF", texFavOff, texFavOffS, 237, 410, 42, 42);
-	m_mainBtnFavoritesOn = _addPicButton("MAIN/FAVORITES_ON", texFavOn, texFavOnS, 237, 410, 42, 42);
+	m_mainBtnFavoritesOff = _addPicButton("MAIN/MENU", m_favoritesOff, m_favoritesOff, 20, 400, 50, 50);
+	m_mainBtnFavoritesOn = _addPicButton("MAIN/MENU", m_favoritesOn, m_favoritesOn, 20, 400, 50, 50);
 	m_mainBtnDVD = _addPicButton("MAIN/DVD_BTN", texDVD, texDVDS, 299, 410, 42, 42);
 	m_mainBtnFind = _addPicButton("MAIN/FIND_BTN", texFind, texFindS, 361, 410, 42, 42);
 	m_mainBtnView = _addPicButton("MAIN/VIEW_BTN", texView, texViewS, 423, 410, 42, 42);
-	m_mainBtnConfig = _addPicButton("MAIN/CONFIG_BTN", texConfig, texConfigS, 485, 410, 42, 42);
+	m_mainBtnConfig = _addPicButton("MAIN/MENU", m_configBtn, m_configBtn, 200, 400, 50, 50);
 
 	m_mainBtnPrev = _addPicButton("MAIN/PREV_BTN", texPrev, texPrevS, 20, 200, 80, 80);
 	m_mainBtnNext = _addPicButton("MAIN/NEXT_BTN", texNext, texNextS, 540, 200, 80, 80);
@@ -1238,12 +1248,12 @@ void CMenu::_initMainMenu()
 
 	_setHideAnim(m_mainBtnHome, "MAIN/MENU_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnCateg, "MAIN/CATEG_BTN", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnFavoritesOff, "MAIN/FAVORITES_OFF", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnFavoritesOn, "MAIN/FAVORITES_ON", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnFavoritesOff, "MAIN/MENU", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnFavoritesOn, "MAIN/MENU", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnDVD, "MAIN/DVD_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnFind, "MAIN/FIND_BTN", 0, 40, 0.f, 0.f);
 	_setHideAnim(m_mainBtnView, "MAIN/VIEW_BTN", 0, 40, 0.f, 0.f);
-	_setHideAnim(m_mainBtnConfig, "MAIN/CONFIG_BTN", 0, 40, 0.f, 0.f);
+	_setHideAnim(m_mainBtnConfig, "MAIN/MENU", 0, 40, 0.f, 0.f);
 	
 	_setHideAnim(m_mainBtnPrev, "MAIN/PREV_BTN", 0, 0, 0.f, 0.f);
 	_setHideAnim(m_mainBtnNext, "MAIN/NEXT_BTN", 0, 0, 0.f, 0.f);
