@@ -47,7 +47,7 @@ void CMenu::_showConfigBoot(bool instant)
 	m_btnMgr.setText(m_configLblVal[3], wfmt(L"%i", set_port));
 	//! Default exit (if HOME pressed in exit menu or if child lock)
 	m_btnMgr.setText(m_configLbl[4], _t("cfgc1", L"Default exit to")); // default exit
-	i = min(max(0, m_cfg.getInt(general_domain, "exit_to", 0)), (int)ARRAY_SIZE(CMenu::_exitTo) - 1 - !IsOnWiiU());
+	i = min(max(0, m_cfg.getInt(general_domain, "exit_to", 0)), (int)ARRAY_SIZE(CMenu::_exitTo) - 1);
 	m_btnMgr.setText(m_configLblVal[4], _t(CMenu::_exitTo[i].id, CMenu::_exitTo[i].text));
 	//! Boot cIOS on startup
 	m_btnMgr.setText(m_configLbl[5], _t("cfgbt2", L"Boot Wiiflow using cIOS"));
@@ -125,7 +125,7 @@ void CMenu::_configBoot(void)
 			else if(m_btnMgr.selected(m_configBtnP[4]) || m_btnMgr.selected(m_configBtnM[4])) // default exit
 			{
 				s8 direction = m_btnMgr.selected(m_configBtnP[4]) ? 1 : -1;
-				int exit_to = (int)loopNum(m_cfg.getUInt(general_domain, "exit_to", 0) + direction, ARRAY_SIZE(CMenu::_exitTo) - !IsOnWiiU());
+				int exit_to = (int)loopNum(m_cfg.getUInt(general_domain, "exit_to", 0) + direction, ARRAY_SIZE(CMenu::_exitTo));
 				m_cfg.setInt(general_domain, "exit_to", exit_to);
 				Sys_ExitTo(exit_to);
 				_showConfigBoot(true);
