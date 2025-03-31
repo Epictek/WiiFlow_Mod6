@@ -1452,6 +1452,14 @@ void CMenu::exitHandler(int ExitTo)
 	m_cfg.setBool(general_domain, "thumbnails", m_thumbnail);
 	m_cfg.setInt(general_domain, "cat_startpage", m_catStartPage);
 	
+	// Check if exit is disabled
+	int exit_to = m_cfg.getInt(general_domain, "exit_to", 0);
+	if(exit_to == 4) // Disabled option
+	{
+		m_exit = false; // Prevent exit
+		return;
+	}
+	
 	m_exit = true;
 	if(ExitTo == EXIT_TO_BOOTMII) // Bootmii, check that the files are there, or ios will hang
 	{
@@ -1462,13 +1470,6 @@ void CMenu::exitHandler(int ExitTo)
 	else if(ExitTo == POWEROFF_CONSOLE)
 	{
 		ExitTo = m_cfg.getBool(general_domain, "force_standby", false) ? SHUTDOWN_STANDBY : POWEROFF_CONSOLE;
-	}
-	
-	// Check if exit is disabled
-	if(ExitTo == 4) // Disabled option
-	{
-		m_exit = false; // Prevent exit
-		return;
 	}
 	
 	if(ExitTo != WIIFLOW_DEF) // if not using wiiflows exit option then go ahead and set the exit to
